@@ -6,8 +6,8 @@ library. You probably want to get the latest version (master) or one
 of the stable releases (release/x.y). To do this use one of the
 following:
 
-    git clone git@github.com:sgould/drwn.git darwin
     git clone https://github.com/sgould/drwn.git darwin
+    git clone git@github.com:sgould/drwn.git darwin
     svn co https://github.com/sgould/drwn darwin
 
 Previously the Darwin software was stored in an Subversion repository
