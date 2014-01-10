@@ -1,0 +1,40 @@
+ROSETTA PROJECT README
+
+This project demonstrates the inference algorithms available in the
+Darwin framework by testing them on the Rosetta Protein Design
+problems (Yanover et al., JMLR 2006).
+
+* DOWNLOADING THE DATA
+
+The dataset can be downloaded using the getRosettaData.sh
+script. Alternatively, you can fetch it manually from
+
+http://jmlr.csail.mit.edu/papers/volume7/yanover06a/Rosetta_Design_Dataset.tgz
+
+Warning: it is 2.5GB.
+
+* CONVERTING FORMATS
+
+The data is in Matlab format. The script rosetta2drwn.m converts it to
+an XML format that Darwin can recognize. The script
+convertRosettaData.sh will automatically convert all the design files
+and then compress them to save space. You must have Matlab or Octave
+installed to perform this step.
+
+You may need to install Chen Yanover's sparse cell class to read the
+data. It can be downloaded from:
+
+http://cyanover.fhcrc.org/sparse_cell_2.tgz
+
+* RUNNING INFERENCE
+
+The runRosettaExperiments.sh script runs different inference
+algorithms. Calling the script with no arguments will run inference on
+each of the design files (and creates a separate log for each
+one). Alternatively, you can call the script with the basename of the
+design file that you want to run inference on, e.g.,
+
+./runRosettaExperiments.sh 1bx7
+
+Warning: some inference routines take a very long time to complete.
+

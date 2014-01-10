@@ -1,0 +1,253 @@
+namespace drwn {
+/*@{*/
+
+/*!
+   \page drwnProjPatchMatch PatchMatchGraph Project
+
+   This project implements algorithms based on the PatchMatchGraph
+   data structure described in Gould and Zhang (ECCV 2012), which
+   extends the PatchMatch algorithm of Barnes et al., (SIGGRAPH, 2009;
+   ECCV 2010). The project is part of the \b Darwin software
+   package. Installation instructions and addtional documentation can
+   be found at http://drwn.anu.edu.au.
+
+   \note The implementation provided here is an improved version of
+   the algorithm that was used to report results in Gould and Zhang
+   (ECCV 2012). Specifically, this version incorporates the following
+   changes:
+   \li image pyramids are integral to the patchMatchGraph rather
+   that being externally generated
+   \li local and propagation moves search across adjacent pyramid
+   levels
+   \li the random search move samples patches from adjacent pyramid
+   levels
+
+   \note
+   Robustness and efficiency changes were also made.
+
+   The sample application \p patchMatchDemo demonstrates the
+   PatchMatchGraph construction on two images. The following command
+   line will run the code on two images \p imgA.jpg and \p imgB.jpg
+   and visualize the matches:
+   \code
+      ../../bin/patchMatchDemo -x -profile -verbose -m 100 \
+          -set drwnPatchMatch patchWidth 8 -set drwnPatchMatch patchHeight 8 \
+          imgA.jpg imgB.jpg
+   \endcode
+
+   The following shows an example visualization from the algorithm
+   where the left column shows the two images being matched, the
+   middle column shows the quality of the matches at each pixel
+   location (blue is better), and the right column shows a
+   reconstruction of each image using patches copied from the other
+   image.
+
+   \image html patchMatchDemoScreenshot.jpg
+
+   A more ellaborate example for building a PatchMatchGraph over
+   multiple images and then using this graph for label transfer is
+   described below.
+
+   \sa drwnPatchMatchGraph, drwnPatchMatchGraphLearner
+
+   \section drwnProjPatchMatchLearn Building a PatchMatchGraph
+
+   These instructions describe how to build a PatchMatchGraph over a
+   given set of images. We will use the example of the Polo dataset,
+   but the steps can easily be adapted to any dataset. The graphs can
+   be quite large so make sure you run on a machine with plenty of
+   memory.
+
+   First we will set up a few environment variables:
+   \code
+   set BIN_DIR = "${DARWIN}/bin/"
+
+   set IMAGE_LIST = "baseNames.txt"
+   set CONFIG = "poloConfig.xml"
+
+   set DATASET = "pmPolo"
+   set DATADIR = "data/images/"
+   \endcode
+   where \p BIN_DIR is set to the executables directory, \p IMAGE_LIST
+   contains the list of image basenames on which the graph will be
+   built, \p CONFIG contains some configuration parameters, \p
+   DATA_SET contains the name that will be used to save the
+   PatchMatchGraph and \p DATA_DIR points to the directory containing
+   the images.
+
+   A typical configuration file (\p poloConfig.xml) may look like:
+   \code
+   <drwn>
+    <drwnPatchMatch>
+      <option name="maxImageSize" value="160" />
+      <option name="maxPyramidLevels" value="8" />
+      <option name="patchWidth" value="8" />
+      <option name="patchHeight" value="8" />
+      <option name="K" value="10" />
+      <option name="decayRate" value="0.0" />
+      <option name="fwdEnrichment" value="10" />
+      <option name="allowHFlips" value="true" />
+      <option name="allowVFlips" value="false" />
+      <option name="localSearch" value="true" />
+      <option name="randomExhaustive" value="false" />
+    </drwnPatchMatch>
+
+    <drwnCodeProfiler enabled="true" />
+    <drwnLogger logLevel="VERBOSE" logFile="polo.log" />
+   </drwn>
+   \endcode
+
+   Note that the configuration parameters can also be set on the
+   command line via the \p -set \p drwnPatchMatch argument (see \ref
+   drwnConfigManagerDoc). For example, adding
+   \code
+   -set drwnPatchMatch maxImageSize 80
+   \endcode
+   to the command line (after the \p -config argument) would override
+   the \p maxImageSize option in the XML file.
+
+   The following command line will construct a PatchMatchGraph and
+   save it to three files \p ${DATASET}.meta, \p ${DATASET}.index and
+   \p ${DATASET}.data:
+   \code
+   ${BIN_DIR}/buildPatchMatchGraph -config ${CONFIG} \
+       -d ${DATADIR} -e .jpg -m 50 -o ${DATASET} ${IMAGE_LIST}
+   \endcode
+   
+   You can control how the graph is constructed by modifying the
+   various options in the XML configuration file. You can also prevent
+   subsets of images from matching between each other by using
+   equivalence classes. For example, providing the \p -eqv \p
+   ${EVAL_LIST} command line option to \p buildPatchMatchGraph will
+   create an equivalence class containing all images in the file \p
+   ${EVAL_LIST}. No edges in the PatchMatchGraph will be created
+   between these images. Multiple equivalence classes can be defined
+   with additional \p -eqv flags, e.g., \p -eqv \p ${EVAL_LIST} \p
+   -eqv -p ${TRAIN_LIST}.
+
+   \section drwnProjPatchMatchLabelTransfer Using a PatchMatchGraph for Label Transfer
+
+   The PatchMatchGraph constructed above can be used for semantic
+   segmentation by transfering labels from matched patches to the
+   image under test. The code makes use of the \ref drwnProjMultiSeg
+   infrastructure for visualizing and scoring results so you will need
+   to include the class definitions in the configuration file. For the
+   Polo dataset this is:
+   \code
+   <drwnMultiSegConfig>
+     <!-- data options -->
+     <option name="baseDir" value="./" />
+     <option name="imgDir" value="data/images/" />
+     <option name="lblDir" value="data/labels/" />
+     <option name="cacheDir" value="cached/" />
+     <option name="modelsDir" value="models/" />
+     <option name="outputDir" value="output/" />
+
+     <option name="imgExt" value=".jpg" />
+     <option name="lblExt" value=".txt" />
+
+     <option name="useCache" value="true" />
+
+     <!-- region definitions -->
+     <regionDefinitions>
+       <region id="-1" name="void" color="0 0 0"/>
+       <region id="0" name="grass" color="0 128 0"/>
+       <region id="1" name="ground" color="64 0 0"/>
+       <region id="2" name="horse" color="128 192 128"/>
+       <region id="3" name="person" color="128 64 0"/>
+       <region id="4" name="sky" color="128 128 128"/>
+       <region id="5" name="tree" color="128 128 0"/>
+     </regionDefinitions>
+   </drwnMultiSegConfig>
+   \endcode
+
+   Configuration files for the Polo, MSRC and Stanford Background
+   datasets are included in the project directory, \p
+   ${DARWIN}/projects/patchMatch.
+
+   The \p patchMatchLabelTransfer application implements label
+   transfer. Results can be generated and evaluated using:
+   \code
+    mkdir -p output
+
+    ${BIN_DIR}/patchMatchLabelTransfer -config ${CONFIG} \
+        -outLabels .pm.txt -outImages .pm.png ${DATASET} ${IMAGE_LIST}
+
+    ${BIN_DIR}/scorePixelLabels -config ${CONFIG} -confusion \
+        -inLabels .pm.txt ${IMAGE_LIST}
+   \endcode
+
+   Since the code is run on the entire dataset (and the images were
+   not broken up into equivalence classes) the results can be
+   interpreted as leave-one-out cross-validation (i.e., each image is
+   labeled using the rest of the dataset as training data). Using
+   these instructions you should be able to achieve the following
+   results on the Polo, Stanford Background and MSRC datasets:
+
+   <center>
+   <table border="1px" style="border-color:#cccccc; background-color: #f5f5f5; border-collapse:collapse;">
+   <tr>
+   <td><b>Dataset</b></td><td><b>Images</b></td><td><b>Patches</b></td>
+   <td><b>Memory</b></td><td><b>Build Time</b></td><td><b>Accuracy</b></td>
+   </tr>
+   <tr>
+   <td>6-Class Polo</td><td>317</td><td>9601972</td>
+   <td>4.9GB</td><td>0:54</td><td>89.0</td>
+   </tr>
+   <tr>
+   <td>8-Class Stanford</td><td>715</td><td>22566965</td>
+   <td>11GB</td><td>2:28</td><td>71.1</td>
+   </tr>
+   <tr>
+   <td>21-Class MSRC</td><td>591</td><td>17050254</td>
+   <td>8.4GB</td><td>1:42</td><td>68.5</td>
+   </tr>
+   </table>
+   </center>
+
+   With an equivalence class defined for the test set (and evaluation
+   on the test set images only) the following results should be
+   achieved:
+
+   <center>
+   <table border="1px" style="border-color:#cccccc; background-color: #f5f5f5; border-collapse:collapse;">
+   <tr>
+   <td><b>Dataset</b></td><td><b>Images</b></td><td><b>Test Images</b></td><td><b>Patches</b></td>
+   <td><b>Memory</b></td><td><b>Build Time</b></td><td><b>Accuracy</b></td>
+   </tr>
+   <tr>
+   <td>6-Class Polo</td><td>317</td><td>237</td><td>9601972</td>
+   <td>4.9GB</td><td>0:44</td><td>86.7</td>
+   </tr>
+   <tr>
+   <td>8-Class Stanford</td><td>715</td><td>143</td><td>22566965</td>
+   <td>11GB</td><td>2:14</td><td>69.6</td>
+   </tr>
+   <tr>
+   <td>21-Class MSRC</td><td>591</td><td>256</td><td>17050254</td>
+   <td>8.4GB</td><td>1:34</td><td>64.9</td>
+   </tr>
+   </table>
+   </center>
+   (Note that these differ slightly from Gould and Zhang (ECCV 2012)).
+
+   \section drwnProjPatchMatchRef References
+
+   \li Barnes, C., Shechtman, E., Finkelstein, A., Goldman, D.B.,
+   "PatchMatch: A randomized correspondence algorithm for structural
+   image editing." In SIGGRAPH, 2009.
+
+   \li Barnes, C., Shechtman, E., Goldman, D.B., Finkelstein, A., "The
+   generalized PatchMatch correspondence algorithm." In ECCV, 2010.
+
+   \li Barnes, C., "PatchMatch: A Fast Randomized Matching Algorithm
+   with Application to Image and Video." PhD Thesis, 2011.
+
+   \li S. Gould and Y. Zhang, "PatchMatchGraph: Building a Graph of
+   Dense Patch Correspondences for Label Transfer." In ECCV, 2012.
+   
+*/
+
+/*@}*/
+
+}

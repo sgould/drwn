@@ -1,0 +1,28 @@
+/* XPM */
+static char *db4_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 6 1",
+"  c black",
+". c #800000",
+"X c red",
+"o c yellow",
+"O c #C0C0C0",
+"+ c gray100",
+/* pixels */
+"OOOOOOOOOOOOOOOO",
+"OOOOO      OOOOO",
+"OO   oooooo   OO",
+"O oooooooooooo O",
+"O oooooooooooo O",
+"O    oooooo    O",
+"O +XX      ... O",
+"O X+XXX.XX.X.. O",
+"O +XXXXXX.X... O",
+"O    XX.XX.    O",
+"O X+X      X.. O",
+"O +XXXXXX.X... O",
+"O X+XXX.XX.X.. O",
+"OO   XXXX.X   OO",
+"OOOOO      OOOOO",
+"OOOOOOOOOOOOOOOO"
+};

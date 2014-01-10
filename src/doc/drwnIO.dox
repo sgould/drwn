@@ -1,0 +1,23 @@
+namespace drwn {
+/*@{*/
+
+// Class List ------------------------------------------------------------------
+
+/*!
+\section drwnIODef Class List for drwnIO
+
+\li drwnCompressionBuffer : \copybrief drwnCompressionBuffer
+\li \ref drwnIOUtils : \copybrief drwnIOUtils.h
+\li drwnPersistentRecord : \copybrief drwnPersistentRecord
+\li drwnPersistentStorage : \copybrief drwnPersistentStorage
+\li drwnPersistentStorageBuffer : \copybrief drwnPersistentStorageBuffer
+\li drwnPersistentVectorRecord : \copybrief drwnPersistentVectorRecord
+\li drwnPersistentVectorVectorRecord : \copybrief drwnPersistentVectorVectorRecord
+
+*/
+
+/*@}*/
+
+//! \addtogroup drwnIO
+
+};

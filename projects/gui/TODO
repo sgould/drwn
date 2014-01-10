@@ -1,0 +1,78 @@
+* DARWIN GUI/OTHER
+
+1. command line tools: databaseUtility (check, list, compress), evaluateGraph, ...
+2. client/server model; capability communication (plugins and versions)
+3. separate loading of gradient from data
+4. regression tests
+5. plugin architecture (dynamic libraries; registration) -- see http://www.yolinux.com/TUTORIALS/LibraryArchives-StaticAndDynamic.html
+6. last modified for tables and databases
+7. XML-ify the database files
+8. dataPort links (ghost ports)
+9. hierarchical groups in the node registry
+10. node descriptions in the node registry
+11. rework dataCache to work from table
+12. incorporate global objective in local re-estimation methods
+13. add most-recently used files (wxFileHistory)
+14. more efficient gui drawing when dragging, etc.
+15. check whether ports on the same node connect to the same source (can't lock when processing)
+16. graph dirty flag (check when closing/clearing)
+17. drwnStandardAdaptiveNode modeled off multi-class logistic
+18. scripting language (lua?)
+19. change evaluateForwards to always call updateForwards
+20. refactor the database classes
+21. Win32 matlab project
+22. fixed size vector and matrix options
+23. implement utility nodes subGraphNode and cloneNode (nodes in subGraph do not store records --- use for zero-memory operations)
+24. vacinity interface for port connectivity in GUI;
+25. examples
+26. documentation; cheatsheet
+27. add mask input to drwnBinaryOpNode
+28. bug: options in drwnOptionsEditor don't get set if Ok is clicked before navigating away from cell (on linux)
+29. add updatePorts() method to drwnMultiIONode (and call from read method -- see Matlab node); option to make num. input/output ports fixed (read-only)
+30. add norm methods to drwnBinaryOpNode
+31. verify GUI follows http://docs.wxwidgets.org/stable/wx_allocatingobjects.html#allocatingobjects
+32. enumerate datatypes (numerical, ordinal, categorical) and data structures (independent/sequence, chain, tree, grid/image, graph, hypergraph)
+33. html report output
+34. code export (with commandline options)
+35. record datatypes; input port accept types list and output port emits type
+36. templated (int, double) adaptive node base class (derived from multiIO node) (or classifier node vs. regression node)
+37. drwnAdaptiveOptimizationNode class (derived from drwnOptimizer and drwnAdaptiveNode)
+38. text mode for matrix/vector editor
+39. plugin registration for editors (e.g. Matlab matrix editor)
+40. bug: (non-binary) boosting performance can deteriorate with additional rounds (on training set)
+41. hierarchical properties (property can be a list of properties); displays as [+] in GUI
+42. output-only version of drwnGUIShellWindow
+43. drwnGUIImageViewerWindow for OpenCV nodes; allow multiple images at once; advance through images, etc.
+44. undo/redo feature in GUI; apply diff to XML serialization to reduce footprint (?)
+45. tidy up darwin.cpp application
+46. clean up drwnCompressionBuffer interface; compress database on table by table basis
+47. source nodes don't need to store data in database (can just re-read from source (?))
+48. why is drwnDatabase so slow when cache is full?
+49. split progress monitoring functionality from drwnLogger and make thread safe; check abort works when multiple loops
+50. change drwnDataRecord member access to indicate const/non-const modes
+51. python plugin (cf. Matlab)
+52. run drwnCacheManager in a separate thread; make library thread safe; pre-fetch records
+53. colour input to point cloud viewer
+54. bug: copying a node should not rename previous node's database table (on disk)
+55. allow confusion matrix to be constructed with weighted examples
+56. classifiers resume training is not initialized when train method is called
+57. read http://www.mpi-inf.mpg.de/~kettner/courses/lib_design_03/notes/advanced.html
+58. do away with drwnOptions class altogether; have writeOption, readOption utilities and getProperties member function; but will still need validator, so probably worth sticking with options
+59. add displayName in addition to className in factory registration
+60. lua plugin node (show version number in properties)
+61. separate in-memory records from persistent ones (faster pack() function)
+62. use hash_set (non-standard) instead of set in drwnDataTable
+63. update to OpenCV 2.2 and c++ interface
+64. change to Qt and use CMake
+
+** related software packages:
+1. spss clemintine
+2. sas enterprise miner
+3. rapidminer (formerly YALE)
+4. weka
+5. kepler (http://kepler-project.org)
+6. NICTA elefant
+7. Sonnenburg's SHOGUN
+8. Torch5
+9. Orange (http://www.ailab.si/orange/)
+10. MiLDe (NEC Labs)

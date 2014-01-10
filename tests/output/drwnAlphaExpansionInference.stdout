@@ -1,0 +1,16 @@
+--- map assignment has energy -1
+--- map assignment is  1 1 1 1
+--- drwnFactor class computed 0 products
+--- drwnFactor class computed 0 divisions
+--- drwnFactor class computed 0 additions
+--- drwnFactor class computed 0 subtractions
+--- drwnFactor class computed 0 marginals
+--- drwnFactor class computed 0 maximizations/minimizations
+--- drwnFactor class computed 0 reductions
+--- drwnFactor class computed 0 normalizations
+--- drwnFactor class computed 0 normalization errors
+--- drwnFactor class largest factor had 2 variables 
+--- drwnFactor class allocated 24 total entries
+--- drwnFactor class allocated 24 max. concurrent entries
+--- drwnFactor class allocated 0 current entries
+--- drwnFactor class allocated 4 entries in largest factor

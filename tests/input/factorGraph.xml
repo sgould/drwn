@@ -1,0 +1,60 @@
+<drwnFactorGraph>
+  <drwnVarUniverse nVariables="4" uniformCards="2" />
+
+  <factor type="drwnTableFactor">
+    <vars>0</vars>
+    <data rows="2" encoder="text">
+      0.0 -1.0
+    </data>
+  </factor>
+
+  <factor type="drwnTableFactor">
+    <vars>1</vars>
+    <data rows="2" encoder="text">
+      0.0 0.0
+    </data>
+  </factor>
+
+  <factor type="drwnTableFactor">
+    <vars>2</vars>
+    <data rows="2" encoder="text">
+      0.0 0.0
+    </data>
+  </factor>
+
+  <factor type="drwnTableFactor">
+    <vars>3</vars>
+    <data rows="2" encoder="text">
+      0.0 0.0
+    </data>
+  </factor>
+
+  <factor type="drwnTableFactor">
+    <vars>0 1</vars>
+    <data rows="4" encoder="text">
+      0.0 1.0 1.0 0.0
+    </data>
+  </factor>
+
+  <factor type="drwnTableFactor">
+    <vars>1 2</vars>
+    <data rows="4" encoder="text">
+      0.0 1.0 1.0 0.0
+    </data>
+  </factor>
+
+  <factor type="drwnTableFactor">
+    <vars>2 3</vars>
+    <data rows="4" encoder="text">
+      0.0 1.0 1.0 0.0
+    </data>
+  </factor>
+
+  <factor type="drwnTableFactor">
+    <vars>3 0</vars>
+    <data rows="4" encoder="text">
+      0.0 1.0 1.0 0.0
+    </data>
+  </factor>
+
+</drwnFactorGraph>

@@ -1,0 +1,240 @@
+namespace drwn {
+
+/*!
+    \page codingGuidelines Coding Guidelines
+
+    <em>"Software is written for people, not for machines."</em> --- anon.
+
+    The key to successful (large) programming projects, like any other
+    project, involves planning, management, and testing. The amount of
+    time, effort and emphasis placed on each of these three components
+    depends on the size of the project, the expected/desired outcomes,
+    and the experience of the people involved. Consistency in design
+    and implementation is also key to success, especially for ongoing
+    software projects, and is what we will address in this article by
+    outlining some (fairly standard) coding conventions that are used
+    in the \b Darwin project. These conventions will make the project
+    more manageable over time especially when many different people
+    are involved.
+
+    It is absolutely guaranteed that some users will not like the
+    style guidelines, and that others will even hate them. Everyone
+    has their own style which they prefer to use on their own
+    projects. As Grace Murray Hooper once said: "The great thing about
+    standards is that there are so many of them to choose from."
+    However, as part of a collective effort, your team-mates, as well
+    as yourself, will benefit greatly from the uniformity that a fixed
+    set of style guidelines offer.
+
+    Finally, since the \b Darwin framework is designed to be
+    platform-independent, it is essential that you make don't
+    implement any platform specific functionality (or atleast provide
+    generic implementations for other platforms). Following these
+    guidelines will help reduce the amount of incompatibility
+    introduced by developing in multiple environments.
+
+    Finally, before writing a new class or function, check to see
+    whether one already exists that does what you want, or nearly what
+    you want. Can that function be generalized to meet your needs?
+    However, before making changes to library functions, think about
+    how these changes will affect code alreay using these functions.
+
+    \section drwnCodingSourceControl Source Control
+    
+    \li Always use a source/revision control system. \b Darwin uses
+    Subversion (SVN), http://subversion.apache.org/. Other good
+    systems include Mecurial, Git and Perforce (commercial).
+
+    \li Check-in all code, configuration files and scripts necessary
+    for rebuilding a project from a clean environment. Do not check-in
+    files that can be regenerated or easily downloaded from somewhere
+    else (e.g., third-party libraries).
+
+    \li In direct contradiction to the above, it is sometimes useful to
+    check-in (non-standard) external packages that the project requires.
+
+    \li Don't forget to add new source and header files before doing a commit.
+
+    \li The latest code checked into the repository is assumed to be
+    correct. Always make sure you merge your code with the latest
+    revision before checking in (i.e., <tt>svn update</tt> before
+    <tt>svn commit</tt>). If you're working on something experimental
+    then create a separate branch which you can merge later.
+
+    \li Always make sure your code compiles and passes any regression
+    tests before checking-in. Remember if you break something it's
+    likely to affect a lot of other people.
+
+    \li Check-in code regularly. Don't be afraid to check-in small
+    changes. As mentioned above, if you're working on something big
+    then create a separate branch and merge later.
+
+    \li Add comments when you check-in code. This will help people
+    (including yourself) understand what you were trying to do when
+    they check-out your code and it doesn't work.
+
+    \section drwnCodingStructure Structure
+
+    \li Always include a header comment at the top of each file. The
+    header should include the name of the project, name of the file,
+    sometimes a copyright notice, and most importantly your name and
+    email address.
+
+    \li Group the declaration of public and private members. Separate
+    the declaration of methods from variables.
+
+    \li Likewise, group common header files together, starting from
+    standard headers (e.g., <tt>stl</tt>) through to project specific
+    headers.
+
+    \li Declare constructors and destructors before other methods.
+    
+    \li Declare like-functions together.
+
+    \li Always implement functions in the \a same order in which they
+    are declared in header files or in the prototype section at the
+    top of the file.
+
+    \li Code should be implemented in <tt>.cpp</tt> files not
+    <tt>.h</tt> files. Exceptions are templated and short inline
+    functions.
+
+    \li Name a file the same as the class that it implements. It is
+    okay to implement multiple classes in the same file if they
+    logically belong together. In this case find a filename the is
+    appropriate to the group of classes.
+
+    \section drwnCodingNames Variable and Object Naming
+
+    \li Use all-caps for constants and macros. Separate words with an underscore.
+
+    \li All variables should be named starting with a lowercase letter.
+
+    \li Prepend an underscore to private data members. Do not use two
+    consecutive underscores. Do not follow an underscore with an
+    uppercase letter (these are reserved e.g., <tt>_T</tt>).
+
+    \li Prepend 'b' to boolean types, 'g' to global types.
+
+    \li Descriptive variable names are strongly preferred to
+    compactified names. Exceptions are allowed for standard technical
+    equations. For example, to evaluate a quadratic equation it is
+    acceptable to write <tt>y = a * x * x + b * x + c;</tt>.
+
+    \li Single letter variables should be restricted to either loop
+    iterators (preferably i, j, or k), or terms in very local
+    computations (i.e., it is okay to use 'x' in a computation only if
+    the scope of 'x' is less than a few dozen lines of code at the
+    most).
+
+    \li All \b Darwin classes and namespaces begin with <tt>drwn</tt>.
+
+    \section drwnCodingComments Comments
+
+    \li <b>It is a waste of time to write software without
+    comments!</b> Your comments don't need to be lengthy, but they
+    should be informative.
+
+    \li Make sure you update your comments whenever you change your
+    code.
+
+    \section drwnCodingProtability Portability and Maintainability
+
+    \li Never use variable or object names that could be keywords
+    under different systems (e.g., <tt>min</tt>, <tt>max</tt>,
+    <tt>win</tt>, <tt>file</tt>, <tt>interface</tt>).
+
+     \li Use standard libraries (available on all platforms)---in
+     particular, the <tt>stl</tt>. Don't reinvent the wheel.
+
+     \li On a similar note, use standard file formats (e.g., XML). Put
+     version numbers in parameter/model files so that you can read
+     them back even if you change the format later.
+
+     \li Keep object interfaces short and simple, it will make it much
+     easier for other people to learn and use.
+
+     \li When composing <tt>stl</tt> datatypes make sure you put a space
+     between the <tt>></tt> characters, for example <tt>vector<vector<double> ></tt>.
+     Some compilers will (correctly) interpret <tt>>></tt> as an
+     operator and will generate an error.
+
+     \li Some compilers like to have a blank line at the end of all
+     source files. If you're working in multiple environments then it is
+     good practice to do this.
+
+     \li Set your editor to replace tabs with spaces. The default
+     indentation in \b Darwin is four spaces.
+
+     \li Use \ref drwnCompatibility.h to define symbols that are
+     available on one platform but not another.
+
+     \li Do not have two (or more) file names that differ only in their
+     character case---for one thing this will confuse SVN under Windows.
+
+    \li Do not have code with side-effects inside <tt>assert</tt>
+    statements. Often <tt>assert</tt>s get commented out for release
+    builds and you do not want the behaviour of your code to change.
+
+    \section drwnCodingPerformance Performance
+
+    \li Don't copy large data structures around. Rather pass by
+    reference (<tt>\&</tt>) or by pointer (<tt>*</tt>).
+
+    \li Use <tt>const</tt> whenever you can.
+
+    \li Avoid allocating and deallocating memory in tight loops---rather
+    allocate all the memory you need outside of the loop, but don't forget
+    to deallocate the memory eventually.
+
+    \li Don't use <tt>printf</tt>'s (or output stream operators) in
+    tight loops.
+
+    \li Use <tt>reserve</tt> to allocate memory to vectors and other
+    <tt>stl</tt> datatypes before populating.
+
+    \li Use the appropriate data structure (container) for objects and
+    know their running times. For example, calling <tt>size</tt> on an
+    <tt>stl::list</tt> can take O(n).
+
+    \section drwnCodingMisc Miscellaneous
+
+    \li Read the first chapter of ``The Mythical Man-Month'' by
+    Frederick P. Brooks and remember that, although it was written in
+    1975, it still applied today.
+
+    \li Avoid using <tt>\#define</tt> when you can use a const variable
+    or enum instead.
+
+    \li Use structures, unions and classes to keep related variables
+    together.
+
+    \li Limit the use of global and static variables.
+
+    \li Enclose conditionally executed code in braces (e.g., after an if
+    or for statement) even if the code is only a simple statement. This
+    will prevent bugs later on when you modify the code.
+
+    \section drwnCodingTestingAndDebugging Testing and Debugging
+    
+    \li Write and use regression tests.
+
+    \li Make sure your code compiles without any compiler warnings.
+
+    \li If you discover a (non-trivial) bug, first write a simple test
+    that exposes the bug, before debugging. Then add the test to your
+    regression test suite.
+
+    \li Use lots of <tt>assert()</tt>'s. You can always compile them
+    out for speed later. However, beware not to have side-effects
+    inside the <tt>assert</tt>.
+
+    \li Run you code while watching system memory (Task Manager under
+    Windows or <tt>top</tt> under Linux) to identify memory leaks. You
+    can also use <tt>valgrind</tt>.
+    
+    \li If you have a bug, first think about where in the design the
+    bug could be, before jumping into the code.
+*/
+
+}

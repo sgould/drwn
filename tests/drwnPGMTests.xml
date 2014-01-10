@@ -1,0 +1,48 @@
+<!-- *************************************************************
+ DARWIN: A FRAMEWORK FOR MACHINE LEARNING RESEARCH AND DEVELOPMENT
+ Copyright (c) 2007-2014, Stephen Gould
+ All rights reserved.
+ 
+ Probabilistic Graphical Models Library Tests
+ Stephen Gould <stephen.gould@anu.edu.au>
+************************************************************** -->
+
+<tests>
+
+<test name="drwnICMInference" 
+      enabled="true"
+      command="../bin/testDarwinPGM"
+      parameters="-v map drwnICMInference input/factorGraph.xml"
+/>
+
+<test name="drwnJunctionTreeInference"
+      enabled="true"
+      command="../bin/testDarwinPGM"
+      parameters="-v map drwnJunctionTreeInference input/factorGraph.xml"
+/>
+
+<test name="drwnMaxProdInference" 
+      enabled="true"
+      command="../bin/testDarwinPGM"
+      parameters="-v map drwnMaxProdInference input/factorGraph.xml"
+/>
+
+<test name="drwnAsyncMaxProdInference"
+      enabled="true"
+      command="../bin/testDarwinPGM"
+      parameters="-v map drwnAsyncMaxProdInference input/factorGraph.xml"
+/>
+
+<test name="drwnDualDecompositionInference"
+      enabled="true"
+      command="../bin/testDarwinPGM"
+      parameters="-v map drwnDualDecompositionInference input/factorGraph.xml"
+/>
+
+<test name="drwnAlphaExpansionInference"
+      enabled="true"
+      command="../bin/testDarwinPGM"
+      parameters="-v map drwnAlphaExpansionInference input/factorGraph.xml"
+/>
+
+</tests>

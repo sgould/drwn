@@ -1,0 +1,29 @@
+/* XPM */
+static char *dbdisconnected_xpm[] = {
+/* columns rows colors chars-per-pixel */
+"16 16 7 1",
+"  c black",
+". c #800000",
+"X c red",
+"o c #808000",
+"O c yellow",
+"+ c #C0C0C0",
+"@ c gray100",
+/* pixels */
+"X.+++++++++++++X",
+"+X.++      +++X.",
+"++X. OOOOOO  X.+",
+"+ OX.OOOOOOOX. +",
+"+ OOX.OOOOOX.O +",
+"+    X.OOOX.   +",
+"+ @OO X. X.ooo +",
+"+ O@OOOX..oOoo +",
+"+ @OOOOX..Oooo +",
+"+    OX.OX.    +",
+"+ O@OX.   X.oo +",
+"+ @OX.OOOoOX.o +",
+"+ OX.OOoOOoOX. +",
+"++X. OOOOoO  X.+",
+"+X.++      +++X.",
+"X.+++++++++++++X"
+};

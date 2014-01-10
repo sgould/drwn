@@ -1,0 +1,229 @@
+namespace drwn {
+/*@{*/
+
+// Application and Project List ---------------------------------------------
+
+/*!
+    \page drwnApplications Applications and Project Descriptions
+
+    \section drwnAppList Application List
+
+    \subsection drwnBaseApps Base Applications
+    \li \ref persistentStorageManager : manages data stored by the drwnPersistentStorage class
+
+    \subsection drwnMLApps Machine Learning Applications
+    \li \ref drwnLearnAndEvalClassifier "learnClassifier" : application for training classifiers from data
+    \li \ref drwnLearnAndEvalClassifier "evalClassifier" : application for evaluating a classifier on new data
+
+    \subsection drwnPGMApps Probabilistic Graphical Models Applications
+    \li none
+
+    \subsection drwnVisionApps Vision Applications
+    \li \ref drwnAppGenSp : generate superpixels.
+    \li \ref drwnAppGrabCut : bounding-box-based figure/ground segmentation.
+    \li \ref drwnAppVisImgData : visualize image datasets.
+    \li \ref drwnProjPatchMatch "patchMatchDemo" : demonstrate construction of a drwnPatchMatchGraph
+
+    \subsection drwnTestApps Test Applications    
+    \li testDarwinBase : regression and unit testing for \ref drwnBase library
+    \li testDarwinIO : regression and unit testing for \ref drwnIO library
+    \li testDarwinML : regression and unit testing for \ref drwnML library
+    \li testDarwinPGM : regression and unit testing for \ref drwnPGM library
+    \li testDarwinVision : regression and unit testing for \ref drwnVision library
+
+    \section drwnProjList Project List
+    \li \ref drwnTutorial : source code for all the \ref drwnTutorial "tutorials".
+    \li \ref drwnProjRosetta : example MAP inference for protein design problems.
+    \li \ref drwnProjPhotoMontage : interactive photo montage based on Agarwala et al., SIGGRAPH 2004.
+    \li \ref drwnProjMultiSeg : multi-class image segmentation (pixel labeling).
+    \li \ref drwnProjPatchMatch : scene understanding based on Gould and Zhang, ECCV 2012.
+    \li \ref drwnProjMatlab : Matlab \p mex interfaces.
+    \li \ref drwnProjGUI : Graphical user interface for data flow design.
+
+*/
+
+// persistentStorageManager -----------------------------------------------
+
+/*!
+   \page persistentStorageManager persistentStorageManager
+
+   This application allows you to manage data stored in a
+   drwnPersistentStorage object from the command line. The command
+   line syntax is:
+   \code
+      bin/persistentStorageManager [OPTIONS] <storage> [ACTION]
+   \endcode
+
+   For example, you can extract records from the object into
+   individual files:
+   \code
+      bin/persistentStorageManager -verbose <storageFileStem> split <outDir> <outExt>
+   \endcode
+
+   Other valid actions are:
+   \li \b stats : display storage statistics such as number of records and disk usage
+   \li \b records : list all the records stored in the drwnPersistentStorage object
+   \li \b "merge <inDir> <inExt>" : merge individual binary files as records
+   \li \b "split <outDir> <outExt>" : split records into individual binary files
+   \li \b "delete (<rec>)+" : delete one or more records from the drwnPersistentStorage object
+   \li \b defrag : defragment storage   
+
+   \sa drwnPersistentStorage
+   \sa \ref drwnApplications
+*/
+
+// learnClassifier and evalClassifier -------------------------------------
+
+/*!
+   \page drwnLearnAndEvalClassifier learnClassifier and evalClassifier
+
+   The \b Darwin framework includes two pre-developed applications for
+   training and evaluating classifiers. The following command line
+   examples demonstrate of their use. Run the applications with the \p
+   -help option to see more detailed usage.
+   
+   \code
+      bin/learnClassifier -c drwnDecisionTree -o parameters.xml \
+          -set drwnDecisionTree maxDepth 100 \
+          <DATA_FILE> <LABELS_FILE>
+
+      bin/evalClassifier -o <PREDICTIONS_FILE> -g <LABELS_FILE> \
+          parameters.xml <DATA_FILE>
+   \endcode
+
+   In the above example, the first command learns a decision tree
+   classifier based on the feature vectors and target labels provided
+   in \p <DATA_FILE> and \p <LABELS_FILE>, respectively. The decision
+   tree is learned to a maximum depth of 100 levels and the learned
+   parameters saved in a file called \p parameters.xml.
+
+   The second command uses the learned parameters to make
+   predictions. It loads the classifier specification (classification
+   method and parameters) from the \p parameters.xml file and then
+   evaluates the classifier on each feature vector from \p
+   <DATA_FILE>. Predictions are written to the \p <PREDICTIONS_FILE>
+   file. The \p -g flag provides ground truth labels which the
+   application uses to report classifier accuracy.
+
+   \sa drwnClassifier
+   \sa \ref drwnApplications
+*/
+
+// generateSuperpixels ---------------------------------------------------
+
+/*!
+   \page drwnAppGenSp generateSuperpixels
+
+   Implementation of a fast superpixel algorithm for generating an
+   over-segmentation of an image based on ideas from Zhang et al.,
+   ICCV 2011. Alternatively, can produce non-contiguous superpixels
+   using k-means clustering (see the \p -m option).
+
+   Example:
+   \code
+     bin/generateSuperpixels -g 100 -x <IMAGE_FILENAME>
+   \endcode
+
+   Multitple over-segmentations can be written to the same file using
+   the \p -a option.
+
+   \sa drwnFastSuperpixels
+*/
+
+// grabCut ---------------------------------------------------------------
+
+/*!
+   \page drwnAppGrabCut grabCut
+
+   Implementation of bounding-box-based figure-ground segmentation
+   "grabCut" algorithm by Rother et al., SIGGRAPH 2004. The bounding
+   box can be provided interactively by the user.
+   
+   Example:
+   \code
+      bin/grabCut -profile -verbose -m 1000 -w 128.0 -x <IMAGE_FILENAME>
+   \endcode
+
+   The following screenshot shows example results from an original
+   image (top left) and foreground mask (top right). The foreground
+   mask was generated from user input. The final segmentation mask
+   (bottom left) and segmented image (bottom right) are also shown.
+
+   \image html grabCutScreenshot.png
+
+   Higher-order potentials can be added to grabCut to improve the
+   segmentation quality especially when the foreground object is
+   occluded. Here we use k-means to define the higher-order cliques
+   and a robust Potts model to enfore consistency.
+
+   Example:
+   \code
+      bin/highOrderGrabCut -verbose -highorder 64.0 -pairwise 64.0 -m 5000 -x <IMAGE_FILENAME>
+   \endcode
+
+   The following screenshot shows exmaple results using higher-order
+   consistency.
+
+   \image html higherOrderGrabCutScreenshot.png
+
+   \sa drwnGrabCutInstance
+   \sa \ref drwnApplications
+*/
+
+// visualizeImageDataset ----------------------------------------------------
+
+/*!
+   \page drwnAppVisImgData visualizeImageDataset
+
+   This application generates a composite image from a subset of
+   images in a dataset. The subset is defined by a text file
+   containing the image basenames (filename without extension).
+
+   Example:
+   \code
+     bin/visualizeImageDataset -x -i images/ -s 0.1 imgList.txt
+   \endcode
+   where \p images is a directory containing all the images and
+   \p imgList.txt is a text file containig the image basenames.
+
+   The following image, generated by this application, shows the 256
+   images from the 21-class MSRC dataset (Shotton et al., IJCV 2007).
+
+   \image html msrcTestDataset.jpg
+
+   \sa drwnVision
+   \sa \ref drwnApplications
+*/
+
+// photoMontage -----------------------------------------------------------
+
+/*!
+   \page drwnProjPhotoMontage photoMontage
+
+   The digital photo-montage application provides a demonstration of
+   composing multiple photographs into a single photograph by
+   seemlessly stitching regions from the different images. See
+   (Agarwala, A., et al., SIGGRAPH 2004).
+
+   The application requires a webcam to be installed. When started the
+   application displays two windows. The first shows up to four photos
+   that will be merged (see screenshot below); the second shows the
+   current webcam view. Press '1' to '4' to capture an image and store
+   it in one of the photo panes. Once you are satisfied with the four
+   photos press 'esc' or 'enter' to continue.
+
+   \image html photoMontageScreenshot.png
+
+   After the images have been captures you can mark regions that you
+   want in the montage using the mouse (hold down the left mouse
+   button and draw). Press 'c' to clear the current
+   selections. Pressing 'enter' at any time will create a montage. You
+   can save the montage by pressing 's'. Pressing 'esc' or 'q' will
+   quit the demonstration.
+
+   \sa \ref drwnApplications
+*/
+
+/*@}*/
+
+}

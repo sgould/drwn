@@ -1,0 +1,268 @@
+namespace drwn {
+
+/*!
+\page winInstall Windows Installation Instructions
+
+\section winCodeDownload Getting the Code
+
+\subsection Download
+
+Select the appropriate stable release from \ref drwnDownloadsDoc "here" or
+check out directly from the repository by following the instructions
+below.
+
+\note If you are not interested in developing your own applications
+against the \b Darwin libraries and simply want to run the existing
+applications then you can download pre-compiled binaries from the \ref
+drwnDownloadsDoc "downloads page".
+
+\subsection Repository
+
+Use TortoiseSVN to check out the latest copy of the code from:
+\code
+https://svn.anu.edu.au/AI/drwn/trunk
+\endcode
+
+For a previous stable release (e.g., <x>.<y>) use:
+\code
+https://svn.anu.edu.au/AI/drwn/release/<x>.<y>
+\endcode
+
+\section winCodeBuild Building the Code
+
+The following provides a brief list of steps required for building the
+code. These instructions assume you are familiar with the Microsoft
+Visual Studio development environment. More detailed instructions are
+given \ref winDetailedInstructions "below". We use the symbol \c
+$DARWIN to represent the directory in which you are installing the
+codebase.
+
+<ul>
+<li> Make sure you have Visual Studio C++ installed (see \ref winEssentialSoftware)
+<li> Download Eigen 3.1.2 (or later) and unzip the archive (see \ref winEssentialSoftware)
+<ul>
+<li> Move the unzipped folder to the \p $DARWIN/external folder and rename it \p eigen3
+<li> A common problem is to copy the parent folder. Make sure the folder \p Eigen exists directly below \p $DARWIN/external/eigen3
+</ul>
+<li> Optionally download OpenCV-2.4.6.0.exe and save it to \c $DARWIN/external. This is a self-extracting archive.
+     Running it should decompress OpenCV into folder \c $DARWIN/external/opencv (see \ref winOptionalSoftware)
+<li> Open \p $DARWIN/src/drwnlibs.sln and build either Debug or Release libraries.
+
+     \warning By default Visual Studio C++ performs multi-threaded
+     compilation. This can cause problems when compiling in Debug mode
+     since debug information is stored to the same database file. The
+     simplest way to solve this is to turn off multi-threaded building
+     (see \ref winFAQ below).
+
+<li> Open \p $DARWIN/src/drwnapps.sln and build either Debug or Release applications.
+</ul>
+
+The \b Darwin libraries and applications will now be built (in the \p
+$DARWIN/bin folder). To build the projects you will need to open
+and build the Visual Studio C++ solution file in the corresponding
+project directory, e.g., \p $DARWIN/projects/tutorial/tutorial.sln.
+
+\section winEssentialSoftware Essential Software
+
+The following list provides links to software that is required for
+building the \b Darwin libraries and applications from source code.
+
+\li Visual Studio C++ 2010 Express or later (http://www.microsoft.com/visualstudio/en-us/products/2010-editions/visual-cpp-express)
+\li Eigen (http://eigen.tuxfamily.org/) installed as directed above.
+
+\section winOptionalSoftware Optional Software
+
+The following provides links to software that is optional when
+building the \b Darwin libraries and applications from source code. If
+this software is not installed then some functionality may not be
+available.
+
+<ul>
+<li> TortoiseSVN (http://tortoisesvn.tigris.org/)
+<li> OpenCV 2.4.6 (http://opencv.org/) installed in the \c external/opencv directory
+<ul>
+<li> make sure both the \p "$DARWIN\external\opencv\build\x86\vc10\bin" and 
+     \p "$DARWIN\external\opencv\build\common\tbb\ia32\vc10" directories are
+     added to your Windows PATH variable (see \ref winFAQ below)
+<li> if you install a later version of OpenCV you will need to modify the linked libraries
+     within each Darwin project
+</ul>
+<li> wxWidgets 2.9.4 (http://www.wxwidgets.org/) installed in the \c $DARWIN/external/wx directory
+<li> Perl (http://www.activestate.com/Products/activeperl/) for running regression tests
+</ul>
+
+\section winDetailedInstructions Detailed Installation Instructions
+
+\b Darwin is a C++ software framework consisting of a several
+component libraries and application code as described in the \ref
+Introduction "introduction" (on the \b Darwin homepage). On Windows
+the code can be compiled using Microsoft Visual Studio C++. These
+instructions provide a detailed description for compiling \b Darwin on
+a Windows system. The \ref winFAQ below provides answers to common
+questions that may be helpful in troubleshooting compilation problems.
+
+\subsection winDetails1 Visual Studio
+
+The first thing you will need (after obtaining the \b Darwin code) is
+to install the Visual Studio C++ compiler. This is freely available
+software from Microsoft and can be downloaded and installed by
+following the instructions at
+http://www.microsoft.com/visualstudio/eng/downloads#d-2010-express
+
+\note Multi-threaded compiling is enabled by default. This can result
+in errors when compiling multiple projects in Debug mode. To turn off
+multi-threaded compilation, open Visual Studio and select the menu
+item \c "Tools | Options". Select \c "Projects and Solutions | Build and
+Run".  Set \c "maximum number of parallel project builds" to 1.
+
+\subsection winDetails2 Third-party Libraries
+
+Like any large project \b Darwin also depends on some third-party
+software libraries. We have tried to keep these to a minimum. As such,
+only RapidXML and Eigen are required for the core framework components
+(specifically \ref drwnBase, \ref drwnIO, \ref drwnML, \ref
+drwnPGM). For convenience RapidXML is distributed with the source
+code. The Eigen template library for linear algebra, however, must be
+installed separately. Other third-party libraries, such as OpenCV, are
+only necessary if you require certain additional functionality (e.g.,
+\ref drwnVision requires OpenCV).
+
+All third-party libraries should be installed in the \c
+$DARWIN/external directory, where \c $DARWIN is the folder where you
+have downloaded and decompressed the \b Darwin source code (e.g., \c
+C:/darwin). The Eigen template library for linear algebra should be
+downloaded from the <a href="http://eigen.tuxfamily.org/">Eigen
+website</a>. Make sure you download version 3.1.2 or above. Create a
+folder called \c $DARWIN/external/eigen3 and decompress the Eigen code
+into this folder.
+
+\warning Make sure that \c $DARWIN/external/eigen3 contains the Eigen
+source directly and not a single subdirectory containing the Eigen
+source. You can check this by verifying that
+$DARWIN/external/eigen3/Eigen exists and contains the Eigen template
+library headers. A common mistake is to for this code to be one level
+deeper in the directory hierarchy, resulting in compilation errors.
+
+OpenCV, which is optional, should be installed in \c
+$DARWIN/external/opencv. Download the \c OpenCV-2.4.6.0.exe
+self-extracting archive from
+http://sourceforge.net/projects/opencvlibrary/files/opencv-win and
+save it to \c $DARWIN/external. Running this application with the
+default options will then create the directory \c
+$DARWIN/external/opencv and decompress the OpenCV libaries into it.
+
+\warning Installing a different version of OpenCV will result in
+linker errors. See the \ref winFAQ below for information on how to
+update projects for later OpenCV versions.
+
+\subsection winDetails3 Compiling the Darwin Libraries
+
+You are now ready to compile the \b Darwin libraries. The five
+libraries (\ref drwnBase, \ref drwnIO, \ref drwnML, \ref drwnPGM and
+\ref drwnVision) are bundled together into a Visual Studio Solution
+file called \c $DARWIN/src/drwnlibs.sln. Open this file in Visual
+Studio and you will see five projects corresponding to the five
+libraries. The libraries can be compiled in either Debug or Release
+mode. The mode can be changed for all projects at once via the
+Configuration Manager.
+
+To compile all libraries right-click on \c "Solution 'drwnlibs'" and
+select \c "Build Solution" (alternatively hit the shortcut F7). Visual
+Studio will start compiling the code. The libraries are written to the
+\c $DARWIN/bin directory. If compiling in Debug mode library names
+will have the letter \c 'd' appended to them (e.g., drwnBased.lib).
+
+\warning If you have not installed OpenCV you will get error messages
+when Visual Studio tries to compile the \ref drwnVision library. It is
+safe to ignore these messages.
+
+You can also compile each library separately by right-clicking on the
+library and choosing \c Build from the drop-down menu.
+
+\subsection winDetails4 Compiling the Darwin Applications and Projects
+
+Once the libraries have been build you are ready to compile the
+applications and projects. Open the file \c $DARWIN/src/drwnapps.sln
+in Visual Studio. The solution will show a number of
+applications. Compile these by right-clicking on \c "Solution
+'drwnapps'" and selecting \c "Build Solution" (alternatively hit
+F7). This will compile all the applications and place the executables
+in the \c $DARWIN/bin directory.
+
+\note You should compile the applications in the same mode (Debug
+or Release) as the libraries.
+
+You can also compile each application separately by right-clicking on
+the corresponding project and choosing \c Build from the drop-down
+menu.
+
+\warning If OpenCV was not installed the computer vision applications
+will produce error messages when compiled. It is safe to ignore these
+messages.
+
+You can go through the HelloWorld \ref drwnTutorial by opening the \c
+$DARWIN/projects/tutorial/tutorial.sln file. Likewise, projects such
+as \c rosetta, \c multiSeg and \c patchMatch can be compiled by
+opening the Visual Studio solution file in the corresponding project
+directory.
+
+\section winFAQ Frequently Asked Questions
+
+\b "How do I turn off MSVC multi-threaded building?"
+
+Select the menu item \c "Tools | Options". Select \c "Projects and
+Solutions | Build and Run".  Set \c "maximum number of parallel project builds" to 1.
+
+\b "How to I build executables that can be distributed?"
+
+Under \c "Properties | C/C++ | Code Generation" set \c "Runtime Library"
+to Multithreaded (/MT) to statically link the Visual Studio runtime
+libraries. Alternatively ask users to install the <a
+href="http://www.microsoft.com/en-us/download/details.aspx?id=5555">Visual
+C++ Redistribution package</a>.
+
+\b "Why do I get the error Cannot open include file: 'Eigen/Core'?"
+
+You have installed the Eigen linear algebra package in the wrong
+location. Make sure the directory \c "$DARWIN/external/eigen3/Eigen"
+exists.
+
+\b "Why do I get the error Cannot open include file: 'cv.h'?"
+
+Either you have chosen to not install OpenCV or you have installed it
+in the wrong location. If you have chosen not to install OpenCV then
+you can ignore this error. However, you will not have access to
+functionality in the \ref drwnVision library, which depends on OpenCV.
+
+If you want the \ref drwnVision library functionality then make sure
+OpenCV is installed in \c $DARWIN/external/opencv.
+
+Note that at runtime both \p "$DARWIN\external\opencv\build\x86\vc10\bin" and
+\p "$DARWIN\external\opencv\build\common\tbb\ia32\vc10" directories must be
+included in your system's \c PATH environment variable (this can be
+done via the Windows Control Panel).
+
+\b "How do I add a directory to the Windows PATH variable?"
+
+Open the Window's \a "System Properties" dialog box and select the \a
+"Advanced" tab. On most Windows installations you can press the
+Window-Break (or Windows-Pause) and select \a "Advanced system
+settings". Click the \a "Environment Variables..." button. Select the
+\b Path system variable and click \a "Edit..." (if the variable does
+not exist then click \a "New...". Add full directory paths as
+necessary, separated by a semi-colon (;).
+
+\b "How do I link Darwin to another version of OpenCV?"
+
+If you download a later version of OpenCV you can get \b
+Darwin to compile against it by changing the OpenCV library names in
+the \c "Property Page | Linker | Input" field.
+
+\b "How do I compile for x64 platforms?"
+
+The default installation of Visual Studio Express 2010 does not allow
+you to compile 64-bit applications. See 
+<a href="http://msdn.microsoft.com/en-us/library/9yb4317s%28v=vs.100%29.aspx">this
+post</a> from Microsoft for further details.
+*/
+}

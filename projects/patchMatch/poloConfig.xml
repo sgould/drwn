@@ -1,0 +1,60 @@
+<drwn>
+  <drwnPatchMatch>
+    <option name="maxImageSize" value="160" />
+    <option name="maxPyramidLevels" value="8" />
+    <option name="patchWidth" value="8" />
+    <option name="patchHeight" value="8" />
+    <option name="K" value="10" />
+    <option name="decayRate" value="0.0" />
+    <option name="fwdEnrichment" value="10" />
+    <option name="allowHFlips" value="true" />
+    <option name="allowVFlips" value="false" />
+    <option name="localSearch" value="true" />
+    <option name="randomExhaustive" value="false" />
+  </drwnPatchMatch>
+
+  <drwnMultiSegConfig>
+    <!-- data options -->
+    <option name="baseDir" value="./" />
+    <option name="imgDir" value="data/images/" />
+    <option name="lblDir" value="data/labels/" />
+    <option name="cacheDir" value="cached/" />
+    <option name="modelsDir" value="models/" />
+    <option name="outputDir" value="output/" />
+
+    <option name="imgExt" value=".jpg" />
+    <option name="lblExt" value=".txt" />
+
+    <option name="useCache" value="true" />
+
+    <!-- region definitions -->
+    <regionDefinitions>
+      <region id="-1" name="void" color="0 0 0"/>
+      <region id="0" name="grass" color="0 128 0"/>
+      <region id="1" name="ground" color="64 0 0"/>
+      <region id="2" name="horse" color="128 192 128"/>
+      <region id="3" name="person" color="128 64 0"/>
+      <region id="4" name="sky" color="128 128 128"/>
+      <region id="5" name="tree" color="128 128 0"/>
+    </regionDefinitions>
+  </drwnMultiSegConfig>
+
+  <drwnSegImagePixelFeatures>
+    <!-- feature options -->
+    <option name="filterBandwidth" value="1" />
+    <option name="featureGridSpacing" value="5" />
+    <option name="includeRGB" value="false" />
+    <option name="includeHOG" value="false" />
+    <option name="includeRowCol" value="false" />
+    <option name="includeLocation" value="true" />
+    <option name="auxFeatureDir" value="data/features/" />
+    <option name="auxFeatureExt" value="" />
+  </drwnSegImagePixelFeatures>
+
+  <drwnCodeProfiler enabled="true" />
+  <drwnLogger logLevel="VERBOSE"
+              logFile="polo.log" />
+  <drwnThreadPool threads="4" />
+  <drwnConfusionMatrix colSep=" || " rowBegin="    || " rowEnd=" \" />
+  <drwnHOGFeatures blockSize="1" normClippingLB="0.1" normClippingUB="0.5" />
+</drwn>

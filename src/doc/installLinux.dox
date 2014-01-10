@@ -1,0 +1,292 @@
+namespace drwn {
+
+/*!
+\page linuxInstall Linux Installation Instructions
+
+\section linuxCodeDownload Getting the Code
+
+\subsection Download
+
+Select the appropriate stable release from \ref drwnDownloadsDoc "here"
+or check out directly from the repository by following the
+instructions below.
+
+\subsection Repository
+
+For the development branch use:
+\code
+svn co https://svn.anu.edu.au/AI/drwn/trunk $DARWIN
+\endcode
+
+For a stable release (e.g., <x>.<y>) use:
+\code
+svn co https://svn.anu.edu.au/AI/drwn/release/<x>.<y> $DARWIN
+\endcode
+
+Here \p $DARWIN refers to the name of the base \b Darwin directory.
+
+\subsection Projects
+
+After downloading or checking out the main \b Darwin codebase
+third-party projects can be installed in \p $DARWIN/projects along
+with the released \b Darwin projects. They will then be automatically
+built when you build the \b Darwin projects.
+
+\note If you develop or install third-party projects in a different
+directory you can still get \b Darwin to automatically build them by
+adding the relative directory path to the \p DRWN_PROJECTS variable in
+your \p make.local file.
+
+\section linuxCodeBuild Building the Code
+
+The following instructions assume that you have downloaded or checked
+out the code and have changed to the base \b Darwin directory (i.e.,
+\p $DARWIN). Before building \b Darwin you will need to install a
+number of external libraries that are required by the main \b Darwin
+libraries or optionally used by the specific projects you'd like to
+compile. If you have any of these libraries pre-installed on your
+system you can just create symbolic links to them, e.g.:
+
+\code
+ln -s /usr/local/opencv-2.4 external/opencv
+\endcode
+
+You may also need to install some system build tools (see \ref
+linuxEssential below).
+
+The required libraries can be installed using a C-shell script
+included in the \p $DARWIN/external directory. (You will need to have
+the \p csh shell installed). The commands to install them are:
+\code
+cd external
+./install.sh Eigen
+cd ..
+\endcode
+
+If something goes wrong with the install script you can try following
+the \ref linuxDetailed "detailed install instructions".
+
+The optional libraries can be installed with:
+\code
+cd external
+./install.sh zlib
+./install.sh OpenCV
+./install.sh wxWidgets
+./install.sh lua
+cd ..
+\endcode
+
+Make sure you update your \p LD_LIBRARY_PATH variable to avoid runtime
+errors:
+\code
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${DARWIN}/external/opencv/lib
+\endcode
+
+After the external libraries are installed, you can build the \b
+Darwin libraries, applications and projects. See \ref drwnMakelocal below
+for how to control the build process.
+
+\code
+make
+make drwnprojs
+\endcode
+
+You can also build specific projects using
+\code
+cd project/<PROJECTNAME>
+make
+cd ../..
+\endcode
+
+\subsection drwnMakelocal make.local
+
+You can control how the \b Darwin libraries get built by setting
+various flags in a file called \p make.local in the base directory. A
+typical \p make.local file might look like:
+
+\code
+# local make definitions
+
+DRWN_DEBUG_SYMBOLS = 0
+DRWN_SHARED_LIBS = 1
+DRWN_FORCE_32BIT = 0
+
+# debug statistics
+EXTRA_CFLAGS += -DDRWN_DEBUG_STATISTICS
+EXTRA_CFLAGS += -DDRWN_FACTOR_DEBUG_STATISTICS
+
+# third-party project directories
+DRWN_PROJECTS = path_to_my_projects
+
+# profiling
+#EXTRA_CFLAGS += -pg
+#EXTRA_LFLAGS += -pg
+#DRWN_SHARED_LIBS = 0
+\endcode
+
+If you choose to link to shared libraries (recommended) then you will
+need to add the \p darwin/bin path to your \p LD_LIBRARY_PATH
+environment variable.
+
+The following table details the various build options that can be set
+in \p make.local.
+
+<center>
+<table border="1px" width="80%" style="border-color:#cccccc; 
+       background-color: #f5f5f5; border-collapse:collapse">
+<tr>
+<td><b>Option</b></td><td><b>Description</b></td><td><b>Default</b></td>
+</tr>
+<tr>
+<td>DRWN_FORCE_32BIT</td>
+<td>Force 32-bit build even on 64-bit environments. This is useful if
+you are deploying your applications on heterogeneous (32-bit and 64-bit)
+clusters.</td>
+<td>0</td>
+</tr>
+<tr>
+<td>DRWN_DEBUG_SYMBOLS</td>
+<td>Include debugging information in binaries.</td>
+<td>0</td>
+</tr>
+<tr>
+<td>DRWN_SHARED_LIBS</td>
+<td>Build and link to shared libraries.</td>
+<td>1</td>
+</tr>
+<tr>
+<td>DRWN_BUILD_VISION_LIB</td>
+<td>Force building the vision library.</td>
+<td>1 if OpenCV is installed<br>0 otherwise</td>
+</tr>
+</table>
+</center>
+
+Additional debugging/statistics information can be included by
+defining the following compiler symbols: \p DRWN_DEBUG_STATISTICS, \p
+DRWN_FACTOR_DEBUG_STATISTICS.
+
+\section linuxEssential Installing Build Tools and External Libraries
+
+The following commands will install the a number of packages required
+to build \b Darwin libraries and applications on Ubuntu systems. You
+will need superuser privledges to install these packages.
+
+\code
+# required to get access code repository
+sudo apt-get install subversion
+
+# required for building the code
+sudo apt-get install build-essential csh g++ wget
+
+# required by opencv
+sudo apt-get install cmake ffmpeg
+sudo apt-get install gtk+-2.0 gtk2.0-dev libgl1-mesa-dev libglu1-mesa-dev
+sudo apt-get install pkg-config
+
+# required by lua
+sudo apt-get install libreadline6-dev
+
+# required for building documentation
+sudo apt-get install doxygen graphviz
+\endcode
+
+\subsection linuxDetailed Detailed Install Instructions for Third-Party Libraries
+
+Third-party libraries required by \b Darwin (and associated projects)
+can be installed as described \ref linuxCodeBuild "above". However, if
+something goes wrong you may need to install these libraries
+manually. The following describes that process.
+
+\b "Eigen Linear Algebra Library"
+
+\code
+  cd external
+  wget http://bitbucket.org/eigen/eigen/get/3.1.2.tar.bz2 -O eigen-3.1.2.tar.bz2
+  bunzip2 eigen-3.1.2.tar.bz2
+  tar xvf eigen-3.1.2.tar
+  mv eigen-eigen-5097c01bcdc4 eigen-3.1.2
+  rm -f eigen-3.1.2.tar
+  ln -s eigen-3.1.2/Eigen Eigen
+  cd ..
+\endcode
+
+\warning Sometimes Eigen changes the name of the directory within the
+tarball. If the \p mv step fails, check the directory name and modify
+appropriately.
+
+\b "OpenCV Computer Vision Library"
+
+\code
+  cd external
+  wget -c http://prdownloads.sourceforge.net/opencvlibrary/OpenCV-2.4.3.tar.bz2
+  bunzip2 OpenCV-2.4.3.tar.bz2
+  tar xvf OpenCV-2.4.3.tar
+  cd OpenCV-2.4.3
+  cmake -D CMAKE_BUILD_TYPE=RELEASE \
+        -D CMAKE_INSTALL_PREFIX=../opencv \
+        -D BUILD_NEW_PYTHON_SUPPORT=OFF .
+  make
+  make install
+  cd ../..
+\endcode
+
+Make sure the file \p external/opencv/lib/pkgconfig/opencv.pc
+exists. If not you have probably installed OpenCV in the wrong
+location.
+
+\subsection drwnMatlab Matlab
+
+Building the Matlab project requires Matlab to be installed on the
+system and a symbolic link setup in the external directory, e.g.,
+\code
+  ln -s /usr/local/MATLAB/R2010b/ matlab
+\endcode
+
+Furthermore, the Matlab library directory should be added to the path,
+\code
+  export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/MATLAB/R2010b/bin/glnx86/
+\endcode
+
+\subsection drwnNCI NCI National Facility (nf.nci.org.au)
+
+If you are running \b Darwin on the NCI cluster machines then you will
+need to follow these instructions. Before installing externals:
+
+\code
+setenv CC gcc
+setenv CXX g++
+module load cmake/2.8.2
+\endcode
+
+Add to \p .login
+\code
+setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:${DARWIN}/external/opencv/lib
+\endcode
+
+or \p .profile
+\code
+export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:${DARWIN}/external/opencv/lib
+\endcode
+
+\section drwnExtLinking Linking Darwin from External Projects
+
+The following is a sample Makefile that demonstrates how to link the
+Darwin libraries from external projects
+\code
+DRWN_DIR =
+INC_DIRS = -I${DRWN_DIR}/include -I${DRWN_DIR}/external
+LIBS = -L${DRWN_DIR}/bin -ldrwnML -ldrwnPGM -ldrwnIO -ldrwnBase -lm -lpthread
+
+main:
+        g++ -g -o main main.cpp ${INC_DIRS} ${LIBS}
+
+clean:
+	rm -f main
+\endcode
+
+\warning The \b Darwin libraries should be included in reverse
+dependency order (as listed above) to avoid linker errors.
+
+*/
+}

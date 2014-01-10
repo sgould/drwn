@@ -1,0 +1,60 @@
+<drwn>
+  <drwnMultiSegConfig>
+    <!-- data options -->
+    <option name="baseDir" value="" />
+    <option name="imgDir" value="data/JPEGImages/" />
+    <option name="lblDir" value="data/SegmentationClass/" />
+    <option name="cacheDir" value="cached/" />
+    <option name="modelsDir" value="models/" />
+    <option name="outputDir" value="output/" />
+
+    <option name="imgExt" value=".jpg" />
+    <option name="lblExt" value=".png" />
+
+    <option name="useCache" value="true" />
+
+    <!-- region definitions -->
+    <regionDefinitions>
+      <region id="0"  name="background"  color="0 0 0"       />
+      <region id="1"  name="aeroplane"   color="128 0 0"     />
+      <region id="2"  name="bicycle"     color="0 128 0"     />
+      <region id="3"  name="bird"        color="128 128 0"   />
+      <region id="4"  name="boat"        color="0 0 128"     />
+      <region id="5"  name="bottle"      color="128 0 128"   />
+      <region id="6"  name="bus"         color="0 128 128"   />
+      <region id="7"  name="car"         color="128 128 128" />
+      <region id="8"  name="cat"         color="64 0 0"      />
+      <region id="9"  name="chair"       color="192 0 0"     />
+      <region id="10" name="cow"         color="64 128 0"    />
+      <region id="11" name="diningtable" color="192 128 0"   />
+      <region id="12" name="dog"         color="64 0 128"    />
+      <region id="13" name="horse"       color="192 0 128"   />
+      <region id="14" name="motorbike"   color="64 128 128"  />
+      <region id="15" name="person"      color="192 128 128" />
+      <region id="16" name="pottedplant" color="0 64 0"      />
+      <region id="17" name="sheep"       color="128 64 0"    />
+      <region id="18" name="sofa"        color="0 192 0"     />
+      <region id="19" name="train"       color="128 192 0"   />
+      <region id="20" name="tvmonitor"   color="0 64 128"    />
+    </regionDefinitions>
+  </drwnMultiSegConfig>
+
+  <drwnSegImagePixelFeatures>
+    <!-- feature options -->
+    <option name="filterBandwidth" value="1" />
+    <option name="featureGridSpacing" value="5" />
+    <option name="includeRGB" value="true" />
+    <option name="includeHOG" value="true" />
+    <option name="includeLBP" value="true" />
+    <option name="includeRowCol" value="true" />
+    <option name="includeLocation" value="true" />
+    <option name="auxFeatureDir" value="data/features/" />
+  </drwnSegImagePixelFeatures>
+
+  <drwnCodeProfiler enabled="true" />
+  <drwnLogger logLevel="VERBOSE"
+              logFile="pascal.log" />
+  <drwnThreadPool threads="4" />
+  <drwnConfusionMatrix colSep=" &amp; " rowBegin="    &amp; " rowEnd=" \\" />
+  <drwnHOGFeatures blockSize="1" normClippingLB="0.1" normClippingUB="0.5" />
+</drwn>

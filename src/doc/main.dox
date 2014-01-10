@@ -1,0 +1,266 @@
+namespace drwn {
+
+/*!
+\mainpage Darwin Documentation
+
+\section Introduction
+
+This document describes the design and usage of the \b Darwin
+framework for machine learning and computer vision research and
+development. It includes an overview of the various \ref drwnLibs
+"components" of the framework, \ref drwnDownload "installation instructions",
+and \ref drwnTutorial "tutorial". The document assumes
+that you are familiar with either the Linux or Windows (Microsoft
+Visual Studio) C/C++ development environments and have a basic
+understanding of Machine Learning, e.g., as presented in a number of
+excellent texts:
+
+   \li Richard O. Duda and Peter E. Hart and David G. Stork, "Pattern Classification", 2000.
+   \li Christopher M. Bishop, "Pattern Recognition and Machine Learning", 2007.
+   \li Trevor Hastie and Robert Tibshirani and Jerome Friedman,
+   "The Elements of Statistical Learning: Data Mining, Inference, and Prediction", 2009.
+   \li Daphne Koller and Nir Friedman, "Probabilistic Graphical Models: Principles and Techniques", 2009.
+   \li Kevin Murphy, "Machine Learning: A Probabilistic Approach", 2012.
+
+For computer vision the following texts are recommended:
+
+   \li Richard Szeliski, "Computer Vision: Algorithms and Applications", 2010. 
+   \li Simon Prince, "Computer Vision: Models, Learning, and Inference", 2012.
+   \li Gary Bradski and Adrian Kaehler, "Learning OpenCV", 2008.
+
+The \b Darwin framework is designed to make it easy for researchers to
+share code that makes use of the \b Darwin libraries. The basic
+structure is shown in the figure below where \b Darwin applications
+and projects link against the \b Darwin libraries, which in turn link
+against a small set of external (third-party) libraries. Individual
+projects may include full-blown machine learning applications or
+reference code to replicate results from scientific
+publications. Individual projects may also link against other external
+libraries. The \b Darwin libraries are outlined in more detail below
+(see \ref drwnLibs).
+
+\dot
+digraph dependencies {
+  rankdir=BT;
+  node [shape=rectangle, fontname=Helvetica, fontsize=10, height=0.3];
+  "external libraries" [URL="\ref drwnLibs"];
+  "darwin libraries" [URL="\ref drwnLibs"];
+  "darwin applications" [URL="\ref drwnApplications"];
+  "projects" [URL="\ref drwnApplications"];
+
+  "darwin libraries" -> "external libraries";
+  "darwin applications" -> "darwin libraries";
+  "projects" -> "darwin libraries";
+  "projects" -> "external libraries";
+}
+\enddot
+
+A number of researchers have contributed to the \b Darwin
+project. They are listed \ref drwnAcknowledgments "here".
+
+\section drwnLibs Darwin Libraries
+
+The following (clickable) diagram shows the dependencies between \b
+Darwin libraries. Dashed external libraries are optional. However,
+some functionality may not be available without these libraries.
+
+\dot
+digraph dependencies {
+  rankdir=BT;
+  node [shape=rectangle, fontname=Helvetica, fontsize=10, height=0.3];
+
+  subgraph clusterLibs {
+    fontname=Helvetica; fontsize=12; color=grey; labeljust="r";
+    label="darwin libraries";
+
+    drwnBase [URL="\ref drwnBase"];
+    drwnIO [URL="\ref drwnIO"];
+    drwnML [URL="\ref drwnML"];
+    drwnPGM [URL="\ref drwnPGM"];
+    drwnVision [URL="\ref drwnVision"];
+
+    drwnIO -> drwnBase;
+    // drwnML -> drwnBase;
+    // drwnVision -> drwnBase;
+    drwnML -> drwnIO;
+    drwnPGM -> drwnIO;
+    // drwnVision -> drwnIO;
+    drwnVision -> drwnML;
+    drwnVision -> drwnPGM;
+  }
+
+  subgraph clusterExt {
+    fontname=Helvetica; fontsize=12; color=grey; labeljust="r";
+    label="externals";
+
+    Eigen3 [URL="http://eigen.tuxfamily.org"];
+    RapidXML [URL="http://rapidxml.sourceforge.net/"];
+    node [style=dashed];
+    zlib [URL="http://www.zlib.org/"];
+    OpenCV [URL="http://code.opencv.org"];
+  }
+
+  drwnBase -> RapidXML;
+  drwnBase -> Eigen3;
+  edge [style=dashed];
+  drwnIO -> zlib;
+  drwnVision -> OpenCV;
+}
+\enddot
+
+\li The \ref drwnBase library provides a number of core utility
+classes such as command line processing, code profiling, and message
+logging that are used throughout the rest of the library. All
+applications that use the \b Darwin framework must include drwnBase.h
+and link against this library.
+
+\li The \ref drwnIO library provides input/output functionality such
+as data storage in uncompressed or compressed format (provided by
+zlib). Applications using the i/o library should include the drwnIO.h
+header file.
+
+\li The \ref drwnML library provides basic machine learning capability
+for optimization, classification, regression and modeling probability
+distributions. Applications using the machine learning library should
+include the drwnML.h header file.
+
+\li The \ref drwnPGM library provides infrastructure for inference and
+learning in probabilistic graphical models. Applications using the PGM
+library should include the drwnPGM.h header file.
+
+\li The \ref drwnVision library provided high-level computer vision
+routines. It requires OpenCV (http://code.opencv.org). Client
+code using the computer vision library should include the drwnVision.h
+header file. This library is optional.
+
+\section drwnApps Applications and Projects
+
+The \b Darwin framework includes many pre-developed applications for
+and projects for common machine learning and computer vision
+problems. For example, one of the projects provides \ref
+drwnProjMatlab "mex interfaces" for accessing many components of the
+library from Matlab; other projects integrate various components of
+the library through small utility applications and shell scripts. See
+\ref drwnApplications for details.
+
+There is also a short \ref drwnTutorial "tutorial" that you should
+read if you are new to the library.
+
+\section drwnDownload Downloading and Installing
+
+\b Darwin has minimal dependencies on external libraries. Small
+libraries such as \ref RapidXML are included in the distribution, but
+larger libraries, such as \ref Eigen and \ref OpenCV, need to be
+installed separately. The following links provide detailed download
+and install instructions for Windows, Linux and Mac OS X.
+
+\li \ref linuxInstall
+\li \ref winInstall
+\li \ref osxInstall
+
+The latest stable release can be downloaded from:
+\li release 1.7 [ <a href="http://drwn.anu.edu.au/darwin.1.7.tar.gz">.tar.gz</a> ]
+
+Previous stable releases, pre-compiled Windows and Matlab mex
+binaries, and change logs are also \ref drwnDownloadsDoc "available".
+
+Please report bugs to stephen.gould@anu.edu.au and include a small
+example (code and data) that will trigger the bug.
+
+\section drwnVideoDocs Helper Videos
+
+\li <b><a href="http://users.cecs.anu.edu.au/sgould/darwin_install.mp4">Darwin Installation on Linux</a></b>
+\li <b><a href="http://users.cecs.anu.edu.au/sgould/darwin_matlab.mp4">Interfacing Darwin from Matlab</a></b>
+
+\section drwnOtherDocs Miscellaneous Documentation
+
+\li \ref drwnApplications
+\li \ref drwnAcknowledgments
+\li \ref codingGuidelines
+\li \ref drwnTesting
+\li \ref drwnChangeLog
+
+\section drwnExt External Documentation
+
+\li Eigen matrix library (http://eigen.tuxfamily.org)
+\li C++ STL (http://www.sgi.com/tech/stl)
+\li OpenCV (http://code.opencv.org)
+\li RapidXML (http://rapidxml.sourceforge.net/)
+\li SVN and source control (http://svnbook.red-bean.com)
+
+\section drwnLicense License
+
+\b Darwin is distributed under the BSD license. This means that it is
+free for both academic and commercial use. Note, however, that some
+projects may use third-party components that may have more stringent
+restrictions (e.g., academic use only or that certain works be cited
+in scientific publications).
+
+\note If you would like to cite \b Darwin in your scientific work
+please use the following reference (and include the specific software
+version number):
+\n
+\n
+\li Stephen Gould, "DARWIN: A Framework for Machine Learning and Computer Vision Research and Development",\n
+    Journal of Machine Learning Research (JMLR), 13(Dec):3533−3537, 2012.
+
+\n
+\par
+
+\verbatim
+Copyright (c) 2007-2014, Stephen Gould
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+    * Redistributions of source code must retain the above copyright
+      notice, this list of conditions and the following disclaimer.
+    * Redistributions in binary form must reproduce the above
+      copyright notice, this list of conditions and the following
+      disclaimer in the documentation and/or other materials provided
+      with the distribution.
+    * Neither the name of the software's copyright holders nor the
+      names of its contributors may be used to endorse or promote
+      products derived from this software without specific prior
+      written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+\endverbatim
+
+<hr>
+<center>
+Copyright &copy; 2007-2014, Stephen Gould <stephen.gould@anu.edu.au>
+</center>
+*/
+
+/*!
+\defgroup drwnLibraries Darwin Libraries
+*/
+/*@{*/
+/*!
+\addtogroup drwnLibraries
+\defgroup drwnBase drwnBase
+\defgroup drwnIO drwnIO
+\defgroup drwnML drwnML
+\defgroup drwnPGM drwnPGM
+\defgroup drwnVision drwnVision
+\addtogroup drwnLibraries
+*/
+/*@}*/
+
+/*!
+\defgroup drwnConfigSettings Configuration Settings
+*/
+
+}

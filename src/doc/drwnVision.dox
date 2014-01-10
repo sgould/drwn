@@ -1,0 +1,120 @@
+namespace drwn {
+/*@{*/
+
+// Class List ------------------------------------------------------------------
+
+/*!
+\section drwnVisionDef Class List for drwnVision
+
+\li drwnColourHistogram : \copybrief drwnColourHistogram
+\li drwnFilterBankResponse : \copybrief drwnFilterBankResponse
+\li drwnGrabCutInstance : \copybrief drwnGrabCutInstance
+\li drwnHOGFeatures : \copybrief drwnHOGFeatures
+\li drwnImageCache : \copybrief drwnImageCache
+\li drwnImagePyramidCache : \copybrief drwnImagePyramidCache
+\li drwnInPaint : \copybrief drwnInPaint
+\li drwnMultiSegRegionDefinitions : \copybrief drwnMultiSegRegionDefinitions
+\li drwnMultiSegConfig : \copybrief drwnMultiSegConfig
+\li \ref drwnMultiSegVis : \copybrief drwnMultiSegVis.h
+\li drwnObject : \copybrief drwnObject
+\li drwnObjectList : \copybrief drwnObjectList
+\li drwnObjectSequence : \copybrief drwnObjectSequence
+\li \ref drwnOpenCVUtils : \copybrief drwnOpenCVUtils.h
+\li drwnPatchMatchEdge : \copybrief drwnPatchMatchEdge
+\li drwnPatchMatchGraph : \copybrief drwnPatchMatchGraph
+\li drwnPatchMatchGraphLearner : \copybrief drwnPatchMatchGraphLearner
+\li drwnPatchMatchImagePyramid : \copybrief drwnPatchMatchImagePyramid
+\li drwnPatchMatchImageRecord : \copybrief drwnPatchMatchImageRecord
+\li drwnPatchMatchNode : \copybrief drwnPatchMatchNode
+\li drwnPatchMatchRetarget : \copybrief drwnPatchMatchRetarget
+\li drwnPartsModel : \copybrief drwnPartsModel
+\li drwnPixelNeighbourContrasts : \copybrief drwnPixelNeighbourContrasts
+\li drwnPixelSegCRFInference : \copybrief drwnPixelSegCRFInference
+\li drwnPixelSegModel : \copybrief drwnPixelSegModel
+\li drwnRobustPottsCRFInference : \copybrief drwnRobustPottsCRFInference
+\li drwnSegImageInstance : \copybrief drwnSegImageInstance
+\li drwnSegImagePixelFeatures : \copybrief drwnSegImagePixelFeatures
+\li drwnSegImageRegionFeatures : \copybrief drwnSegImageRegionFeatures
+\li drwnSuperpixelContainer : \copybrief drwnSuperpixelContainer
+\li drwnTemplateMatcher : \copybrief drwnTemplateMatcher
+\li drwnTextonFilterBank : \copybrief drwnTextonFilterBank
+\li \ref drwnVisionUtils : \copybrief drwnVisionUtils.h
+\li drwnWeightedRobustPottsCRFInference : \copybrief drwnWeightedRobustPottsCRFInference
+*/
+
+// Examples -------------------------------------------------------------------
+/*!
+\section drwnVisionDoc drwnVision API Examples
+
+The following code shows an example of learning and then executing a
+pixel classifier based on RGB features. For more sophisticated pixel
+labeling see drwnSegImageInstance and drwnPixelSegModel.
+
+\code
+    // load image and labels
+    IplImage *img = cvLoadImage("image.png", CV_LOAD_IMAGE_COLOR);
+    MatrixXi labels;
+    drwnLoadPixelLabels(labels, "labels.txt");
+
+    // build a training dataset
+    drwnClassifierDataset dataset;
+    dataset.reserve(img->height * img->width);
+
+    for (int y = 0; y < img->height; y++) {
+        for (int x = 0; x < img->width; x++) {
+            if (labels(y, x) < 0) continue;
+
+            vector<double> features(3);
+            features[0] = CV_IMAGE_ELEM(img, unsigned char, y, 3*x + 0);
+            features[1] = CV_IMAGE_ELEM(img, unsigned char, y, 3*x + 1);
+            features[2] = CV_IMAGE_ELEM(img, unsigned char, y, 3*x + 2);
+
+            dataset.append(features, labels(y, x));
+        }
+    }
+    DRWN_LOG_MESSAGE("dataset contains " << dataset.size() << " training samples");
+
+    dataset.subSample(2, true);
+    DRWN_LOG_MESSAGE("subsampled to " << dataset.size() << " training samples");
+
+    // train a decision tree classifier to depth of 10
+    const int nClasses = dataset.maxTarget() + 1;
+    drwnDecisionTree::MAX_DEPTH = 10;
+    drwnDecisionTree classifier(dataset.numFeatures(), nClasses);
+    classifier.train(dataset);
+    
+    // display classification results (on training set)
+    drwnConfusionMatrix results(nClasses);
+    results.accumulate(dataset, &classifier);
+    results.printCounts();
+\endcode
+
+The following code shows an example of drawing bounding boxes for a
+list of objects.
+\code
+    // load objects
+    drwnObjectList objects;
+    objects.read(OBJECTS_FILENAME);
+
+    // load image
+    IplImage *img = cvLoadImage(IMAGE_FILENAME, CV_LOAD_IMAGE_COLOR);
+
+    // draw objects
+    for (drwnObjectList::const_iterator it = objects.begin(); it != objects.end(); it++) {
+        drwnDrawBoundingBox(img, it->extent, CV_RGB(255, 0, 0), CV_RGB(0, 0, 0), 2);
+    }
+
+    // show image with objects
+    drwnShowDebuggingImage(img, "objects", true);
+
+    // clean up
+    cvReleaseImage(&img);
+\endcode
+
+*/
+
+/*@}*/
+
+//! \addtogroup drwnVision
+
+};

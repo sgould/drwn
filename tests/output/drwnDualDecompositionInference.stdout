@@ -1,0 +1,25 @@
+--- ...4 variables; 8 factors; 0 edges
+--- ...iteration 0 dual: -1; integrality gap: 1
+--- ...iteration 1 dual: -1; integrality gap: 1
+--- ...iteration 2 dual: -1.05556; integrality gap: 1
+--- ...iteration 3 dual: -1.05556; integrality gap: 1
+--- ...iteration 4 dual: -1; integrality gap: 1
+--- ...iteration 5 dual: -1.05556; integrality gap: 1
+--- ...iteration 6 dual: -1.05556; integrality gap: -2.22045e-16
+--- dual decomposition converged after 7 iterations
+--- map assignment has energy -1
+--- map assignment is  1 1 1 1
+--- drwnFactor class computed 0 products
+--- drwnFactor class computed 0 divisions
+--- drwnFactor class computed 60 additions
+--- drwnFactor class computed 0 subtractions
+--- drwnFactor class computed 0 marginals
+--- drwnFactor class computed 0 maximizations/minimizations
+--- drwnFactor class computed 0 reductions
+--- drwnFactor class computed 0 normalizations
+--- drwnFactor class computed 0 normalization errors
+--- drwnFactor class largest factor had 2 variables 
+--- drwnFactor class allocated 50 total entries
+--- drwnFactor class allocated 50 max. concurrent entries
+--- drwnFactor class allocated 0 current entries
+--- drwnFactor class allocated 4 entries in largest factor

@@ -1,0 +1,30 @@
+namespace drwn {
+
+/*!
+\page drwnTesting Regression Tests
+
+Regression tests are run using a perl script in the tests
+directory. Requires <tt>XML::Simple</tt> and <tt>Text::Diff</tt> to be
+installed.
+
+\code
+sudo cpan
+> install XML::Simple
+> install Text::Diff
+> exit
+\endcode
+
+Regression tests can be run from the \p tests directory. The script \p
+runtests.pl executes a series of tests and compares the output with
+known results. Tests are defined in XML files. For example, to test
+the \ref drwnML library, run
+
+\code
+perl runtests.pl drwnMLTests.xml
+\endcode
+
+Executing \p runtests.pl without any arguments will display additional
+usage information.
+
+*/
+}

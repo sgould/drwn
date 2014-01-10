@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<drwnGraph title="Example Classification Data Flow" version="100" drwnVersion="1.0">
+	<drwnNode type="drwnTextFileSourceNode" version="100">
+		<property name="name" value="Iris Data"/>
+		<property name="filename" value="input/iris.data.txt"/>
+		<property name="delimiter" value=" "/>
+		<property name="headerLines" value="0"/>
+		<property name="includesKey" value="0"/>
+		<property name="keyPrefix" value=""/>
+		<location x="64" y="64"/>
+	</drwnNode>
+	<drwnNode type="drwnTextFileSourceNode" version="100">
+		<property name="name" value="Iris Labels"/>
+		<property name="filename" value="input/iris.labels.txt"/>
+		<property name="delimiter" value=" "/>
+		<property name="headerLines" value="0"/>
+		<property name="includesKey" value="0"/>
+		<property name="keyPrefix" value=""/>
+		<location x="256" y="160"/>
+	</drwnNode>
+	<drwnNode type="drwnMultiClassLogisticNode" version="100">
+		<property name="name" value="Logistic Classifier"/>
+		<property name="colour" value="-1"/>
+		<property name="subSample" value="0"/>
+		<property name="maxIterations" value="1000"/>
+		<property name="regularizer" value="0">
+			<!-- [sum-of-squares (L2)] -->
+			<!--  huber (soft L1)  -->
+		</property>
+		<property name="regStrength" value="1e-09"/>
+		<property name="theta" rows="0" cols="0" encoder="base64"></property>
+		<property name="outputScores" value="0"/>
+		<location x="352" y="64"/>
+	</drwnNode>
+	<drwnNode type="drwnConfusionMatrixNode" version="100">
+		<property name="name" value="Logistic Confusion"/>
+		<property name="colour" value="-1"/>
+		<property name="filename" value=""/>
+		<location x="448" y="64"/>
+	</drwnNode>
+	<drwnNode type="drwnPCANode" version="100">
+		<property name="name" value="PCA"/>
+		<property name="translation" rows="0" encoder="base64"></property>
+		<property name="projection" rows="0" cols="0" encoder="base64"></property>
+		<property name="colour" value="-1"/>
+		<property name="outputDim" value="3"/>
+		<location x="160" y="64"/>
+	</drwnNode>
+	<drwnNode type="drwnConcatenationNode" version="100">
+		<property name="name" value="Add Bias"/>
+		<property name="numInputs" value="1"/>
+		<property name="appendOnes" value="1"/>
+		<location x="256" y="64"/>
+	</drwnNode>
+	<drwnNode type="drwnPRCurveNode" version="100">
+		<property name="name" value="Logistic PR Curve"/>
+		<property name="colour" value="-1"/>
+		<property name="ignoreMissing" value="0"/>
+		<location x="352" y="160"/>
+	</drwnNode>
+	<drwnPort srcNode="Add Bias" srcPort="dataOut" dstNode="Logistic Classifier" dstPort="dataIn"/>
+	<drwnPort srcNode="Iris Labels" srcPort="dataOut" dstNode="Logistic Classifier" dstPort="targetIn"/>
+	<drwnPort srcNode="Iris Labels" srcPort="dataOut" dstNode="Logistic Confusion" dstPort="actual"/>
+	<drwnPort srcNode="Logistic Classifier" srcPort="dataOut" dstNode="Logistic Confusion" dstPort="predicted"/>
+	<drwnPort srcNode="Iris Data" srcPort="dataOut" dstNode="PCA" dstPort="dataIn"/>
+	<drwnPort srcNode="PCA" srcPort="dataOut" dstNode="Add Bias" dstPort="dataIn"/>
+	<drwnPort srcNode="Iris Labels" srcPort="dataOut" dstNode="Logistic PR Curve" dstPort="actual"/>
+	<drwnPort srcNode="Logistic Classifier" srcPort="dataOut" dstNode="Logistic PR Curve" dstPort="predicted"/>
+</drwnGraph>

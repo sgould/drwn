@@ -1,0 +1,75 @@
+namespace drwn {
+/*@{*/
+
+/*!
+   \page drwnProjGUI Graphical User Interface for Machine Learning Data Flows
+
+   This project implements an interface for graphical development of
+   machine learning data flow nextorks. A data flow network is a set
+   of data processing nodes connected in an acyclic graph. Data (in
+   the form of records) moves from source nodes, through processing
+   nodes, to sink nodes. Visualization and debugging nodes provide
+   tools for algorithm introspection. An example data flow network
+   (within the GUI) is shown below.
+
+   \image html guiScreenshot.png
+
+   The \p wxWidgets GUI toolkit needs to be installed for this
+   project. See \ref linuxInstall or \ref winInstall for installation
+   instructions.
+
+   \warning This project is experimental. Not all features are fully
+   implemented or supported.
+
+   An example data flow network for classification is provided in \p
+   tests/exampleDataFlowNetwork.xml. You can open the network from the
+   command-line with
+   \code
+   bin/darwin tests/exampleDataFlowNetwork.xml
+   \endcode
+
+   There are four basic operations that you can perform on a network
+   (or subnetwork by selecting a subset of the nodes). The operations
+   are:
+   
+   \li \b Evaluate \b Forwards: performs the operation of the node on
+   any data available at the input and produces data at the
+   output. Adaptive nodes, i.e., those with parameters that can be
+   estimated needd to be initialized before they can operate on input
+   data.
+   \li \b Propagate \b Backwards: provides for future capability to
+   propagate objective gradient information backwards through the
+   network. Currently not implemented.
+   \li \b Reset \b Parameters: initializes any parameters for the
+   node.
+   \li \b Estimate \b Parameters: uses data at the input of the node
+   to learn parameters, e.g., logistic regression weights. Learning
+   parameters invalidates the data at the output of the node (as well
+   as all downstream data).
+
+   The \b Initialize (F5) option from the \b Network menu will iterate
+   throught nodes in the network (in topological order), first
+   estimating the parameters for the block and then evaluating
+   forwards.
+
+   Nodes are divided into six functional groups:
+   \li \b Source: nodes for providing data to the network, e.g., by
+   reading files from disk. These nodes do not have any input ports.
+   \li \b Sink: nodes for outputing data. These nodes do not have
+   any output ports.
+   \li \b Static: nodes which process data from intput to
+   output. These nodes do not have any learnable parameters.
+   \li \b Adaptive: nodes which process data from intput to
+   output. these nodes have parameters which can be estimated from
+   data.
+   \li \b Visualization: nodes for providing data visualization and
+   debugging.
+   \li \b Custom: nodes implementing arbitrary functionality, e.g.,
+   via Matlab scripts.
+
+   \sa \ref drwnApplications
+*/
+
+/*@}*/
+
+}

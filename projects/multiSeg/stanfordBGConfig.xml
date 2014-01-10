@@ -1,0 +1,48 @@
+<drwn>
+  <drwnMultiSegConfig>
+    <!-- data options -->
+    <option name="baseDir" value="./" />
+    <option name="imgDir" value="data/images/" />
+    <option name="lblDir" value="data/labels/" />
+    <option name="cacheDir" value="cached/" />
+    <option name="modelsDir" value="models/" />
+    <option name="outputDir" value="output/" />
+
+    <option name="imgExt" value=".jpg" />
+    <option name="lblExt" value=".regions.txt" />
+
+    <option name="useCache" value="true" />
+
+    <!-- region definitions -->
+    <regionDefinitions>
+      <region id="0" name="sky" color="128 128 128"/>
+      <region id="1" name="tree" color="128 128 0"/>
+      <region id="2" name="road" color="128 64 128"/>
+      <region id="3" name="grass" color="0 128 0"/>
+      <region id="4" name="water" color="0 0 128"/>
+      <region id="5" name="building" color="128 0 0"/>
+      <region id="6" name="mountain" color="128 50 0"/>
+      <region id="7" name="foreground" color="255 128 0"/>
+    </regionDefinitions>
+  </drwnMultiSegConfig>
+
+  <drwnSegImagePixelFeatures>
+    <!-- feature options -->
+    <option name="filterBandwidth" value="1" />
+    <option name="featureGridSpacing" value="5" />
+    <option name="includeRGB" value="true" />
+    <option name="includeHOG" value="true" />
+    <option name="includeLBP" value="true" />
+    <option name="includeRowCol" value="true" />
+    <option name="includeLocation" value="true" />
+    <option name="auxFeatureDir" value="data/features/" />
+    <option name="auxFeatureExt" value="" />
+  </drwnSegImagePixelFeatures>
+
+  <drwnCodeProfiler enabled="true" />
+  <drwnLogger logLevel="VERBOSE"
+              logFile="stanfordBG.log" />
+  <drwnThreadPool threads="4" />
+  <drwnConfusionMatrix colSep=" || " rowBegin="    || " rowEnd=" \" />
+  <drwnHOGFeatures blockSize="1" normClippingLB="0.1" normClippingUB="0.5" />
+</drwn>

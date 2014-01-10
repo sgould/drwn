@@ -1,0 +1,23 @@
+--- junction tree has tree-width of 2
+--- maximum factor entries is 8
+--- Starting message passing loop...
+--- ...4 variables; 2 factors; 1 edges
+--- ...iteration 1 (0 of 2 messages converged)
+--- ...iteration 2 (2 of 2 messages converged)
+--- ...converged in 2 iterations
+--- map assignment has energy -1
+--- map assignment is  1 1 1 1
+--- drwnFactor class computed 0 products
+--- drwnFactor class computed 0 divisions
+--- drwnFactor class computed 10 additions
+--- drwnFactor class computed 0 subtractions
+--- drwnFactor class computed 0 marginals
+--- drwnFactor class computed 4 maximizations/minimizations
+--- drwnFactor class computed 0 reductions
+--- drwnFactor class computed 4 normalizations
+--- drwnFactor class computed 0 normalization errors
+--- drwnFactor class largest factor had 3 variables 
+--- drwnFactor class allocated 80 total entries
+--- drwnFactor class allocated 72 max. concurrent entries
+--- drwnFactor class allocated 0 current entries
+--- drwnFactor class allocated 8 entries in largest factor

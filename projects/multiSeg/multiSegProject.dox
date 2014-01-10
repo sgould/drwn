@@ -1,0 +1,258 @@
+namespace drwn {
+/*@{*/
+
+/*!
+   \page drwnProjMultiSeg Multi-class Image Segmentation
+
+   This project implements conditional Markov random field (CRF)
+   models for multi-class image segmentation (also known as pixel
+   labeling). The following documentation describes the pipeline for
+   learning and evaluating a multi-class image segmentation model. The
+   following instructions are general but give examples using the
+   21-class MSRC image segmentation dataset.
+
+   \note The 21-class MSRC dataset can be downloaded from
+   http://research.microsoft.com/en-us/projects/ObjectClassRecognition/.
+   It contains 23 object classes, but two of the object classes appear
+   rarely and are usually ignored. An additional \c void class marks
+   regions to be ignored during training and test.
+
+   \sa \ref drwnSegImageInstance, drwnPixelSegModel, drwnMultiSegConfig
+
+   \section drwnProjMultiSeg1 Preparing the Training Data
+
+   Multi-class image segmentation requires labeled training data. Each
+   training instance consists of an image and an integer matrix the
+   same size as the image. The matrix entries indicate the class label
+   for each pixel. These matrices can be stored as space-delimited
+   text files (in row-major order) or 16-bit PNG files. The \p
+   convertPixelLabels application can be used to generate the right
+   file format from colour-annotated images (see below).
+
+   Images and label files should have the same basename (e.g., \p
+   img001.jpg and \p img001.txt) and may be stored in the same or
+   different directories. Training and evaluation lists are described
+   in terms of basenames, e.g., for the 21-class MSRC dataset we would
+   have
+
+   \code
+     1_1_s
+     1_2_s
+     ...
+     9_9_s
+   \endcode
+
+   \note The script \p prepareMSRCDemo.sh in the project directory will
+   download and prepare the data for exprimenting with the 21-class
+   MSRC dataset. The script assumes that you have utilities \p wget,
+   \p unzip, and \p convert installed on your system.
+
+   \subsection drwnProjMultiSeg1a Converting Pixel Labels
+
+   A standard method of annotating images for multi-class pixel
+   labeling is to paint each pixel with a colour corresponding to a
+   particular class label. For example, the 21-class MSRC dataset uses
+   red to indicate building and blue to indicate cow. Using the XML
+   configration file (see \ref drwnProjMultiSeg2) the \p
+   convertPixelLabels application can convert these colour images into
+   a format recognized by the other application in this
+   project---specifically, space-delimited text files. The application
+   expects the colour images to be in the labels directory and will
+   write to the same directory. E.g.,
+
+   \code
+   ${BIN_DIR}/convertPixelLabels -config $CONFIG -i "_GT.bmp" $ALL_LIST
+   \endcode
+   where \p $ALL_LIST should be replaced with the filename of a file
+   containing the basenames of both training and evaluation images as
+   described above.
+
+   \section drwnProjMultiSeg2 Configuration
+
+   The multi-class image segmentation pipeline requires a number of
+   configuration settings to be defined so that it can find the
+   training images, labels, etc. It also needs to know the number of
+   class labels and how to visualize them. The following XML
+   configuration shows an example configuration for the MSRC dataset.
+
+   \code
+   <drwn>
+      <drwnMultiSegConfig>
+        <!-- data options -->
+        <option name="baseDir" value="./" />
+        <option name="imgDir" value="data/images/" />
+        <option name="lblDir" value="data/labels/" />
+        <option name="segDir" value="data/regions/" />
+        <option name="cacheDir" value="cached/" />
+        <option name="modelsDir" value="models/" />
+        <option name="outputDir" value="output/" />
+
+        <option name="imgExt" value=".jpg" />
+        <option name="lblExt" value=".txt" />
+        <option name="segExt" value=".sp" />
+
+        <option name="useCache" value="true" />
+
+        <!-- region definitions -->
+        <regionDefinitions>
+          <region id="-1" name="void" color="0 0 0"/>
+          <region id="0" name="building" color="128 0 0"/>
+          <region id="1" name="grass" color="0 128 0"/>
+          <region id="2" name="tree" color="128 128 0"/>
+          <region id="3" name="cow" color="0 0 128"/>
+          <region id="4" name="sheep" color="0 128 128"/>
+          <region id="5" name="sky" color="128 128 128"/>
+          <region id="6" name="airplane" color="192 0 0"/>
+          <region id="7" name="water" color="64 128 0"/>
+          <region id="8" name="face" color="192 128 0"/>
+          <region id="9" name="car" color="64 0 128"/>
+          <region id="10" name="bicycle" color="192 0 128"/>
+          <region id="11" name="flower" color="64 128 128"/>
+          <region id="12" name="sign" color="192 128 128"/>
+          <region id="13" name="bird" color="0 64 0"/>
+          <region id="14" name="book" color="128 64 0"/>
+          <region id="15" name="chair" color="0 192 0"/>
+          <region id="16" name="road" color="128 64 128"/>
+          <region id="17" name="cat" color="0 192 128"/>
+          <region id="18" name="dog" color="128 192 128"/>
+          <region id="19" name="body" color="64 64 0"/>
+          <region id="20" name="boat" color="192 64 0"/>
+        </regionDefinitions>
+      </drwnMultiSegConfig>
+
+      <drwnSegImagePixelFeatures>
+        <!-- feature options -->
+        <option name="filterBandwidth" value="1" />
+        <option name="featureGridSpacing" value="5" />
+        <option name="includeRGB" value="true" />
+        <option name="includeHOG" value="true" />
+        <option name="includeLBP" value="true" />
+        <option name="includeRowCol" value="true" />
+        <option name="includeLocation" value="true" />
+      </drwnSegImagePixelFeatures>
+
+      <drwnCodeProfiler enabled="true" />
+      <drwnLogger logLevel="VERBOSE"
+                  logFile="msrc.log" />
+      <drwnThreadPool threads="4" />
+      <drwnConfusionMatrix colSep=" || " rowBegin="    || " rowEnd=" \" />
+      <drwnHOGFeatures blockSize="1" normClippingLB="0.1" normClippingUB="0.5" />
+   </drwn>
+   \endcode
+
+   The directories specified in the configuration file are relative to
+   \p baseDir. Output directories \p modelsDir and \p outputDir must
+   exist before running the learning and inference code. If feature
+   caching is being used (\p useCache set to \p true) then \p cacheDir
+   must also exist. Different image formats are supported. For
+   example, if you have kept your MSRC images are in \p bmp format
+   then you can change the \p imgExt option from \p ".jpg" to \p
+   ".bmp".
+
+   \section drwnProjMultiSeg3 Learning Unary Potentials
+
+   The unary potentials encode a single pixel's preference for each
+   label and is the heart of the model. The unary potentials are
+   learned in two stages. The first stage learns a one-versus-all
+   boosted decision tree classifier for each of the labels. The key
+   features used for this stage are derived from a bank of 17 filters
+   which are run over the image. In addition, we include the RGB color
+   of the pixel, dense HOG features, LBP-like features, and averages
+   over image rows and columns. These features can all be controlled
+   within the \p drwnSegImagePixelFeatures section of the
+   configuration file. Custom features can even be included via
+   auxiliary feature settings (see drwnSegImageStdPixelFeatures for
+   details).
+
+   The second stage calibrates the output of the boosted decision
+   trees via a multi-class logistic regression classifier. These steps
+   are performed by the following commands. One of the most important
+   commandl-line argument is \p -subSample, which determines how many
+   pixels are used, and hence the amount of memory required, during
+   training. Specifically, \p "-subSample n^2" randomly samples 1
+   pixel out of every n-by-n pixel grid. With the settings below, the
+   unary potentials can be trained using under 4GB of memory.
+
+   \code
+   # train boosted classifiers
+   ${BIN_DIR}/learnPixelSegModel -config $CONFIG -component BOOSTED \
+        -set drwnDecisionTree split MISCLASS \
+        -set drwnBoostedClassifier numRounds 200 \
+        -subSample 250 $TRAIN_LIST
+
+   # train unary potentials
+   ${BIN_DIR}/learnPixelSegModel -config $CONFIG -component UNARY \
+        -subSample 25 $TRAIN_LIST
+   \endcode
+
+   \section drwnProjMultiSeg4 Evaluating Unary Potentials
+
+   We can evaluate the learned model on some test images using the
+   following commands.
+
+   \code
+   # evaluate with unary terms only
+   ${BIN_DIR}/inferPixelLabels -config $CONFIG -pairwise 0.0 \
+        -outLabels .unary.txt -outImages .unary.png $TEST_LIST
+
+   # score results
+   ${BIN_DIR}/scorePixelLabels -config $CONFIG \
+        -inLabels .unary.txt $TEST_LIST
+   \endcode
+
+   Images visualizing the results are written to the output directory
+   specified in the configuration file.
+
+   \section drwnProjMultiSeg5 Learning Pairwise Potentials
+
+   The pairwise term encodes a contrast-dependent smoothness prior on
+   the image labeling. The weight of the term is learned by direct
+   search, i.e., a number of parameter values are tried and the one
+   that gives the best results on a subset of training images is
+   kept. The following commandline will perform this step.
+
+   \code
+   # train pairwise potentials
+   ${BIN_DIR}/learnPixelSegModel -config $CONFIG -component CONTRAST $VAL_LIST
+   \endcode
+
+   Note that \p $VAL_LIST and \p $TRAIN_LIST can be the same list,
+   however, the code will only use up to 100 images from the list to
+   learn the contrast weight.
+
+   \section drwnProjMultiSeg6 Evaluation
+
+   The final step in the pipeline evaluatres the model on some test
+   images and reports average performance.
+
+   \code
+   # evaluate with unary and pariwise terms
+   ${BIN_DIR}/inferPixelLabels -config $CONFIG \
+        -outLabels .pairwise.txt -outImages .pairwise.png $TEST_LIST
+
+   # score results
+   ${BIN_DIR}/scorePixelLabels -config $CONFIG -confusion \
+        -inLabels .pairwise.txt $TEST_LIST
+   \endcode
+
+   Unlike the unary-only evaluation, in this example we also generate
+   a full confusion matrix (by giving the \p -confusion option) to the
+   \p scorePixelLabels application.
+
+   \section drwnProjMultiSegRef References
+
+   \li X. He, R. Zemel, and M. Carreira-Perpinan, "Multiscale
+   CRFs for image labeling." In CVPR, 2004.
+
+   \li J. Shotton, J. Winn, C. Rother, and A. Criminisi, "TextonBoost:
+   Joint appearance, shape and context modeling for multi-class object
+   recognition and segmentation." In ECCV, 2006.
+
+   \li S. Gould, R. Fulton, and D. Koller, "Decomposing a Scene into
+   Geometric and Semantically Consistent Regions." In ICCV, 2009.
+   
+*/
+
+/*@}*/
+
+}

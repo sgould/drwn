@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C++ Express 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "darwin", "darwinGUI.vcxproj", "{EDDAAB84-D23E-46A6-9515-1602B4351A7A}"
+	ProjectSection(ProjectDependencies) = postProject
+		{64CEE945-20E8-4A7C-B6F0-CCE1697E4B2E} = {64CEE945-20E8-4A7C-B6F0-CCE1697E4B2E}
+		{0CCC9C5F-F216-42FD-9856-0D6DDAE0E199} = {0CCC9C5F-F216-42FD-9856-0D6DDAE0E199}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "drwnEngine", "drwnEngine.vcxproj", "{0CCC9C5F-F216-42FD-9856-0D6DDAE0E199}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "drwnNodes", "drwnNodes.vcxproj", "{64CEE945-20E8-4A7C-B6F0-CCE1697E4B2E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EDDAAB84-D23E-46A6-9515-1602B4351A7A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EDDAAB84-D23E-46A6-9515-1602B4351A7A}.Debug|Win32.Build.0 = Debug|Win32
+		{EDDAAB84-D23E-46A6-9515-1602B4351A7A}.Release|Win32.ActiveCfg = Release|Win32
+		{EDDAAB84-D23E-46A6-9515-1602B4351A7A}.Release|Win32.Build.0 = Release|Win32
+		{0CCC9C5F-F216-42FD-9856-0D6DDAE0E199}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0CCC9C5F-F216-42FD-9856-0D6DDAE0E199}.Debug|Win32.Build.0 = Debug|Win32
+		{0CCC9C5F-F216-42FD-9856-0D6DDAE0E199}.Release|Win32.ActiveCfg = Release|Win32
+		{0CCC9C5F-F216-42FD-9856-0D6DDAE0E199}.Release|Win32.Build.0 = Release|Win32
+		{64CEE945-20E8-4A7C-B6F0-CCE1697E4B2E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{64CEE945-20E8-4A7C-B6F0-CCE1697E4B2E}.Debug|Win32.Build.0 = Debug|Win32
+		{64CEE945-20E8-4A7C-B6F0-CCE1697E4B2E}.Release|Win32.ActiveCfg = Release|Win32
+		{64CEE945-20E8-4A7C-B6F0-CCE1697E4B2E}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

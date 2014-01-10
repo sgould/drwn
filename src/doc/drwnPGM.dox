@@ -1,0 +1,246 @@
+namespace drwn {
+/*@{*/
+
+// Class List ------------------------------------------------------------------
+
+/*!
+\section drwnPGMDef Class List for drwnPGM
+
+\li drwnFactorGraph : \copybrief drwnFactorGraph
+\li drwnFactorGraphUtils : \copybrief drwnFactorGraphUtils
+\li drwnFactorOperation : \copybrief drwnFactorOperation
+\li \ref drwnFullAssignment : \copybrief drwnFullAssignment
+\li \ref drwnGraphUtils : \copybrief drwnGraphUtils.h
+\li drwnInference : \copybrief drwnInference
+\li drwnMAPInference : \copybrief drwnMAPInference
+\li drwnMAPInferenceFactory : \copybrief drwnMAPInferenceFactory
+\li drwnMaxFlow : \copybrief drwnMaxFlow
+\li drwnPartialAssignment : \copybrief drwnPartialAssignment
+\li drwnTableFactor : \copybrief drwnTableFactor
+\li drwnTableFactorMapping : \copybrief drwnTableFactorMapping
+\li drwnVarUniverse : \copybrief drwnVarUniverse
+
+\note The current version of \b Darwin includes graphical model
+inference routines such as max-product message passing. Future release
+will also include learning algorithms for log-linear CRF models.
+
+*/
+
+// Max Flow -------------------------------------------------------------------
+
+/*!
+\section drwnMaxFlowDoc Max-flow/Min-cut
+
+\ref drwnMaxFlow and derived classes implement algorithms for solving
+the maxflow/mincut problem on directed graphs (see
+http://en.wikipedia.org/wiki/Max-flow_min-cut_theorem). This is
+particularly useful for minimizing submodular quadratic pseudo-Boolean
+functions.
+
+The following example shows how to find the value of the minimum
+st-cut on a simple graph.
+
+\dot
+digraph dependencies {
+  rankdir=LR;
+  node [shape=circle, fontname=Helvetica, fontsize=10, height=0.3];
+  edge [fontname=Helvetica, fontsize=10];
+  S -> 0 [label="3"];
+  S -> 2 [label="3"];
+  0 -> 1 [label="4"];
+  1 -> 2 [label="1"];
+  1 -> 3 [label="2"];
+  2 -> 3 [label="2"];
+  2 -> 4 [label="6"];
+  3 -> T [label="1"];
+  4 -> T [label="9"];
+}
+\enddot
+
+\code
+    drwnEdmondsKarpMaxFlow graph;  // create graph
+
+    graph.addNodes(5);             // add five (internal) nodes
+    graph.addSourceEdge(0, 3);     // add edges from source
+    graph.addSourceEdge(2, 3);
+    graph.addEdge(0, 1, 4);        // add internal edges
+    graph.addEdge(1, 2, 1);
+    graph.addEdge(1, 3, 2);
+    graph.addEdge(2, 3, 2);
+    graph.addEdge(2, 4, 6);
+    graph.addTargetEdge(3, 1);     // add edges to target (sink)
+    graph.addTargetEdge(4, 9);
+
+    double mincut = graph.solve(); // should be 5.0
+\endcode
+*/
+
+// Factors and Operations -----------------------------------------------------
+
+/*!
+\section drwnFactorDoc Table Factors and Factor Operations
+
+\b Darwin provide a suite of routines and datastructures for learning
+and inference in graphical models (or energy functions). Variables in
+the graphical model are defined by the drwnVarUniverse object. An
+instance of this object should be created once and shared between all
+objects in the graphical model.
+
+The most basic entity in a graphical model is the factor. The
+drwnFactor class defines the interface for factors. The derived
+drwnTableFactor class provides storage for table factors, which
+explicitly store the value for each variable assignment. Operations on
+these factors are executed by classes derived from
+drwnFactorOperation. The advantage of using these classes is that they
+can cache mappings between table entries for fast execution in
+interative algorithms.
+
+The following code provides an example of multiplying two factors and
+then marginalizing out one of the variables. Note that the variable
+names are optional and only provided for convenience---most
+large-scale applications will not make use of them and reference
+variables by index.
+
+\code
+    // define variables
+    drwnVarUniversePtr universe(new drwnVarUniverse());
+    universe->addVariable(3, "a");   // variable "a" has cardinality 3
+    universe->addVariable(2, "b");   // variable "b" has cardinality 2
+    universe->addVariable(2, "c");   // variable "c" has cardinality 2
+
+    // define factor over "a" and "b"
+    drwnTableFactor psiA(universe);
+    psiA.addVariable("b", "a", NULL);   // or psiA.addVariable(1); psiA.addVariable(0);
+    psiA[0] = 0.5; psiA[1] = 0.8; psiA[2] = 0.1;
+    psiA[3] = 0.0; psiA[4] = 0.3; psiA[5] = 0.9;
+
+    // define factor over "b" and "c"
+    drwnTableFactor psiB(universe);
+    psiB.addVariables("c", "b", NULL);  // or psiB.addVariable(2); psiB.addVariable(1);
+    psiB[0] = 0.5; psiB[1] = 0.7;
+    psiB[2] = 0.1; psiB[3] = 0.2;
+
+    // multiply factors together
+    drwnTableFactor psiC(universe);
+    drwnFactorProductOp(&psiC, &psiA, &psiB).execute();
+
+    // marginalize "b"
+    drwnTableFactor psiD(universe);
+    drwnFactorMarginalizeOp(&psiD, &psiC, universe->findVariable("b")).execute();
+
+    // show results
+    psiD.dump();
+\endcode
+
+Factor operations can either be executed using temporary objects or,
+if executed multiple times, as named objects. For example the
+following two code segments have the save affect:
+
+\code
+    // operation using temporary object
+    drwnPlusEqualsOp(&sum, &summand).execute();
+\endcode
+
+\code
+    // operation using named object
+    drwnPlusEqualsOp addOp(&sum, &summand);
+    addOp.execute();
+\endcode
+
+These operations form the basis of many of the inference routines (see
+\ref drwnInferenceDoc and \ref drwnMapInferenceDoc).
+
+*/
+
+// Inference ---------------------------------------------------------------------
+
+/*!
+\section drwnInferenceDoc Graphical Model Inference
+
+Graphical Model inference is conducted on factor graphs
+(drwnFactorGraph) and involves computing marginals (or approximate
+marginals) on a structured probability distribution,
+\f[
+    P(x) \propto \prod_c \Psi_c(x_c)
+\f]
+
+The drwnInference class defines the interfaces for many of the
+inference algorithms implemented in \b Darwin. The following code
+snippet shows an example of loading a factor graph and running the
+sum-product inference algorithm on it.
+
+\code
+    // load graph
+    drwnFactorGraph graph;
+    graph.read(filename);
+
+    // run inference
+    drwnSumProdInference inf(graph);
+    inf.inference();
+    
+    // show marginal over the first variable
+    drwnTableFactor belief = inf[0];
+    belief.dump();
+\endcode
+
+\sa \ref drwnMapInferenceDoc
+
+*/
+
+// MAP Inference -----------------------------------------------------------------
+
+/*!
+\section drwnMapInferenceDoc MAP Inference (Energy Minimization)
+
+MAP Inference is conducted on factor graphs where each factor is
+defined in (negative) log-space, i.e., energy space,
+
+\f[
+    P(x) \propto \exp\{-E(x)\} \textrm{ where } E(x) = \sum_c \psi_c(x_c)
+\f]
+
+Unlike \ref drwnInferenceDoc, the goal of MAP Inference is to find the
+joint assignment to the variables with highest probability (lowest
+energy). The interface for MAP inference is defined by the
+drwnMAPInference class. Currently \b Darwin implements the following
+algorithms:
+
+\li exact inference using the junction-tree algorithm (see drwnJunctionTreeInference)
+\li iterated conditional modes (see drwnICMInference)
+\li synchronous and asychronous max-product belief propagation
+      (see drwnMaxProdInference and drwnAsyncMaxProdInference)
+\li sequential tree-reweighted message passing (see drwnTRWSInference)
+\li Globerson and Jaakkola's GEMPLP (see drwnGEMPLPInference)
+\li Sontag et al.'s iterative tightening of GEMPLP (see drwnSontag08Inference)
+\li Komodakis' dual decomposition inference (see drwnDualDecompositionInference)
+\li Alpha-Expansion and Alpha-Beta Swap (see drwnAlphaExpansionInference and drwnAlphaBetaSwapInference)
+\li Meshi and Globerson's alternating directions method (see drwnADLPInference)
+
+The following code snippet shows an example of running the max-product
+algorithm on a factor graph.
+
+\code
+    // load graph
+    drwnFactorGraph graph;
+    graph.read(filename);
+
+    // run MAP inference
+    drwnMaxProdInference mp(graph);
+    drwnFullAssignment assignment;
+    double e = mp.inference(assignment);
+    DRWN_LOG_MESSAGE("map assignment has energy " << e);
+    DRWN_LOG_VERBOSE("map assignment is " << toString(assignment));
+\endcode
+
+The \ref drwnProjRosetta demonstrates these algorithms on the Rosetta
+Protein Design dataset.
+
+\sa \ref drwnInferenceDoc
+
+*/
+
+/*@}*/
+
+//! \addtogroup drwnPGM
+
+};

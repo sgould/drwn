@@ -1,0 +1,473 @@
+namespace drwn {
+//! \addtogroup drwnBase
+/*@{*/
+
+// Class List ------------------------------------------------------------------
+
+/*!
+    \section drwnBaseDef Class List for drwnBase
+    \li drwnBitArray : \copybrief drwnBitArray
+    \li drwnCodeProfiler : \copybrief drwnCodeProfiler
+    \li \ref drwnCommandLine : \copybrief drwnCommandLine.h
+    \li \ref drwnCompatibility : \copybrief drwnCompatibility.h
+    \li drwnConfigurableModule : \copybrief drwnConfigurableModule
+    \li drwnConfigurationManager : \copybrief drwnConfigurationManager
+    \li \ref drwnConstants : \copybrief drwnConstants.h
+    \li \ref drwnFactory : \copybrief drwnFactory
+    \li \ref drwnFileUtils : \copybrief drwnFileUtils.h
+    \li drwnLogger : \copybrief drwnLogger
+    \li drwnOrderedMap : \copybrief drwnOrderedMap
+    \li drwnProperties : \copybrief drwnProperties
+    \li drwnSmartPointer : \copybrief drwnSmartPointer
+    \li \ref drwnStatsUtils : \copybrief drwnStatsUtils.h
+    \li drwnStdObjIface : \copybrief drwnStdObjIface
+    \li \ref drwnStrUtils : \copybrief drwnStrUtils.h
+    \li drwnThreadJob : \copybrief drwnThreadJob
+    \li drwnThreadPool : \copybrief drwnThreadPool
+    \li drwnTriplet : \copybrief drwnTriplet
+    \li \ref drwnXMLParser : \copybrief drwnXMLParser.h
+    \li \ref drwnXMLUtils.h "drwnXMLUtils" : \copybrief drwnXMLUtils.h
+*/
+
+// Configuration Manager ------------------------------------------------------
+/*!
+\section drwnConfigManagerDoc Configuration Manager
+
+For many research projects it is useful to have a standard
+configuration for running experiments with only a few parameters
+changing from one experiment to the next. \b Darwin supports this
+through two main mechanisms---XML configuration and command line
+options. The general strategy is to create an XML file with the
+standard configuration and then provide overrides for various settings
+on the command line. The system is lightweight while still catering
+for most configuration needs. An example XML configuration file is
+shown below.
+
+\code
+ <drwn>
+   <drwnCodeProfiler    enabled="false" />
+   <drwnLogger          logLevel="message"
+                        logFile="" />
+   <drwnThreadPool      threads="8" />
+   <drwnConfusionMatrix colSep="&#9;"
+                        rowBegin="&#9;"
+                        rowEnd="">
+   <myApplication       attributeName=``attributevalue''/>
+     <myArbitraryData>
+       1 2 3 4
+     </myArbitraryData>
+   </myApplication>
+ </drwn>
+\endcode
+
+The \ref drwnConfigurationManager class handles configuration of
+static parameters for \b Darwin libraries and can be used for
+configuring individual applications or projects. The command line
+options \b -config and \b -set will automatically invoke the
+configuration manager. To invoke it manually you can simply call the
+\ref drwnConfigurationManager::configure function.
+
+Standard configuration parameters are defined by the triplet: module,
+name and value. In the XML configuration file shown above the tags
+"drwnCodeProfiler", "drwnConfusionMatrix", etc. define the
+module (i.e., configurable class) and the node's attributes define the
+name-value pairs. An application can define its own module (XML node)
+with arbitrary name-value pairs. The structure of the
+application-specific XML node can be arbitrary and it is up to the
+application developer to parse non-attribute content (such as the
+\p myArbitraryData node in the example above). The \b -set
+command line option can only be used for name-value pairs.
+
+To register a configurable class with the \b Darwin Configuration
+Manager, an application needs to create a derived class from base
+drwnConfigurableModule and override the \ref setConfiguration
+function. More control can be achieved by also overriding the
+\ref readConfiguration function.
+
+To register the class, the code simply needs to instantiate a
+global class member---the drwnConfigurableModule constructor will
+handle registration.
+
+An example is the
+drwnMultiClassLogistic configuration module which is placed inside the
+drwnMultiClassLogistic.cpp file:
+
+\code
+ class drwnMultiClassLogisticConfig : public drwnConfigurableModule {
+ public:
+   drwnMultiClassLogisticConfig() : drwnConfigurableModule("drwnMultiClassLogistic") { }
+   ~drwnMultiClassLogisticConfig() { }
+ 
+   void usage(ostream &os) const {
+     os << "      lambda        :: regularization strength (default: "
+        << drwnMultiClassLogistic::REG_STRENGTH << ")\n";
+     os << "      maxIterations :: maximum number of training iterations (default: "
+        << drwnMultiClassLogistic::MAX_ITERATIONS << ")\n";
+   }
+ 
+   void setConfiguration(const char *name, const char *value) {
+     if (!strcmp(name, "lambda")) {
+       drwnMultiClassLogistic::REG_STRENGTH = std::max(0.0, atof(value));
+     } else if (!strcmp(name, "maxIterations")) {
+       drwnMultiClassLogistic::MAX_ITERATIONS = std::max(0, atoi(value));
+     } else {
+       DRWN_LOG_FATAL("unrecognized configuration option " << name << " for " << this->name());
+     }
+   }
+ };
+ 
+ static drwnMultiClassLogisticConfig gMultiClassLogisticConfig;
+\endcode
+
+Use \b -config on the command line by itself to get online help for
+most configurable modules. You can also use \b -set by itself to
+get a list of registered modules, or \b "-set <module>" to get
+online help for a specific module.
+
+\sa drwnConfigSettings
+*/
+
+// Messages, Warnings and Errors ----------------------------------------------
+/*!
+\section drwnLoggerDoc Messages, Warnings and Errors
+
+Messages, warnings and errors are managed via the drwnLogger
+class. The \c DRWN_LOG macro will automatically write log messages to
+a file (if specified) and display them on the console. You can set the
+verbosity level to control which messages get displayed. The following
+macros generate messages at different verbosity levels:
+
+<center>
+<table border="1px" style="border-color:#cccccc; background-color: #f5f5f5; border-collapse:collapse;">
+<tr>
+<td><b>Macro</b></td><td><b>Display</b></td><td><b>Description</b></td>
+</tr>
+<tr>
+<td>DRWN_LOG_FATAL</td><td><tt>-*-</tt></td><td>An unrecoverable error has occurred and the code will terminate.</td>
+</tr>
+<tr>
+<td>DRWN_LOG_ERROR</td><td><tt>-E-</tt></td><td>A recoverable error has occurred, e.g., a missing file.</td>
+</tr>
+<tr>
+<td>DRWN_LOG_WARNING</td><td><tt>-W-</tt></td><td>Something unexpected happened, e.g., a parameter is zero.</td>
+</tr>
+<tr>
+<td>DRWN_LOG_MESSAGE</td><td><tt>---</tt></td><td>Standard messages, e.g., application-level progress information.</td>
+</tr>
+<tr>
+<td>DRWN_LOG_STATUS</td><td><tt>---</tt></td><td>Status/progress messages, e.g., image names and sizes during loading.</td>
+</tr>
+<tr>
+<td>DRWN_LOG_VERBOSE</td><td><tt>---</tt></td><td>Verbose messages, e.g., intermediate performance results.</td>
+</tr>
+<tr>
+<td>DRWN_LOG_METRICS</td><td><tt>---</tt></td><td>Metrics messages, e.g., event statistics, etc.</td>
+</tr>
+<tr>
+<td>DRWN_LOG_DEBUG</td><td><tt>-D-</tt></td><td>Debugging messages, e.g., matrix inversion results, etc.</td>
+</tr>
+</table>
+</center>
+
+Applications can override the message displaying functions by
+registering callbacks with the \ref drwnLogger class. This is useful
+for interfacing to Matlab or displaying errors in GUI dialog
+boxes. The following example registers a callback for capturing errors
+and terminates if too many errors occur.
+
+\code
+  #include "drwnBase.h"
+
+  void errorMessageCallback(const char *msg) {
+    static int counter = 0;
+    std::cerr << msg << std::endl;
+
+    if (++counter > 5) {
+      std::cerr << "too many error messages" << std::endl;
+      exit(0);
+    }
+  }
+
+  int main(int argc, char *argv[])
+  {
+    // set drwnLogger callbacks
+    drwnLogger::showErrorCallback = errorMessageCallback;
+
+    for (int i = 0; i < 10; i++) {
+      DRWN_LOG_ERROR("error message number " << i);
+    }
+
+    return 0;
+  }
+\endcode
+
+The standard command line options \c -quiet, \c -verbose, and \c
+-debug allow you to filter which messages are produced (see \ref
+drwnCommandLineDoc).
+
+\subsection secAsserts Asserts
+
+Code written for the \b Darwin framework should use the \c
+DRWN_ASSERT or \c DRWN_ASSERT_MSG macros rather than the standard
+\c assert function to allow GUI applications and external
+environments, such as Matlab, to trap errors.
+*/
+
+// Code Profiler --------------------------------------------------------------
+/*!
+\section drwnCodeProfilerDoc Code Profiling
+
+\copydetails drwnCodeProfiler
+*/
+
+// Command Line Processing ---------------------------------------------
+/*!
+\section drwnCommandLineDoc Command Line Processing
+
+Standard command line options for most \b Darwin applications are:
+\code
+  -help             :: display application usage
+  -config <xml>     :: configure Darwin from XML file (or without <xml> for configuration help)
+  -set <m> <n> <v>  :: set (configuration) <m>::<n> to value <v> (or -set <m> for module help)
+  -profile          :: profile code
+  -quiet            :: only show warnings and errors
+  -verbose          :: show verbose messages
+  -debug            :: show debug messages
+  -log <filename>   :: log filename
+  -threads <max>    :: set maximum number of threads
+  -randseed <n>     :: seed random number generators rand and drand48
+\endcode
+
+Command line options are processed from left to right. If there are
+multiple conflicting options, the rightmost one will be taken, e.g.,
+\p "-threads 4 -threads 0" will result in multi-threading being turned
+off. Many \b Darwin features can be configured using the \p -config or
+\p -set commandline options. The standard options provide shortcuts
+for these. For example, \p "-verbose" is equivalent to \p "-set
+drwnLogger logLevel VERBOSE".
+
+Applications should include a \c DRWN_BEGIN_CMDLINE_PROCESSING block
+to automatically handle these options, e.g.,
+\code
+int main(int argc, char* argv[]) 
+{
+     DRWN_BEGIN_CMDLINE_PROCESSING(argc, argv)
+     DRWN_END_CMDLINE_PROCESSING();
+
+     // application code
+
+     return 0;
+}
+\endcode
+
+\sa \ref drwnCommandLine
+*/
+
+// Thread Pool ----------------------------------------------------------------
+/*!
+\section drwnThreadPoolDoc Thread Pool
+
+The threads read and execute jobs from a queue of arbitrary size.
+As soon as one of the \b N threads completes a job, it requests the
+next job in the queue, until the queue is empty, at which point it
+waits for a new job. The maximum number of threads is controlled by
+the \b MAX_THREADS static member variable. It can be set from the
+command line using the \b -threads option. Setting \b MAX_THREADS
+to zero will result in all jobs being executed in the main
+thread.
+
+Derived classes should overload the \b operator()() member
+function. For example the following code creates a functor for
+computing the L2-norm of a vector:
+
+\code
+class MySumSquaredJob : public drwnThreadJob {
+  public: 
+    vector<double> data;
+    double result;
+  public:
+    MySumSquaredJob(const vector<double>& d) : data(d) { }
+
+    void operator()() {
+      result = 0.0;
+      for (unsigned i = 0; i < data.size(); i++) {
+        result += data[i] * data[i];
+      }
+    }
+};
+\endcode
+
+The \ref lock and \ref unlock methods should be used for controlling
+access to shared resources across threads (e.g., graphical output
+windows).
+
+The following code demonstrates typical thread pool usage:
+\code
+  // start thread pool and add jobs
+  drwnThreadPool threadPool;
+  vector<MySumSquaredJob *> jobs;              // derived from drwnThreadJob
+
+  threadPool.start();
+  for (int i = 0; i < numJobs; i++) {
+    vector<double> data = getDataForJob(i);    // get the data for job i
+    jobs.push_back(new MySumSquaredJob(data)); // create functor for the job
+    threadPool.addJob(jobs.back());            // add to job queue
+  }
+
+  // wait for jobs to finish (and show progress)
+  threadPool.finish(true);
+
+  // extract results (and delete jobs)
+  for (int i = 0; i < numJobs; i++) {
+    cerr << "||" << toString(jobs[i]->data) << "|| = " << jobs[i]->result << endl;
+    delete jobs[i];
+  }  
+\endcode
+*/
+
+// XML Utilities --------------------------------------------------------------
+/*!
+\section drwnXMLUtilsDoc XML Utilities
+
+\b Darwin makes extensive use of XML formatting for serialization
+(saving) and de-serialization (loading) of objects. All objects
+derived from drwnWriteable implement methods for saving state to, and
+loading state from, an XML object.
+
+A number of helper functions are provided in \ref drwnXMLUtils.h
+"drwnXMLUtils". The following code snippet shows an example:
+
+\code
+class MyObject {
+public:
+    VectorXd x;
+
+    MyObject() { /* do nothing */ }
+    MyObject(const VectorXd& ix) : x(ix) { /* do nothing */ }
+    ~MyObject() { /* do nothing */ }
+
+    void save(drwnXMLNode& xml) const { drwnXMLUtils::serialize(xml, x); }
+    void load(drwnXMLNode& xml) { drwnXMLUtils::deserialize(xml, x); }
+};
+
+int main() 
+{
+    // create a vector of MyObject
+    vector<MyObject> container;
+    for (int i = 0; i < 5; i++) {
+        container.push_back(MyObject(VectorXd::Random(5)));
+    }
+
+    // save container to an XML file
+    drwnXMLUtils::write("example.xml", "vector", "object", container);
+
+    return 0;
+}
+\endcode
+
+*/
+
+// Factories --------------------------------------------------------------
+/*!
+\section drwnFactoriesDoc Factories
+
+Factories facilitate the creation of objects (derived from a specific
+base class) without having to know the specific object type at compile
+time. For example, \b Dawrin makes use of factories for creating or
+loading classifiers and feature transforms in the \ref drwnML library.
+
+Consider, for example, training either a decision tree classifier or a
+logistic regression classifier:
+
+\code
+   // load training dataset
+   drwnClassifierDataset dataset;
+   dataset.read("training_data.bin");
+
+   const int nFeatures = dataset.numFeatures();
+   const int nClasses = dataset.maxTarget() + 1;
+
+   // train and save the classifier
+   if (makeADecision()) {
+      drwnDecisionTree model(nFeatures, nClasses);
+      model.train(dataset);
+      model.write("classifier.xml");
+   } else {
+      drwnMultiClassLogistic model(nFeatures, nClasses);
+      model.train(dataset);
+      model.write("classifier.xml");
+   }
+\endcode
+
+Now in some other code we may want to use the classifier, but we don't
+know which classifier we trained. Factories to the rescue:
+
+\code
+    // load the classifier
+    drwnClassifier *classifier = drwnClassifierFactory::get().createFromFile("classifier.xml");
+    DRWN_LOG_VERBOSE("loaded classifier of type " << classifier->type());
+
+    // do something with the classifier
+    ...
+
+    // free the classifier
+    delete classifier;
+\endcode
+
+You can create factories for your own objects using the drwnFactory
+template class. Here is a short example.
+
+\code
+    class myBase : public drwnWriteable {
+        ...
+    };
+
+    class myDerivedA : public myBase {
+       // must define drwnWriteable interface
+    };
+
+    class myDerivedB : public myBase {
+       // must define drwnWriteable interface
+    };
+
+    template <>
+    struct drwnFactoryTraits<myBase> {
+        static void staticRegistration();
+    };
+
+    typedef drwnFactory<myBase> myBaseFactory;
+\endcode
+
+The staticRegistration function is used to automatically tell the
+factory which classes belong to is. Otherwise you will need to
+explicitly add classes each time you use the factory with the
+registerClass function.
+
+\code
+void drwnFactoryTraits<myBase>::staticRegistration()
+{
+    DRWN_FACTORY_REGISTER(myBase, myDerivedA);
+    DRWN_FACTORY_REGISTER(myBase, myDerivedB);
+}
+\endcode
+
+We can now use the factory to create objects by name or from file.
+
+\code
+    myBase *base;
+    base = myBaseFactory::get().create("myDerivedA");
+    base->write("file.xml");
+    delete base;
+
+    base = myBaseFactory::get().createFromFile("file.xml");
+    delete base;
+\endcode
+
+*/
+
+/*!
+\addtogroup drwnBase
+*/
+
+/*@}*/
+}

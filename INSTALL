@@ -1,0 +1,50 @@
+* DARWIN INSTALLATION INSTRUCTIONS ******************************************
+
+For detailed installation instructions go to:
+ - http://drwn.anu.edu.au/linuxInstall.html (for linux)
+ - http://drwn.anu.edu.au/winInstall.html (for windows)
+ - http://drwn.anu.edu.au/osxInstall.html (for mac OS X)
+
+Below is a brief summary of the steps necessary for compiling the
+Darwin libraries, applications and projects.
+
+* LINUX ---------------------------------------------------------------------
+
+ - install the necessary build tools (e.g., g++, etc)
+ - install the external libraries
+   - cd into external and run "install.sh Eigen"
+   - optionally run "install.sh OpenCV" and "install.sh zlib"
+   - alternatively link to existing copies of these libraries
+ - optionally create make.local with compile options (e.g., DRWN_SHARED_LIBS)
+ - make the library and applications
+   - make
+ - make the projects
+   - make drwnprojs
+
+* WINDOWS --------------------------------------------------------------------
+
+ - install Microsoft Visual Studio (2010 Express or later)
+ - download the necessary external libraries (see below)
+ - open src/drwnlibs.sln and build
+ - open src/drwnapps.sln and build
+ - for each project, open associated solution file and build
+
+Required (Eigen):
+1. Download Eigen headers and unzip into external/eigen2
+
+Optional (zlib):
+1. Create a directory external/zlib
+2. Download http://zlib.net/zlib127.zip into external
+3. Unzip and copy zlib.h and zconf.h into zlib
+4. Download pre-compiled library from http://www.winimage.com/zLibDll/index.html
+5. Copy appropriate static lib into external/zlib
+
+Optional (OpenCV):
+1. Download and install OpenCV 2.4.6
+
+* MAC OS X ------------------------------------------------------------------
+
+ - install the Xcode developer tools
+ - install wget, pkg-config and cmake (you can use the script external/macosx.sh)
+ - follow the installation instructions for linux
+

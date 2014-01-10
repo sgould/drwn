@@ -1,0 +1,966 @@
+namespace drwn {
+
+/*!
+\page drwnTutorial Darwin Tutorial
+
+This tutorial is designed to give you a basic flavour for the design
+and use of the common features of the \b Darwin libraries. It assumes
+you are familiar with C++ and the Linux development environment.
+
+The tutorial is divided into a number of parts, each exploring a
+different library within the \b Darwin framework. The parts are:
+
+\li \ref drwnTutorialHelloWorld
+\li \ref drwnTutorialBase
+\li \ref drwnTutorialML
+\li \ref drwnTutorialPGM
+
+Source code for all the tutorials is included in the \p
+projects/tutorial directory.
+
+\section drwnTutorialHelloWorld Hello World
+
+This tutorial steps you through creating your first application using
+the \b Darwin framework under Linux---the application will simply
+print "hello world" using \b Darwin's logging system (see \ref
+drwnLoggerDoc). It assumes that you have successfully downloaded and
+compiled the \b Darwin libraries (see \ref drwnDownload). Throughout
+the tutorial we will assume that \p $DARWIN is the location (i.e.,
+directory) where \b Darwin is installed.
+
+\subsection drwnTutorialHelloWorld1 Create a Project Directory
+
+\code
+mkdir helloworld
+cd helloworld
+\endcode
+
+\subsection drwnTutorialHelloWorld2 Create the Application
+
+Create a file called \p helloworld.cpp containing the following code:
+
+\code
+// c++ standard headers
+#include <cstdlib>
+#include <cstdio>
+
+// darwin library headers
+#include "drwnBase.h"
+
+using namespace std;
+
+// usage ---------------------------------------------------------------------
+
+void usage()
+{
+    cerr << DRWN_USAGE_HEADER << endl;
+    cerr << "USAGE: ./helloworld [OPTIONS]\n";
+    cerr << "OPTIONS:\n"
+         << DRWN_STANDARD_OPTIONS_USAGE
+         << endl;
+}
+
+// main ----------------------------------------------------------------------
+
+int main(int argc, char *argv[])
+{
+    // process commandline arguments
+    DRWN_BEGIN_CMDLINE_PROCESSING(argc, argv)
+    DRWN_END_CMDLINE_PROCESSING(usage());
+
+    // print hello world and exit
+    DRWN_LOG_MESSAGE("hello world");
+    DRWN_LOG_VERBOSE("hello world again");
+    return 0;
+}
+\endcode
+
+\subsection drwnTutorialHelloWorld3 Create a Makefile
+
+Create a file called \p Makefile containing the following:
+
+\code
+INC_DIRS = -I${DARWIN}/include -I${DARWIN}/external
+LIBS = -L${DARWIN}/bin -ldrwnML -ldrwnPGM -ldrwnIO -ldrwnBase -lm -lpthread
+
+main:
+        g++ -g -o helloworld helloworld.cpp ${INC_DIRS} ${LIBS}
+
+clean:
+        rm -f helloworld
+\endcode
+
+\subsection drwnTutorialHelloWorld4 Make and Test the Application
+
+The following shell commands will build the \p helloworld application
+and run it with some different settings.
+
+\code
+make
+
+./helloworld
+./helloworld -verbose
+./helloworld -quiet
+./helloworld -set drwnLogger logLevel ERROR
+./helloworld -log log.txt
+cat log.txt
+
+./helloworld -help
+./helloworld -config
+\endcode
+
+\section drwnTutorialBase Base and IO Libraries (drwnBase and drwnIO)
+
+\subsection drwnTutorialCmdline Command Line Processing
+
+\b Darwin provides a number of mechanisms for configuring applications
+from the command-ine. This is a very basic tutorial to get you
+familiar with the two main mechanisms---commandline options and XML
+configuration. Be sure to read the commandline processing
+documentation (\ref drwnCommandLineDoc) and the configuration module
+documentation (\ref drwnConfigManagerDoc).
+
+The following code is an example of how to configure a \b Darwin
+application either via the commandline options or an XML configuration
+file.
+
+\code
+// c++ standard headers
+#include <cstdlib>
+#include <cstdio>
+
+// darwin library headers
+#include "drwnBase.h"
+
+using namespace std;
+
+// configuration manager -----------------------------------------------------
+
+class MyConfigureableModule : public drwnConfigurableModule {
+public:
+   string INPUT_STRING;
+
+public:
+   MyConfigureableModule() : drwnConfigurableModule("MyModule") { }
+   ~MyConfigureableModule() { }
+
+   void usage(ostream &os) const {
+     os << "    This is an example configurable module\n";
+     os << "      input         :: message string\n";
+   }
+
+   void setConfiguration(const char *name, const char *value) {
+     if (!strcmp(name, "input")) {
+       INPUT_STRING = string(value);
+     } else {
+       DRWN_LOG_FATAL("unrecognized configuration option " << name << " for " << this->name());
+     }
+   }
+};
+
+static MyConfigureableModule gMyConfig;
+
+// usage ---------------------------------------------------------------------
+
+void usage()
+{
+    cerr << DRWN_USAGE_HEADER << endl;
+    cerr << "USAGE: ./cmdline [OPTIONS]\n";
+    cerr << "OPTIONS:\n"
+         << "  -i <message>      :: input message\n"
+         << DRWN_STANDARD_OPTIONS_USAGE
+         << endl;
+}
+
+// main ----------------------------------------------------------------------
+
+int main(int argc, char* argv[])
+{
+    const char *input = NULL;
+
+    DRWN_BEGIN_CMDLINE_PROCESSING(argc, argv)
+        DRWN_CMDLINE_STR_OPTION("-i", input)
+    DRWN_END_CMDLINE_PROCESSING(usage());
+
+    if (input != NULL)
+        gMyConfig.INPUT_STRING = string(input);
+
+    cout << "Input message is \"" << gMyConfig.INPUT_STRING << "\"\n";
+
+    return 0;
+}
+\endcode
+
+Note that there is no semicolon (";") after the intermediate
+commandline processing macros.
+
+Create the following configuration file called "myConfig.xml":
+\code
+ <drwn>
+   <MyModule input="hello" />
+ </drwn>
+\endcode
+
+Compile the code and then run with the following options:
+\code
+./cmdline -i "hello"
+./cmdline -set MyModule input "hello"
+./cmdline -config myConfig.xml
+./cmdline -set MyModule output "hello"
+
+./cmdline -help
+./cmdline -set MyModule
+
+./cmdline -i "hello" -i "goodbye"
+./cmdline -i "hello" -set MyModule input "goodbye"
+./cmdline -set MyModule input "hello" -i "goodbye"
+\endcode
+
+\sa \ref drwnBase, \ref drwnIO
+
+\subsection drwnTutorialXML XML I/O
+
+This tutorial demonstrates how to make use of \b Darwin's XML
+utilities for serializing objects to disk. Any class derived from
+drwnWriteable will have access to \ref drwnWriteable::read "read" and
+\ref drwnWriteable::write "write" methods that read and write XML
+files to disk. The derived class will need to override the \ref
+drwnWriteable::load "load" and \ref drwnWriteable::save "save"
+methods.
+
+We will begin by creating a serializeable class that holds a person's
+name and age.
+
+\code
+class Person : public drwnWriteable {
+    protected:
+        string _name;
+        int _age;
+
+    public:
+        Person() : _age(0) { /* do nothing */ }
+        Person(const string& name, int age) : _name(name), _age(age) { /* do nothing */ }
+
+        const char* type() const { return "Person"; }
+
+        bool save(drwnXMLNode& xml) const {
+            drwnAddXMLAttribute(xml, "name", _name.c_str(), false);
+            drwnAddXMLAttribute(xml, "age", toString(_age).c_str(), false);
+            return true;
+        }
+
+        bool load(drwnXMLNode& xml) {
+            _name = string(drwnGetXMLAttribute(xml, "name"));
+            _age = atoi(drwnGetXMLAttribute(xml, "age"));
+            return true;
+        }
+};
+\endcode
+
+Of course, to be useful this class would need to implement a number of
+other methods (for example, member variable accessors). However, this
+lean implementation is enough for our purposes in this tutorial.
+
+We now create a class that aggregates many people into a single group.
+
+\code
+class Group : public drwnWriteable {
+    protected:
+        vector<Person> _people;
+
+    public:
+        Group() { /* do nothing */ }
+
+        const char* type() const { return "Group"; }
+
+        bool save(drwnXMLNode& xml) const {
+            drwnXMLUtils::save(xml, "Person", _people);
+            return true;
+        }
+
+        bool load(drwnXMLNode& xml) {
+            _people.clear();
+            drwnXMLUtils::load(xml, "Person", _people);
+            return true;
+        }
+
+        void addMember(const Person& person) {
+            _people.push_back(person);
+        }
+};
+\endcode
+
+Finally, we create an application that populates a group of people and
+writes the group to disk.
+
+\code
+int main()
+{
+    Group group;
+
+    group.addMember(Person("Bart", 10));
+    group.addMember(Person("Lisa", 8));
+    group.addMember(Person("Maggie", 1));
+
+    group.write("TheSimpsons.xml");
+    group.dump();
+
+    return 0;
+}
+\endcode
+
+Compile this program (you will need to write the appropriate \p
+makefile), run it, and examine the output.
+
+\sa \ref drwnBase, \ref drwnIO
+\sa \ref drwnXMLParser, \ref drwnXMLUtilsDoc
+
+\subsection drwnTutorialPersistentStorage Persistent Storage Management
+
+Often we wish to store large volumes of binary data between sessions
+where XML files may be too inefficient or memory intensive. The
+drwnPersistentStorage class provides a simple mechanism for storing
+and managing the reading and writing of multiple data records for such
+situations.
+
+Suppose the data we wish to store is of type \p
+std::vector<double>. The first step is to provide a
+drwnPersistentRecord wrapper:
+
+\code
+  class Record : public drwnPersistentRecord {
+    public:
+      vector<double> data;
+   
+    public:
+      Record(size_t n = 0) { data.resize(n); }
+      ~Record() { /* do nothing */ }
+
+      // number of bytes needed to represent the data on disk include length field
+      size_t numBytesOnDisk() const { return data.size() * sizeof(double) + sizeof(size_t); }
+
+      // write the data to disk
+      bool write(ostream& os) const {
+        size_t rows = data.size();
+        os.write((char *)&rows, sizeof(size_t));
+        if (rows > 0) {
+          os.write((char *)&data[0], rows * sizeof(double));
+        }
+        return true;
+      }
+
+      // read the data from disk
+      bool read(istream& is) {
+        size_t rows = 0;
+        is.read((char *)&rows, sizeof(size_t));
+        data.resize(rows);
+        if (rows > 0) {
+           is.read((char *)&data[0], rows * sizeof(double));
+        }
+        return true;
+      }
+  };
+\endcode
+
+\note The \b Darwin library provides the templated convenience class
+drwnPersistentVectorRecord for storing vectors of objects. The class
+is implemented similar to the above.
+
+We can now easily read, write and modify data records.
+
+\code
+  // open a persistent storage object
+  drwnPersistentStorage storage;
+  storage.open("/tmp/data");
+
+  // write some records
+  Record rec(1000);
+  storage.write("record A", &rec);
+  rec = Record(2000);
+  storage.write("record B", &rec);
+
+  // read back record A
+  storage.read("record A", &rec);
+
+  // print number of bytes used
+  cout << storage.numTotalBytes() << " bytes stored\n";
+\endcode
+
+The data is stored permenantly when the application closes and can be
+read later by re-opening the same storage file.
+
+\warning Abnormal termination of an application may result in corrupt
+data storage.
+
+\note The drwnPersistentRecord interface can co-exists with the
+drwnWriteable interface allowing objects to be written either to XML
+files or to a persistent \b Darwin storage file.
+
+\sa \ref drwnBase, \ref drwnIO
+
+\section drwnTutorialML Machine Learning Library (drwnML)
+
+The \ref drwnML library implements a number of basic machine learning
+and pattern recognition algorithms. These are explored in the
+following tutorials.
+
+\subsection drwnTutorialGaussians Gaussian Distributions
+
+\b Darwin provides functionality for estimating the parameters of,
+sampling from, computing sample likelihoods, and conditioning on
+multi-dimensional Gaussian and mixture of Gaussian probability
+distributions. The following example shows how to define a
+two-dimensional Gaussian and then condition on the first variable to
+produce some one-dimensional Gaussian distributions.
+
+\code
+    // define mean and covariance
+    VectorXd mu(2);
+    mu << 0.5, 0.5;
+
+    MatrixXd sigma(2, 2);
+    sigma << 0.0964, -0.0505, -0.0505, 0.0540;
+
+    // create gaussian P(x_1, x_2)
+    drwnGaussian g(mu, sigma);
+
+    // create conditional gaussian P(x_2 | x_1 = 1.0)
+    map<int, double> x;
+    x[0] = 1.0;
+    drwnGaussian g2 = g.reduce(x);
+
+    // show mean vector
+    DRWN_LOG_MESSAGE("mean = " << g2.mean().transpose());
+\endcode
+
+When performing multiple repeated conditioning on large Gaussians,
+creating an intermediate drwnConditionalGaussian object is more
+efficient since it will cache some intermediate calculations.
+
+\b Exercise. Extend the above example to produce samples from the
+conditional distribution.
+
+\sa \ref drwnBase, \ref drwnIO, \ref drwnML
+
+\subsection drwnTutorialFeatureTransforms Feature Transforms
+
+The drwnFeatureTransform class defines the interface for supervised
+and unsupervised feature vector transformations, e.g., Fisher's LDA
+(supervised) or PCA (unsupervised). For many machine learning
+algorithms pre-processing features to have zero mean and unit variance
+will result in better numerical stability of the algorithm. This
+tutorial shows such an example.
+
+\code
+    // construct features vectors
+    vector<vector<double> > x(100);
+    for (unsigned i = 0; i < x.size(); i++) {
+        x[i].resize(10);
+        for (unsigned j = 0; j < x[i].size(); j++) {
+            x[i][j] = (double)j + drand48();
+        }
+    }
+
+    // learn normalization scale and offset
+    drwnFeatureWhitener whitener;
+    whitener.train(x);
+
+    // normalize all feature vectors in-place
+    whitener.transform(x);
+\endcode
+
+Once the feature transformation has been learned it can be applied to
+arbitrary feature vectors (i.e., not just those that where used during
+learning). For example,
+
+\code
+    // construct new feature vector
+    vector<double> y(10, 0);
+
+    // apply previously learned transform
+    whitener.transform(y);
+\endcode
+
+\sa \ref drwnBase, \ref drwnIO, \ref drwnML
+
+\subsection drwnTutorialClassifiers Classification and Regression
+
+Classification and regression and the two most fundamental tasks in
+supervised machine learning. Both tasks take as input a feature vector
+and produce as output a prediction. In the case of classification the
+prediction is a label from a small discrete set, whereas in the case
+of regression the prediction is a real-valued number.
+
+\subsubsection drwnTutorialClassifiers1 Linear Regression
+
+The following example shows how to use the drwnTLinearRegressor class
+for extrapolating a straight-line through some data points.
+
+\code
+  double x[] = {1.0, 2.0, 3.0};
+  double y[] = {0.5, 1.7, 2.3};
+  
+  // construct dataset
+  drwnRegressionDataset dataset;
+  for (int i = 0; i < 3; i++) {
+    dataset.append(vector<double>(1, x[i]), y[i]);
+  } 
+
+  // learn linear regression model
+  drwnTLinearRegressor<drwnBiasFeatureMap> model(1);
+  model.train(dataset);
+  
+  // show points from 0 to 5
+  for (double i = 0.0; i <= 5.0; i += 1.0) {
+    DRWN_LOG_MESSAGE("value at x=" << i << " is "
+      << model.getRegression(vector<double>(1, i)));
+  }
+\endcode
+
+\subsubsection drwnTutorialClassifiers2 Classification
+
+The following code shows a how to use the drwnClassifier class.
+
+\code
+  // parameters
+  const double SIGNAL2NOISE = 1.5;
+  const int NUMPOSSAMPLES = 10;
+  const int NUMNEGSAMPLES = 20;
+
+  // construct dataset
+  drwnClassifierDataset dataset;
+  for (int i = 0; i < NUMPOSSAMPLES; i++) {
+    dataset.append(vector<double>(1, SIGNAL2NOISE * 2.0 * (drand48() - 1.0)), 1);
+  }
+  for (int i = 0; i < NUMNEGSAMPLES; i++) {
+    dataset.append(vector<double>(1, SIGNAL2NOISE * 2.0 * (drand48() - 1.0) + 1.0), 0);
+  }
+
+  // learn and evaluate different classifiers
+  drwnClassifier *model;
+  for (int i = 0; i < 3; i++) {
+    // instantiate the classifier
+    if (i == 0) {
+      DRWN_LOG_MESSAGE("logistic classifier");
+      model = new drwnTMultiClassLogistic<drwnBiasJointFeatureMap>(1, 2);
+    } else if (i == 1) {
+      DRWN_LOG_MESSAGE("boosted classifier");
+      model = new drwnBoostedClassifier(1, 2);
+    } else {
+      DRWN_LOG_MESSAGE("decision-tree classifier");
+      model = new drwnDecisionTree(1, 2);
+    }
+    
+    // learn the paremeters
+    model->train(dataset);
+
+    // show confusion matrix (on the training set)
+    drwnConfusionMatrix confusion(2, 2);
+    confusion.accumulate(dataset, model);
+    confusion.printCounts();
+
+    delete model;
+  }
+\endcode
+
+The feature mapping used by the multi-class logistic classifier can be
+easily changed. For example, to augment the square of each feature use
+
+\code
+  model = new drwnTMultiClassLogistic<drwnSquareJointFeatureMap>(1, 2);
+\endcode
+
+The code snippet above shows analysis of the results on the training
+set by printing a confusion matrix. Analysis should really be done on
+a separate hold-out set. In addition to the confusion matrix you may
+be interested in plotting a precision-recall curve (see
+drwnClassificationResults).
+
+\sa \ref drwnBase, \ref drwnIO, \ref drwnML
+
+\section drwnTutorialPGM Probablistic Graphical Models Library (drwnPGM)
+
+The \ref drwnPGM library provides infrastructure for representing and
+manipulating graphical models such as Bayesian Networks and Markov
+random fields. This section gives you an overview of some of the
+functionality of the library. We begin by demonstrating construction
+of a factor over a set of discrete variables and then move onto a
+simple energy minimization example followed by a Viterbi decoding
+example. The tutorial ends with some advanced topics, specifically,
+creating factor operations and sharing factor storage.
+
+\subsection drwnTutorialFactor Factor Construction
+
+A factor is a table containing a value for each assignment to a set of
+random variables. The following code shows how to construct a factor
+\b psi over two variables \b A and \b B.
+
+\code
+    // define variables
+    drwnVarUniversePtr universe(new drwnVarUniverse());
+    universe->addVariable(3, "A"); // variable A has cardinality 3
+    universe->addVariable(2, "B"); // variable B has cardinality 2
+
+    // construct factor (populated with random entries)
+    drwnTableFactor psi(universe);
+    psi.addVariable(0);
+    psi.addVariable(1);
+
+    int indx = 0;
+    for (int b = 0; b < universe->varCardinality(1); b++) {
+        for (int a = 0; a < universe->varCardinality(0); a++) {
+            psi[indx++] = drand48();
+        }
+    }
+\endcode
+
+\sa \ref drwnBase, \ref drwnIO, \ref drwnPGM
+
+\subsection drwnTutorialFactorOps Basic Factor Operations
+
+When developing algorithms we often wish to perform a core set of
+operations on the factors in the graphical model. These operations are
+encapsulated by the drwnFactorOperation class and classes derived from
+it. The following code snippets show some simple operation
+use-cases. More complex examples are demonstrated in subsequent
+sections of this tutorial.
+
+\code
+    // use the example code in the previous section to generate
+    // a joint probability distribution P = 1/Z exp(-E)
+    drwnTableFactor prJoint(psi);
+    prJoint.scale(-1.0);
+    drwnFactorExpAndNormalizeOp(&prJoint).execute();
+
+    // compute the marginal over variable "A" by marginalizing out variable "B"
+    drwnTableFactor prA(universe);
+    drwnFactorMarginalizeOp(&prA, &prJoint, universe->findVariable("B")).execute();
+
+    // compute the conditional distribution of variable "A" given variable "B"
+    // is assigned value 0
+    drwnTableFactor prAGivenB0(universe);
+    drwnFactorReduceOp(&prAGivenB0, &prJoint, universe->findVariable("B"), 0).execute();
+    drwnFactorNormalizeOp(&prAGivenB0).execute();
+\endcode
+
+\sa \ref drwnBase, \ref drwnIO, \ref drwnPGM
+
+\subsection drwnTutorialEnergyMin Energy Minimization
+
+Consider the following energy minimization problem over discrete
+random variables \b x,
+\f[
+    \textrm{minimize} \; \sum_{c} \psi_c(\mathbf{x}_c)
+\f]
+
+A large number of algorithms have been proposed for (approximately or
+exactly) solving this problem depending on the structure and
+properties of the energy function. \b Darwin implements a number of
+these algorithms and in this tutorial we demonstrate using the ICM
+algorithm (Besag, 1975).
+
+We first construct a factor graph representation of the energy
+function.
+
+\code
+    // variable universe: 5 variables each of cardinality 3
+    drwnVarUniversePtr universe(new drwnVarUniverse(5, 3));
+
+    // create two factors (populated with random entries)
+    drwnTableFactor *ABC = new drwnTableFactor(universe);
+    ABC->addVariable(0); ABC->addVariable(1); ABC->addVariable(2);
+    for (int xc = 0; xc < ABC->entries(); xc++) {
+        (*ABC)[xc] = drand48();
+    }
+
+    drwnTableFactor *CDE = new drwnTableFactor(universe);
+    CDE->addVariable(2); CDE->addVariable(3); CDE->addVariable(4);
+    for (int xc = 0; xc < CDE->entries(); xc++) {
+        (*CDE)[xc] = drand48();
+    }
+
+    // add to factor graph
+    // (the graph takes ownership so no need to free factors)
+    drwnFactorGraph graph;
+    graph.addFactor(ABC);
+    graph.addFactor(CDE);
+\endcode
+
+Now let's use ICM to compute the minimum-energy assignment:
+
+\code
+    drwnICMInference icm(graph);
+    drwnFullAssignment assignment;
+    double e = icm.inference(assignment);
+    DRWN_LOG_MESSAGE("assignment has energy " << e);
+    DRWN_LOG_VERBOSE("assignment is " << toString(assignment));
+\endcode
+
+For low treewidth graphs we can use the junction tree algorithm, which
+first triangulates the graph, to compute the exact MAP assignment:
+
+\code
+    drwnJunctionTreeInference jta(graph);
+    drwnFullAssignment assignment;
+    double e = jta.inference(assignment);
+    DRWN_LOG_MESSAGE("map assignment has energy " << e);
+    DRWN_LOG_VERBOSE("map assignment is " << toString(assignment));
+\endcode
+
+\sa \ref drwnMapInferenceDoc
+
+\subsection drwnTutorialViterbi Example: Viterbi Decoding
+
+We now provide an example of implementing the Viterbi algorithm using
+the factors and factor operations available in the library. The
+Viterbi algorithm is a method for finding the most likely sequence of
+states in a Markov model. For this tutorial we will assume that our
+model is a chain defined over \a T time steps by \f[ P(\mathbf{x})
+\propto \prod_{t = 1}^{T - 1} \Psi_{t}(x_t, x_{t+1}) \f]
+
+The following code implements the viterbi algorithm on a sequence of
+factors. Note that this implementation is far from optimal and
+intended for illustrative purposes only. Practical implementations of
+the algorithm would store the argmax during the forward pass to avoid
+the reduction computation in the backward pass. The normalization of
+the messages is required to avoid overflow. Some viterbi
+implementations avoid this by performing the computation in
+log-space. Try this as an exercise.
+
+\code
+drwnFullAssignment viterbi(vector<drwnTableFactor>& factors)
+{
+    const int T = (int)factors.size() + 1;
+    drwnVarUniversePtr universe(factors[0].getUniverse());
+
+    // check input assumptions
+    for (int t = 0; t < T - 1; t++) {
+        DRWN_ASSERT(factors[t].size() == 2);      // factor is pairwise
+        DRWN_ASSERT(factors[t].hasVariable(t));   // factor has variable x_t
+        DRWN_ASSERT(factors[t].hasVariable(t+1)); // factor has variable x_{t+1}
+    }
+
+    // forward pass (modifies factors)
+    vector<drwnTableFactor> messages(T - 1, drwnTableFactor(universe));
+
+    drwnFactorMaximizeOp(&messages[0], &factors[0], 0).execute();
+    drwnFactorNormalizeOp(&messages[0]).execute();
+
+    for (int t = 1; t < T - 1; t++) {
+        drwnFactorTimesEqualsOp(&factors[t], &messages[t - 1]).execute();
+        drwnFactorMaximizeOp(&messages[t], &factors[t], t).execute();
+        drwnFactorNormalizeOp(&messages[t]).execute();
+    }
+
+    // backward pass
+    drwnFullAssignment mapAssignment(T);
+    mapAssignment[T - 1] = messages[T - 2].indexOfMax();
+    for (int t = T - 2; t >= 0; t--) {
+        drwnTableFactor mu(universe);
+        drwnFactorReduceOp(&mu, &factors[t], t + 1, mapAssignment[t + 1]).execute();
+        mapAssignment[t] = mu.indexOfMax();
+    }
+
+    return mapAssignment;
+}
+\endcode
+
+The following \p main function provides an example of setting up a
+Markov chain and calling the viterbi code.
+
+\code
+int main()
+{
+    // define universe
+    const int T = 5; // number of time steps
+    const int N = 3; // number of states per variable
+    drwnVarUniversePtr universe(new drwnVarUniverse(T, N));
+
+    // create markov chain
+    vector<drwnTableFactor> factors(T - 1, drwnTableFactor(universe));
+    for (int t = 0; t < T - 1; t++) {
+        factors[t].addVariable(t);
+        factors[t].addVariable(t + 1);
+        for (int i = 0; i < N * N; i++) {
+            factors[t][i] = drand48();
+        }
+        factors[t].normalize();
+        factors[t].dump();
+    }
+
+    // run viterbi
+    drwnFullAssignment assignment = viterbi(factors);
+    DRWN_LOG_MESSAGE("x^\\star = " << toString(assignment));
+
+    return 0;
+}
+\endcode
+
+\sa \ref drwnBase, \ref drwnIO, \ref drwnPGM
+
+\subsection drwnTutorialUserFactorOp Writing New Factor Operations
+
+In this tutorial we demonstrate how to write a new factor operation
+that computes the dot-product between two factors, i.e., given
+\f$\psi_A(\mathbf{v}_A)\f$ and \f$\psi_B(\mathbf{v}_B)\f$ with
+\f$\mathbf{v}_A \in {\cal V}_A\f$ and \f$\mathbf{v}_B \in {\cal V}_B\f$
+will compute
+\f[
+    \sum_{\mathbf{v} \in {\cal V}_A \cup {\cal V}_{B}} \psi_A([\mathbf{v}]_A) \psi_B([\mathbf{v}]_B)
+\f]
+
+We first define the operation class. Most factor operations produce
+another factors and so should be derived from the drwnTableFactorOp
+base class. However, our factor computes a real number which we will
+return through a results pointer. The class is defined below. It
+contains a pointer to each of the input factors and the mapping
+between corresponding entries in those factors.
+
+\code
+class DotProductOp {
+protected:
+    double *_result;
+    const drwnTableFactor * const _A;
+    const drwnTableFactor * const _B;
+    drwnTableFactorMapping _mappingA;
+    drwnTableFactorMapping _mappingB;
+
+public:
+    DotProductOp(double *result, const drwnTableFactor *A, const drwnTableFactor *B);
+    ~DotProductOp() { /* do nothing */ };
+
+    void execute();
+};
+\endcode
+
+The constructor computes the union of the variables in each factor and
+the mapping between factors and this variable superset. Since the
+mappings are initialized on construction repeated execution of the
+operation (say, in an iterative algorithm where the contents of the
+factors are changing) are relatively cheap.
+
+\code
+DotProductOp::DotProductOp(double *result, const drwnTableFactor *A, const drwnTableFactor *B) :
+    _result(result), _A(A), _B(B)
+{
+    drwnClique c;
+    c.insert(_A->getOrderedVars().begin(), _A->getOrderedVars().end());
+    c.insert(_B->getOrderedVars().begin(), _B->getOrderedVars().end());
+    vector<int> vars(c.begin(), c.end());
+
+    _mappingA = drwnTableFactorMapping(vars, _A->getOrderedVars(), _A->getUniverse());
+    _mappingB = drwnTableFactorMapping(vars, _B->getOrderedVars(), _B->getUniverse());
+}
+\endcode
+
+The \p execute method performs the dot-product operation. In our case
+its behaviour is to virtually expand each factor to be over the full
+label space of the union of variables by replicating entries. It then
+sums the product of corresponding entries in these two virtual
+factors.
+
+\code
+void DotProductOp::execute()
+{
+    drwnTableFactorMapping::iterator ia(_mappingA.begin());
+    drwnTableFactorMapping::iterator ib(_mappingB.begin());
+    *_result = 0.0;
+    while (ia != _mappingA.end()) {
+        *_result += (*_A)[*ia++] * (*_B)[*ib++];
+    }
+}
+\endcode
+
+The following \p main() function shows example invocations of the the
+DotProduct class. The \p tutorial project contains a more elaborate
+example.
+
+\code
+int main()
+{
+    // define variables
+    drwnVarUniversePtr universe(new drwnVarUniverse());
+    universe->addVariable(3, "a");
+    universe->addVariable(3, "b");
+
+    // dot-product between unary and pairwise factors
+    drwnTableFactor psiA(universe);
+    psiA.addVariable("a");
+    psiA[0] = -1.0; psiA[1] = 0.0; psiA[2] = 1.0;
+
+    drwnTableFactor psiB(universe);
+    psiB.addVariable("b");
+    psiB[0] = 1.0; psiB[1] = 0.0; psiB[2] = 0.0;
+
+    drwnTableFactor psiAB(universe);
+    psiAB.addVariables("b", "a", NULL);
+
+    psiAB[0] = 1.0; psiAB[1] = 2.0; psiAB[2] = 3.0;
+    psiAB[3] = 4.0; psiAB[4] = 5.0; psiAB[5] = 6.0;
+    psiAB[6] = 7.0; psiAB[7] = 8.0; psiAB[8] = 9.0;
+
+    double result;
+    DotProductOp(&result, &psiAB, &psiA2).execute();
+    DRWN_LOG_MESSAGE("dot-product between A,B:[1 2 3; 4 5 6; 7 8 9] and A:[-1 0 1] is " << result);
+
+    DotProductOp(&result, &psiAB, &psiB).execute();
+    DRWN_LOG_MESSAGE("dot-product between A,B:[1 2 3; 4 5 6; 7 8 9] and B:[1 0 0] is " << result);
+
+    return 0;
+}
+\endcode
+
+\sa \ref drwnBase, \ref drwnIO, \ref drwnPGM
+
+\subsection drwnTutorialSharedStorage Shared Factor Storage
+
+Sometimes the same values appear in many different factors (i.e., over
+different variables) or factors are used to store temporary results at
+different times in the execution of an algorithm. In these situations
+the drwnTableFactorStorage class can be used to reduce memory
+footprint and limit repeated memory allocations and deallocation. The
+following code snippet provides a simple example of sharing values in
+many factors.
+
+\code
+    const int N = 10;
+    drwnVarUniversePtr universe(new drwnVarUniverse(N, 2));
+
+    drwnFactorGraph graph;
+    drwnTableFactorStorage storage;
+
+    // add factors with shared storage
+    for (int i = 0; i < N - 1; i++) {
+        drwnTableFactor *psi = new drwnTableFactor(universe, &storage);
+        psi->addVariable(i);
+        psi->addVariable(i + 1);
+        graph.addFactor(psi);
+    }
+
+    // populate shared storage
+    for (int i = 0; i < storage.capacity(); i++) {
+        storage[i] = drand48();
+    }
+
+    // show factor graph
+    graph.dump();
+\endcode
+
+\warning A factor that is produced as the output of an operation
+should not use the same shared storage as any of the input factors as
+this may result in memory corruption.
+
+\sa \ref drwnBase, \ref drwnIO, \ref drwnPGM
+
+\section drwnTutorialWhereNext Where next?
+
+You are now ready to start your own project using \b Darwin or explore
+some of the existing applications and projects. If you are interested
+in contributing to the library email stephen.gould@anu.edu.au.
+
+\sa \ref codingGuidelines
+\sa \ref drwnApplications
+
+*/
+
+}

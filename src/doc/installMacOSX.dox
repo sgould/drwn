@@ -1,0 +1,123 @@
+namespace drwn {
+
+/*!
+\page osxInstall Mac OS X Installation Instructions
+
+\section osxCodeDownload Getting the Code
+
+\subsection Download
+
+Select the appropriate stable release from \ref drwnDownloadsDoc "here" or
+check out directly from the repository by following the instructions
+below.
+
+\subsection Repository
+
+For the development branch use:
+\code
+svn co https://svn.anu.edu.au/AI/drwn/trunk $DARWIN
+\endcode
+
+For a stable release (e.g., <x>.<y>) use:
+\code
+svn co https://svn.anu.edu.au/AI/drwn/release/<x>.<y> $DARWIN
+\endcode
+
+Here \p $DARWIN refers to the name of the base \b Darwin directory.
+
+\subsection Projects
+
+After downloading or checking out the main \b Darwin codebase
+third-party projects can be installed in \p $DARWIN/projects along
+with the released \b Darwin projects. They will then be automatically
+built when you build the \b Darwin projects.
+
+\section osxCodeBuild Building the Code
+
+Thanks to James Bornholt and Chris Claoue-Long for assisting with
+these instructions.
+
+The following instructions assume that you have downloaded or checked
+out the code and have changed to the base \b Darwin directory (i.e.,
+\p $DARWIN). Before building \b Darwin you will need to install a
+number of external libraries that are required by the main \b Darwin
+libraries or optionally used by the specific projects you'd like to
+compile.
+
+Before attempting to build the code you will need to ensure that a
+number of essential software packages are installed. See \ref
+osxEssentialSoftware below.
+
+The required libraries can be installed using a script included in the
+\p $DARWIN/external directory. The commands to install them are:
+\code
+cd external
+./install.sh Eigen
+cd ..
+\endcode
+
+The optional libraries can be installed with:
+\code
+cd external
+./install.sh zlib
+./install.sh OpenCV
+./install.sh wxWidgets
+./install.sh lua
+cd ..
+\endcode
+
+Make sure you update your \p DYLD_LIBRARY_PATH variable to avoid runtime
+errors:
+\code
+export DYLD_LIBRARY_PATH=${DYLD_LIBRARY_PATH}:${DARWIN}/external/opencv/lib
+\endcode
+
+Here \p ${DARWIN} refers to the full path to your \b Darwin
+directory. This can be added to your \p .bash_profile file to have it
+automatically defined whenever you start a new shell.
+
+After the external libraries are installed, you can build the \b
+Darwin libraries, applications and projects. See \ref drwnMakelocal
+(in \ref linuxInstall) for how to control the build process.
+
+\note You can force static (instead of dynamic) linking of the \b Darwin
+libraries by setting \p DRWN_SHARED_LIBS = 0 in your \p make.local file.
+
+\code
+make
+make drwnprojs
+\endcode
+
+You can also build specific projects using
+\code
+cd project/<PROJECTNAME>
+make
+cd ../..
+\endcode
+
+\section osxEssentialSoftware Essential Software
+
+The following packages need to be installed on your system:
+
+\li Xcode developer tools (you may need to explicitly install the command line tools)
+\li wget
+\li pkg-config (version 0.25)
+\li cmake (for OpenCV)
+
+The \p macosx.sh script in the \p external directory will install some
+of these tools. Note that you will need to enter your password a
+couple of times during installation. If downloading via \p brew
+doesn't work immediately after installing, cancel the script via
+Control-C and run \p "brew doctor" before typing Control-C once more
+and then rerunning the script.
+
+You will need to install the Xcode developer tools manually.
+
+\section osxOpenCV OpenCV
+
+There may be some issues compiling OpenCV on OS X. See the OpenCV wiki
+(http://opencv.willowgarage.com) for details on getting OpenCV
+installed on a Mac.
+
+*/
+}

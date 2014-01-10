@@ -1,0 +1,63 @@
+/*****************************************************************************
+** DARWIN: A FRAMEWORK FOR MACHINE LEARNING RESEARCH AND DEVELOPMENT
+** Copyright (c) 2007-2010, Stephen Gould
+** All rights reserved.
+**
+******************************************************************************
+** FILENAME:    darwin.rc
+** AUTHOR(S):   Stephen Gould <sgould@stanford.edu>
+** DESCRIPTION:
+**  Windows resource script for Darwin GUI.
+**
+*****************************************************************************/
+
+#define wxUSE_NO_MANIFEST 0
+
+darwin ICON "resources/darwin.ico"
+dbdisconnected BITMAP "resources/dbdisconnected.bmp"
+db0 BITMAP "resources/db0.bmp"
+progressbar BITMAP "resources/progressbar.bmp"
+
+/* node icons */
+
+nodeGeneric BITMAP "resources/nodeGeneric.bmp"
+
+nodeBasicMath BITMAP "resources/nodeBasicMath.bmp"
+nodeBinaryOp BITMAP "resources/nodeBinaryOp.bmp"
+nodeBoosting BITMAP "resources/nodeBoosting.bmp"
+nodeConcatenation BITMAP "resources/nodeConcatenation.bmp"
+nodeConfusionMatrix BITMAP "resources/nodeConfusionMatrix.bmp"
+nodeDataExplorer BITMAP "resources/nodeDataExplorer.bmp"
+nodeDecisionTree BITMAP "resources/nodeDecisionTree.bmp"
+nodeDirSink BITMAP "resources/nodeDirSink.bmp"
+nodeDirSource BITMAP "resources/nodeDirSource.bmp"
+nodeDitherPlot BITMAP "resources/nodeDitherPlot.bmp"
+nodeLinear BITMAP "resources/nodeLinear.bmp"
+nodeLogistic BITMAP "resources/nodeLogistic.bmp"
+nodeLUTDecoder BITMAP "resources/nodeLUTDecoder.bmp"
+nodeLUTEncoder BITMAP "resources/nodeLUTEncoder.bmp"
+nodeMultiClassLDA BITMAP "resources/nodeMultiClassLDA.bmp"
+nodePCA BITMAP "resources/nodePCA.bmp"
+nodePRCurve BITMAP "resources/nodePRCurve.bmp"
+nodeProjection BITMAP "resources/nodeProjection.bmp"
+nodeRescale BITMAP "resources/nodeRescale.bmp"
+nodeRollup BITMAP "resources/nodeRollup.bmp"
+nodeScatterPlot BITMAP "resources/nodeScatterPlot.bmp"
+nodeTextFileSink BITMAP "resources/nodeTextFileSink.bmp"
+nodeTextFileSource BITMAP "resources/nodeTextFileSource.bmp"
+nodeUnaryOp BITMAP "resources/nodeUnaryOp.bmp"
+
+/* plugin node icons */
+
+nodeMatlab BITMAP "resources/nodeMatlab.bmp"
+nodeMATSink BITMAP "resources/nodeMATSink.bmp"
+nodeMATSource BITMAP "resources/nodeMATSource.bmp"
+
+nodeOpenCV BITMAP "resources/nodeOpenCV.bmp"
+nodeOpenCVSink BITMAP "resources/nodeOpenCVSink.bmp"
+nodeOpenCVSource BITMAP "resources/nodeOpenCVSource.bmp"
+
+nodeLua BITMAP "resources/nodeLua.bmp"
+nodePython BITMAP "resources/nodePython.bmp"
+
+#include "wx/msw/wx.rc"

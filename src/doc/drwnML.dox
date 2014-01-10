@@ -1,0 +1,147 @@
+namespace drwn {
+/*@{*/
+
+// Class List ------------------------------------------------------------------
+
+/*!
+\section drwnMLDef Class List for drwnML
+
+\li drwnBoostedClassifier : \copybrief drwnBoostedClassifier
+\li drwnClassifier : \copybrief drwnClassifier
+\li drwnClassificationResults : \copybrief drwnClassificationResults
+\li drwnCompositeClassifier : \copybrief drwnCompositeClassifier
+\li drwnConditionalGaussian : \copybrief drwnConditionalGaussian
+\li drwnCondSuffStats : \copybrief drwnCondSuffStats
+\li drwnConfusionMatrix : \copybrief drwnConfusionMatrix
+\li drwnDataset : \copybrief drwnDataset
+\li drwnDecisionTree : \copybrief drwnDecisionTree
+\li drwnDisjointSets : \copybrief drwnDisjointSets
+\li drwnFeatureMap : \copybrief drwnFeatureMap
+\li drwnFeatureTransform : \copybrief drwnFeatureTransform
+\li drwnFeatureWhitener : \copybrief drwnFeatureWhitener
+\li drwnFisherLDA : \copybrief drwnFisherLDA
+\li drwnGaussian : \copybrief drwnGaussian
+\li drwnGaussianMixture : \copybrief drwnGaussianMixture
+\li drwnHistogram : \copybrief drwnHistogram
+\li drwnJointFeatureMap : \copybrief drwnJointFeatureMap
+\li drwnKMeans : \copybrief drwnKMeans
+\li drwnTLinearRegressor : \copybrief drwnTLinearRegressor
+\li drwnLinearTransform : \copybrief drwnLinearTransform
+\li drwnLPSolver : \copybrief drwnLPSolver
+\li drwnTMultiClassLogistic : \copybrief drwnTMultiClassLogistic
+\li drwnOptimizer : \copybrief drwnOptimizer
+\li drwnPCA : \copybrief drwnPCA
+\li drwnPRCurve : \copybrief drwnPRCurve
+\li drwnQPSolver : \copybrief drwnQPSolver
+\li drwnRandomForest : \copybrief drwnRandomForest
+\li drwnRegression : \copybrief drwnRegression
+\li drwnSparseLPSolver : \copybrief drwnSparseLPSolver
+\li drwnSparseVec : \copybrief drwnSparseVec
+\li drwnSuffStats : \copybrief drwnSuffStats
+*/
+
+// Disjoint Sets ------------------------------------------------------------
+
+/*! 
+\section drwnDisjointSetsDoc Disjoint Sets
+
+The \ref drwnDisjointSets class implements a forest of disjoint sets
+abstract data type. The elements are numbered consequtively from 0 to
+N - 1. Each element belongs to exactly one set, where the sets have
+unique integer identifiers in \f$\mathbb{Z}_N\f$. To get the number of
+elements of each set, call \c size(id) with a valid set
+identifier. The total number of elements (N) is given by \c size. The
+following code snippet provides an example usage for the class.
+
+\code
+int main(int argc, char *argv[])
+{
+  // create disjoint sets
+  const int n = 100;
+  drwnDisjointSets sets(n);
+
+  // randomly merge some sets
+  for (int i = 0; i < n; i++) {
+    int s1 = sets.find(rand() % n);
+    int s2 = sets.find(rand() % n);
+    if (s1 != s2) {
+      sets.join(s1, s2);
+    }
+  }
+
+  // show sets
+  vector<int> s = sets.getSetIds();
+  for (vector<int>::const_iterator it = s.begin(); it != s.end(); it++) {
+    cout << toString(sets.getMembers(*s)) << endl;
+  }
+
+  return 0;
+}
+\endcode
+*/
+
+// Feature Mappings -------------------------------------------------------------
+/*!
+\section drwnFeatureMapDoc Feature Space Mappings
+
+Objects that provides utility functions for mapping from an
+input feature space (possibly joint) to an output feature space.
+
+Formally, the mapping is defined as \f$\phi(x) \in \mathbb{R}^m\f$ for
+class-less feature mappings or \f$\phi(x, y) \in \mathbb{R}^m\f$ for
+joint feature mappings where \f$x \in \mathbb{R}^n\f$ and \f$y \in
+\{0, \ldots, K - 1\}\f$. For example, we can define multi-class
+logistic regression as
+\f[
+        P(y \mid x) = \frac{1}{Z} \exp\left\{ \theta^T \phi(x, y) \right\}
+\f]
+
+The standard joint feature map, in this case, is \f$\phi(x, y) =
+\left(\delta\!\left\{y = 0\right\} x^T, \ldots, \delta\!\left\{y = K -
+2\right\}x^T\right) \in \mathbb{R}^{(K - 1) n}\f$ (see
+drwnIdentityJointFeatureMap). Note that an assignment to the last
+class label results in a zero feature vector.
+
+\note drwnTMultiClassLogistic and drwnTLinearRegressor can make use of
+feature maps to transform an input feature space to an output feature
+space on-the-fly. The feature mapping is performed each time the
+output feature vector is needed, which can be very efficient for
+simple feature transforms but expensive for complicated
+transformations. In such cases it may be better to transform the
+features first (see, for example, drwnTFeatureMapTransform).
+
+The following code snipet shows an example of a joint feature map
+being used to train a multi-class logistic classifier:
+
+\code
+    // load a dataset
+    drwnClassifierDataset dataset("trainingSet.bin");
+    int numFeatures = dataset.numFeatures();
+    int numClasses = dataset.maxTarget() + 1;
+
+    // train the classifier
+    drwnTMultiClassLogistic<drwnSquareJointFeatureMap> classifier;
+    classifier.initialize(numFeatures, numClasses);
+    classifier.train(dataset.features, dataset.targets);
+
+    // test accuracy
+    dataset.read("testingSet.bin", false);
+    vector<int> predictedLabels;
+    classifier.getClassifications(dataset.features, predictedLabels);
+
+    drwnConfusionMatrix confusion(numClasses);
+    confusion.accumulate(dataset.targets, predictedLabels);
+    DRWN_LOG_MESSAGE("Accuracy: " << confusion.accuracy());    
+\endcode
+
+\sa drwnFeatureMap 
+\sa drwnJointFeatureMap
+\sa drwnTMultiClassLogistic, drwnMultiClassLogistic
+\sa drwnTLinearRegressor, drwnLinearRegressor
+*/
+
+/*@}*/
+
+//! \addtogroup drwnML
+
+};

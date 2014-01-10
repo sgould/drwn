@@ -1,0 +1,62 @@
+<drwn>
+  <drwnMultiSegConfig>
+    <!-- data options -->
+    <option name="baseDir" value="./" />
+    <option name="imgDir" value="data/images/" />
+    <option name="lblDir" value="data/labels/" />
+    <option name="cacheDir" value="cached/" />
+    <option name="modelsDir" value="models/" />
+    <option name="outputDir" value="output/" />
+
+    <option name="imgExt" value=".jpg" />
+    <option name="lblExt" value=".txt" />
+
+    <option name="useCache" value="true" />
+
+    <!-- region definitions -->
+    <regionDefinitions>
+      <region id="-1" name="void" color="0 0 0"/>
+      <region id="0" name="building" color="128 0 0"/>
+      <region id="1" name="grass" color="0 128 0"/>
+      <region id="2" name="tree" color="128 128 0"/>
+      <region id="3" name="cow" color="0 0 128"/>
+      <region id="4" name="sheep" color="0 128 128"/>
+      <region id="5" name="sky" color="128 128 128"/>
+      <region id="6" name="airplane" color="192 0 0"/>
+      <region id="7" name="water" color="64 128 0"/>
+      <region id="8" name="face" color="192 128 0"/>
+      <region id="9" name="car" color="64 0 128"/>
+      <region id="10" name="bicycle" color="192 0 128"/>
+      <region id="11" name="flower" color="64 128 128"/>
+      <region id="12" name="sign" color="192 128 128"/>
+      <region id="13" name="bird" color="0 64 0"/>
+      <region id="14" name="book" color="128 64 0"/>
+      <region id="15" name="chair" color="0 192 0"/>
+      <region id="16" name="road" color="128 64 128"/>
+      <region id="17" name="cat" color="0 192 128"/>
+      <region id="18" name="dog" color="128 192 128"/>
+      <region id="19" name="body" color="64 64 0"/>
+      <region id="20" name="boat" color="192 64 0"/>
+    </regionDefinitions>
+  </drwnMultiSegConfig>
+
+  <drwnSegImagePixelFeatures>
+    <!-- feature options -->
+    <option name="filterBandwidth" value="1" />
+    <option name="featureGridSpacing" value="5" />
+    <option name="includeRGB" value="true" />
+    <option name="includeHOG" value="true" />
+    <option name="includeLBP" value="true" />
+    <option name="includeRowCol" value="true" />
+    <option name="includeLocation" value="true" />
+    <option name="auxFeatureDir" value="data/features/" />
+    <option name="auxFeatureExt" value="" />
+  </drwnSegImagePixelFeatures>
+
+  <drwnCodeProfiler enabled="true" />
+  <drwnLogger logLevel="VERBOSE"
+              logFile="msrc.log" />
+  <drwnThreadPool threads="4" />
+  <drwnConfusionMatrix colSep=" || " rowBegin="    || " rowEnd=" \" />
+  <drwnHOGFeatures blockSize="1" normClippingLB="0.1" normClippingUB="0.5" />
+</drwn>
