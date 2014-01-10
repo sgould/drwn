@@ -139,7 +139,7 @@ into this folder.
 \warning Make sure that \c $DARWIN/external/eigen3 contains the Eigen
 source directly and not a single subdirectory containing the Eigen
 source. You can check this by verifying that
-$DARWIN/external/eigen3/Eigen exists and contains the Eigen template
+\c $DARWIN/external/eigen3/Eigen exists and contains the Eigen template
 library headers. A common mistake is to for this code to be one level
 deeper in the directory hierarchy, resulting in compilation errors.
 

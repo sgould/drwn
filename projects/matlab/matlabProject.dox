@@ -19,6 +19,7 @@ namespace drwn {
    \li \p mexLoadSuperpixels : loads superpixels from a previously saved drwnSuperpixelContainer object
    \li \p mexMaxFlow : find the maximum flow through a weighted directed graph
    \li \p mexQPSolver : solve a quadratic program using \b Darwin's QP solver
+   \li \p mexSaveSuperpixels : saves superpixels to a drwnSuperpixelContainer object
 
    \li \p drwnCombineImages : combines multiple images into a single big image
    \li \p drwnLoadDataset : loads a drwnDataset object

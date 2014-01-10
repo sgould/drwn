@@ -19,7 +19,7 @@ namespace drwn {
     \li none
 
     \subsection drwnVisionApps Vision Applications
-    \li \ref drwnAppGenSp : generate superpixels.
+    \li \ref drwnAppGenSp : generate (and visualize) superpixels.
     \li \ref drwnAppGrabCut : bounding-box-based figure/ground segmentation.
     \li \ref drwnAppVisImgData : visualize image datasets.
     \li \ref drwnProjPatchMatch "patchMatchDemo" : demonstrate construction of a drwnPatchMatchGraph
@@ -121,7 +121,8 @@ namespace drwn {
 
    Example:
    \code
-     bin/generateSuperpixels -g 100 -x <IMAGE_FILENAME>
+     bin/generateSuperpixels -g 100 -o <OUTPUT_SP_NAME> -x <IMAGE_FILENAME>
+     bin/visualizeSuperpixels -x -i <IMAGE_FILENAME> <INPUT_SP_NAME>
    \endcode
 
    Multitple over-segmentations can be written to the same file using

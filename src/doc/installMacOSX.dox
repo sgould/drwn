@@ -15,7 +15,11 @@ below.
 
 For the development branch use:
 \code
-svn co https://svn.anu.edu.au/AI/drwn/trunk $DARWIN
+git clone https://github.com/sgould/drwn.git $DARWIN
+\endcode
+or
+\code
+svn co https://github.com/sgould/drwn $DARWIN
 \endcode
 
 For a stable release (e.g., <x>.<y>) use:
