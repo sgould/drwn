@@ -3,6 +3,9 @@ namespace drwn {
 /*!
 \mainpage Darwin Documentation
 
+\warning The \b Darwin source code repository has moved to GitHub. You can find the
+latest source at http://github.com/sgould/drwn/.
+
 \section Introduction
 
 This document describes the design and usage of the \b Darwin
