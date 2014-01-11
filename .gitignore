@@ -11,3 +11,9 @@
 *.lai
 *.la
 *.a
+
+# Temporary files
+*~
+
+# Local Darwin files
+make.local
