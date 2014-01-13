@@ -40,9 +40,12 @@ using namespace Eigen;
 template<typename T>
 void drwnParseMexSuperpixels(const mxArray *array, drwnSuperpixelContainer& container)
 {
+    const int nDims = mxGetNumberOfDimensions(array);
+    DRWN_ASSERT_MSG((nDims == 2) || (nDims == 3), "expecting multi-channel superpixel matrix");
+
     const int nRows = mxGetDimensions(array)[0]; // number of rows
     const int nCols = mxGetDimensions(array)[1]; // number of columns
-    const int nChannels = mxGetDimensions(array)[2]; // number of channels
+    const int nChannels = (nDims == 3) ? mxGetDimensions(array)[2] : 1; // number of channels
     DRWN_LOG_DEBUG("parsing a " << nRows << "-by-" << nCols << "-by-" << nChannels << " matrix...");
 
     T *px = (T *)mxGetPr(array);
@@ -94,7 +97,6 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
     // add superpixles to container
     drwnSuperpixelContainer container;
-    DRWN_ASSERT_MSG(mxGetNumberOfDimensions(prhs[1]) == 3, "expecting multi-channel superpixel matrix");
 
     switch (mxGetClassID(prhs[1])) {
     case mxDOUBLE_CLASS:

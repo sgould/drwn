@@ -63,6 +63,10 @@ downloaded from the following links:
 
 \section drwnChangeLog Change Log
 
+\subsection drwnChangeLog1_8 Release 1.8 (beta)
+
+\li Bug fix in mexSaveSuperpixels to support single channel
+
 \subsection drwnChangeLog1_7 Release 1.7
 
 \li Log file now shows the command line
