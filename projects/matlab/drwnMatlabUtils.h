@@ -202,7 +202,7 @@ void drwnMatlabUtils::processStandardOptions(map<string, string>& options)
         }
 
         for (int i = 0; i < n; i += 3) {
-            drwnConfigurationManager::get().configure(tokens[i].c_str(), 
+            drwnConfigurationManager::get().configure(tokens[i].c_str(),
                 tokens[i + 1].c_str(), tokens[i + 2].c_str());
         }
     }

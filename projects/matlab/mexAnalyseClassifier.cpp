@@ -82,11 +82,37 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
 
     // parse labels
     vector<int> labels(scores.size());
-    const double *p = mxGetPr(prhs[1]);
     int maxLabel = 0;
-    for (unsigned i = 0; i < labels.size(); i++) {
-        labels[i] = (int)p[i];
-        maxLabel = std::max(maxLabel, (int)p[i]);
+    switch (mxGetClassID(prhs[1])) {
+    case mxDOUBLE_CLASS:
+        {
+            const double *p = mxGetPr(prhs[1]);
+            for (unsigned i = 0; i < labels.size(); i++) {
+                labels[i] = (int)p[i];
+                maxLabel = std::max(maxLabel, (int)p[i]);
+            }
+        }
+        break;
+    case mxINT32_CLASS:
+        {
+            const int32_t *p = (const int32_T *)mxGetData(prhs[1]);
+            for (unsigned i = 0; i < labels.size(); i++) {
+                labels[i] = (int)p[i];
+                maxLabel = std::max(maxLabel, (int)p[i]);
+            }
+        }
+        break;
+    case mxLOGICAL_CLASS:
+        {
+            const mxLogical *p = (const mxLogical *)mxGetData(prhs[1]);
+            for (unsigned i = 0; i < labels.size(); i++) {
+                labels[i] = (int)p[i];
+                maxLabel = std::max(maxLabel, (int)p[i]);
+            }
+        }
+        break;
+    default:
+        DRWN_LOG_FATAL("unrecognized datatype, try labels = double(labels);");
     }
 
     // compute confusion matrix

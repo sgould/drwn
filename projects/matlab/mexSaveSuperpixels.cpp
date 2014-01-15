@@ -48,7 +48,7 @@ void drwnParseMexSuperpixels(const mxArray *array, drwnSuperpixelContainer& cont
     const int nChannels = (nDims == 3) ? mxGetDimensions(array)[2] : 1; // number of channels
     DRWN_LOG_DEBUG("parsing a " << nRows << "-by-" << nCols << "-by-" << nChannels << " matrix...");
 
-    T *px = (T *)mxGetPr(array);
+    T *px = (T *)mxGetData(array);
     for (int c = 0; c < nChannels; c++) {
         cv::Mat m(nRows, nCols, CV_32SC1);
         for (int x = 0; x < nCols; x++) {

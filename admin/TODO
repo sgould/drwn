@@ -277,7 +277,7 @@
 8. drwnColourHistogram
 8a. interpolate between bins when accumulating
 8b. colour histogram regions (like drwnKMeansRegions)
-9. mex parsing of types other than mxDOUBLE_CLASS
+[DONE] 9. mex parsing of types other than mxDOUBLE_CLASS
 
 * RELEASE 1.9
 

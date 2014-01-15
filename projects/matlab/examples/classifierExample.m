@@ -9,6 +9,7 @@ addpath('../../../bin/');
 % load iris dataset
 x = load('iris.data.txt');
 y = load('iris.labels.txt');
+nClasses = max(y) + 1;
 
 % add some noise to the data
 x = x + 0.5 * randn(size(x));
@@ -27,8 +28,8 @@ disp(['Accuracy: ', num2str(sum(predictions == y) / length(y))]);
 [c, pr] = mexAnalyseClassifier(scores, y);
 
 figure;
-for i = 1:3,
-    subplot(1, 3, i);
+for i = 1:nClasses,
+    subplot(1, nClasses, i);
     plot(pr{i}(:, 1), pr{i}(:, 2), 'r-', 'LineWidth', 2);
     axis([0, 1, 0, 1]); grid on;
     title([int2str(i - 1), '-vs-all']);
