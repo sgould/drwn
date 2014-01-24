@@ -498,7 +498,7 @@ int drwnSuperpixelContainer::removeSuperpixels(const set<unsigned>& segIds)
 }
 
 // visualization
-cv::Mat drwnSuperpixelContainer::visualize(const cv::Mat& img) const
+cv::Mat drwnSuperpixelContainer::visualize(const cv::Mat& img, bool bColorById) const
 {
     DRWN_ASSERT(img.data != NULL);
     if (empty()) return img.clone();
@@ -506,8 +506,13 @@ cv::Mat drwnSuperpixelContainer::visualize(const cv::Mat& img) const
     vector<cv::Mat> views;
     cv::Mat m(height(), width(), CV_8UC1);
     for (unsigned i = 0; i < _maps.size(); i++) {
-        views.push_back(img.clone());
+        if (bColorById) {
+            views.push_back(drwnCreateHeatMap(_maps[i]));
+        } else {
+            views.push_back(img.clone());
+        }
         cv::compare(_maps[i], cv::Scalar::all(0.0), m, CV_CMP_LT);
+        views.back().setTo(cv::Scalar::all(0.0), m);
         drwnShadeRegion(views.back(), m, CV_RGB(255, 0, 0), 1.0, DRWN_FILL_DIAG, 1);
         drwnDrawRegionBoundaries(views.back(), _maps[i], CV_RGB(255, 255, 255), 3);
         drwnDrawRegionBoundaries(views.back(), _maps[i], CV_RGB(255, 0, 0), 1);

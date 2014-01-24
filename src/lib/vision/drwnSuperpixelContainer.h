@@ -151,7 +151,7 @@ class drwnSuperpixelContainer : public drwnPersistentRecord {
     int removeSuperpixels(const std::set<unsigned>& segIds);
 
     //! visualize superpixels
-    cv::Mat visualize(const cv::Mat& img) const;
+    cv::Mat visualize(const cv::Mat& img, bool bColourById = false) const;
 
     //! assignment operator
     drwnSuperpixelContainer& operator=(const drwnSuperpixelContainer& container);

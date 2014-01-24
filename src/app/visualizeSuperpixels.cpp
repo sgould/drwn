@@ -38,6 +38,7 @@ void usage()
     cerr << DRWN_USAGE_HEADER << endl;
     cerr << "USAGE: ./visualizeSuperpixels [OPTIONS] <superpixelContainer>\n";
     cerr << "OPTIONS:\n"
+         << "  -colourById       :: colour superpixels by identifier\n"
          << "  -i <image>        :: image filename for overlaying superpixels\n"
          << "  -o <image>        :: output image filename\n"
          << "  -x                :: visualize\n"
@@ -54,10 +55,12 @@ int main(int argc, char *argv[])
 
     const char *inImage = NULL;
     const char *outImage = NULL;
+    bool bColourById = false;
     bool bVisualize = false;
 
     // process commandline arguments
     DRWN_BEGIN_CMDLINE_PROCESSING(argc, argv)
+        DRWN_CMDLINE_BOOL_OPTION("-colourById", bColourById)
         DRWN_CMDLINE_STR_OPTION("-i", inImage)
         DRWN_CMDLINE_STR_OPTION("-o", outImage)
         DRWN_CMDLINE_BOOL_OPTION("-x", bVisualize)
@@ -89,7 +92,7 @@ int main(int argc, char *argv[])
         img = cv::Mat(container.height(), container.width(), CV_8UC3, cv::Scalar::all(255));
     }
 
-    cv::Mat canvas = container.visualize(img);
+    const cv::Mat canvas = container.visualize(img, bColourById);
     if (bVisualize) {
         drwnShowDebuggingImage(canvas, string("Superpixels"), true);
     }
