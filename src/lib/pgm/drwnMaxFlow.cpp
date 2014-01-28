@@ -38,7 +38,6 @@ void drwnMaxFlow::reset()
     fill(_targetEdges.begin(), _targetEdges.end(), 0.0);
     fill(_edgeWeights.begin(), _edgeWeights.end(), 0.0);
     fill(_cut.begin(), _cut.end(), FREE);
-    _history.clear();
 }
 
 void drwnMaxFlow::clear()
@@ -49,60 +48,6 @@ void drwnMaxFlow::clear()
     _edgeWeights.clear();
     _nodes.clear();
     _cut.clear();
-    _history.clear();
-}
-
-void drwnMaxFlow::augmentPath(const drwnAugmentingPath& path)
-{
-    if (path.path.empty()) return;
-
-    // find path capacity
-    double c = (*this)(-1, path.path.front());
-    list<int>::const_iterator jt = path.path.begin();
-    while (c > 0.0) {
-        list<int>::const_iterator it = jt++;
-        if (jt == path.path.end()) break;
-        c = std::min(c, (*this)(*it, *jt));
-    }
-    c = std::min(c, (*this)(path.path.back(), -1));
-
-    // augment the path
-    if (c > 0.0) {
-        pair<int, int> e(-1, -1);
-        _sourceEdges[path.path.front()] -= c;
-        list<int>::const_iterator jt = path.path.begin();
-        while (true) {
-            list<int>::const_iterator it = jt++;
-            if (jt == path.path.end()) break;
-
-            _drwnCapacitatedEdge::const_iterator ei = _nodes[*it].find(*jt);
-            if (_edgeWeights[ei->second.first] == c) {
-                _edgeWeights[ei->second.first] = 0.0;
-                e = make_pair(*it, *jt);
-            } else {
-                _edgeWeights[ei->second.first] -= c;
-            }
-            _edgeWeights[ei->second.second] += c;
-        }
-        _targetEdges[path.path.back()] -= c;
-
-        // update history with augmenting path
-        if (_maintainHistory) {
-            if (_sourceEdges[path.path.front()] == 0.0) {
-                e = make_pair(-1, path.path.front());
-            } else if (_targetEdges[path.path.back()] == 0.0) {
-                e = make_pair(path.path.back(), -1);
-            }
-            _history.push_back(path);
-        }
-    }
-}
-
-void drwnMaxFlow::augmentPaths(const list<drwnAugmentingPath>& paths)
-{
-    for (list<drwnAugmentingPath>::const_iterator it = paths.begin(); it != paths.end(); ++it) {
-        this->augmentPath(*it);
-    }
 }
 
 double drwnMaxFlow::operator()(int u, int v) const
@@ -124,11 +69,6 @@ void drwnMaxFlow::preAugmentPaths()
             _flowValue += cap;
             _sourceEdges[u] -= cap;
             _targetEdges[u] -= cap;
-
-            // keep track of augmenting paths
-            if (_maintainHistory) {
-                _history.push_back(drwnAugmentingPath(u, this));
-            }
         }
 
         if (_sourceEdges[u] == 0.0) continue;
@@ -143,11 +83,6 @@ void drwnMaxFlow::preAugmentPaths()
             _edgeWeights[it->second.first] -= w;
             _edgeWeights[it->second.second] += w;
             _flowValue += w;
-
-            // keep track of augmenting paths
-            if (_maintainHistory) {
-                _history.push_back(drwnAugmentingPath(u, v, this));
-            }
 
             if (_sourceEdges[u] == 0.0) break;
         }
@@ -197,26 +132,6 @@ double drwnEdmondsKarpMaxFlow::solve()
         }
 
         if (frontierHead == frontierTail) break;
-
-        // keep track of augmenting paths
-        if (_maintainHistory) {
-            drwnAugmentingPath p;
-            int u = frontier[frontierHead];
-            p.edge = make_pair(u, -1);
-            p.path.push_front(u);
-            while (backtrack[u] != SOURCE_NODE) {
-                if ((*this)(backtrack[u], u) < (*this)(p.edge.first, p.edge.second)) {
-                    p.edge = make_pair(backtrack[u], u);
-                }
-                u = backtrack[u];
-                p.path.push_front(u);
-            }
-            if ((*this)(-1, u) < (*this)(p.edge.first, p.edge.second)) {
-                p.edge = make_pair(-1, u);
-            }
-
-            _history.push_back(p);
-        }
 
         // update residuals
         int u = frontier[frontierHead];
@@ -421,31 +336,6 @@ void drwnBKMaxFlow::augmentBKPath(const pair<int, int>& path, deque<int>& orphan
 {
     if ((path.first == TERMINAL) && (path.second == TERMINAL))
         return;
-
-    // keep track of augmenting paths
-    if (_maintainHistory) {
-        drwnAugmentingPath p;
-        p.edge = path;
-        int u = path.first;
-        p.path.push_front(u);
-        while (_parents[u].first != TERMINAL) {
-            if ((*this)(_parents[u].first, u) < (*this)(p.edge.first, p.edge.second)) {
-                p.edge = make_pair(_parents[u].first, u);
-            }
-            u = _parents[u].first;
-            p.path.push_front(u);
-        }
-        u = path.second;
-        p.path.push_back(u);
-        while (_parents[u].first != TERMINAL) {
-            if ((*this)(u, _parents[u].first) < (*this)(p.edge.first, p.edge.second)) {
-                p.edge = make_pair(u, _parents[u].first);
-            }
-            u = _parents[u].first;
-            p.path.push_back(u);
-        }
-        _history.push_back(p);
-    }
 
     // find path capacity
 

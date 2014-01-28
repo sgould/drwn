@@ -21,20 +21,6 @@ using namespace std;
 
 class drwnMaxFlow;
 
-// drwnAugmentingPath -------------------------------------------------------
-//! Augmenting path data-structure for max-flow algorithms.
-
-class drwnAugmentingPath {
-public:
-    list<int> path;      //!< complete augmented path
-    pair<int, int> edge; //!< minimum weighted edge along the path
-
-public:
-    inline drwnAugmentingPath() : edge(-1, -1) { /* do nothing */ }
-    inline drwnAugmentingPath(int u, const drwnMaxFlow *graph);
-    inline drwnAugmentingPath(int u, int v, const drwnMaxFlow *graph);
-};
-
 // drwnMaxFlow --------------------------------------------------------------
 //! Interface for maxflow/min-cut algorithms (for minimizing submodular
 //! quadratic pseudo-Boolean functions)
@@ -61,12 +47,9 @@ class drwnMaxFlow {
 
     vector<unsigned char> _cut;  //!< identifies which side of the cut a node falls
 
-    bool _maintainHistory;       //!< set true to maintain a history of the augmenting paths
-    list<drwnAugmentingPath> _history; //!< history of augmenting paths
-
  public:
     //! construct a maxflow/mincut problem with estimated maxNodes
-    drwnMaxFlow(unsigned maxNodes = 0) : _flowValue(0.0), _maintainHistory(false) {
+    drwnMaxFlow(unsigned maxNodes = 0) : _flowValue(0.0) {
         _sourceEdges.reserve(maxNodes);
         _targetEdges.reserve(maxNodes);
         _edgeWeights.reserve(2 * maxNodes);
@@ -86,13 +69,8 @@ class drwnMaxFlow {
     //! clear the graph and internal datastructures
     virtual void clear();
 
-    //! toggle whether history should be maintained
-    void enableHistory(bool b) { _maintainHistory = b; _history.clear(); }
-    //! return the augmenting path history
-    const list<drwnAugmentingPath>& history() const { return _history; }
-
     //! add nodes to the graph (returns the id of the first node added)
-    int addNodes(unsigned n = 1) {
+    inline int addNodes(unsigned n = 1) {
         int nodeId = (int)_nodes.size();
         _nodes.resize(_nodes.size() + n);
         _sourceEdges.resize(_nodes.size(), 0.0);
@@ -106,14 +84,14 @@ class drwnMaxFlow {
     }
 
     //! add edge from s to nodeId
-    void addSourceEdge(int u, double cap) {
+    inline void addSourceEdge(int u, double cap) {
         DRWN_ASSERT((u >= 0) && (u < (int)_nodes.size()));
         if (cap < 0.0) { _flowValue += cap; _targetEdges[u] -= cap; }
         else _sourceEdges[u] += cap;
     }
 
     //! add edge from nodeId to t
-    void addTargetEdge(int u, double cap) {
+    inline void addTargetEdge(int u, double cap) {
         DRWN_ASSERT((u >= 0) && (u < (int)_nodes.size()));
         if (cap < 0.0) { _flowValue += cap; _sourceEdges[u] -= cap; }
         else _targetEdges[u] += cap;
@@ -121,7 +99,7 @@ class drwnMaxFlow {
 
     //! add edge from u to v and edge from v to u
     //! (requires cap_uv + cap_vu >= 0)
-    void addEdge(int u, int v, double cap_uv, double cap_vu = 0.0) {
+    inline void addEdge(int u, int v, double cap_uv, double cap_vu = 0.0) {
         DRWN_ASSERT((u >= 0) && (u < (int)_nodes.size()));
         DRWN_ASSERT((v >= 0) && (v < (int)_nodes.size()));
         DRWN_ASSERT(u != v);
@@ -170,11 +148,6 @@ class drwnMaxFlow {
             }
         }
     }
-
-    //! attempt to push flow through a given path
-    void augmentPath(const drwnAugmentingPath& path);
-    //! attempt reparameterization by pushing flow through proposed paths
-    void augmentPaths(const list<drwnAugmentingPath>& paths);
 
     //! solve the max-flow problem and return the flow
     virtual double solve() = 0;
@@ -298,27 +271,3 @@ class drwnBKMaxFlow : public drwnMaxFlow {
         _activeList[u].first = TERMINAL;
     }
 };
-
-// drwnAugmentingPath implementation ------------------------------------------------------
-
-drwnAugmentingPath::drwnAugmentingPath(int u, const drwnMaxFlow *graph) : path(1, u)
-{
-    if ((*graph)(-1, u) < (*graph)(u, -1)) {
-        edge = make_pair(-1, u);
-    } else {
-        edge = make_pair(u, -1);
-    }
-}
-
-drwnAugmentingPath::drwnAugmentingPath(int u, int v, const drwnMaxFlow *graph)
-{
-    path.push_back(u);
-    path.push_back(v);
-    if ((*graph)(u, v) < std::min((*graph)(-1, u), (*graph)(v, -1))) {
-        edge = make_pair(u, v);
-    } else if ((*graph)(-1, u) < (*graph)(v, -1)) {
-        edge = make_pair(-1, u);
-    } else {
-        edge = make_pair(v, -1);
-    }
-}

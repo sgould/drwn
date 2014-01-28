@@ -27,6 +27,7 @@ using namespace std;
 
 // prototypes ---------------------------------------------------------------
 
+template<class T>
 void testMaxFlow();
 void testMaxFlowOnFile(const char *filename);
 void testTableFactorMapping();
@@ -62,7 +63,7 @@ void usage()
          << "  asumprod <fname>  :: test asynchronous sum-product inference\n"
          << "  fullinf <fname>   :: test full inference\n"
          << "  map <inf> <fname> :: test MAP inference (<inf> can be one of\n";
-    
+
     list<string> mapOptions = breakString(toString(drwnMAPInferenceFactory::get().getRegisteredClasses()), 56);
     for (list<string>::const_iterator it = mapOptions.begin(); it != mapOptions.end(); ++it) {
         cerr << "                       " << *it << "\n";
@@ -81,7 +82,8 @@ int main(int argc, char *argv[])
         DRWN_CMDLINE_STR_OPTION("-f", filename)
         DRWN_CMDLINE_FLAG_BEGIN("maxflow")
             if (filename == NULL) {
-                testMaxFlow();
+                testMaxFlow<drwnBKMaxFlow>();
+                testMaxFlow<drwnEdmondsKarpMaxFlow>();
             } else {
                 testMaxFlowOnFile(filename);
                 filename = NULL;
@@ -134,11 +136,9 @@ int main(int argc, char *argv[])
 
 // tests ------------------------------------------------------------------
 
+template<class T>
 void testMaxFlow()
 {
-    #define T drwnBKMaxFlow
-    //#define T drwnEdmondsKarpMaxFlow
-
     {
         // mincut is 7
         T graph;
@@ -173,7 +173,6 @@ void testMaxFlow()
     {
         // mincut is 5
         T graph;
-        graph.enableHistory(true);
         graph.addNodes(5);
         graph.addSourceEdge(0, 3);
         graph.addSourceEdge(2, 3);
@@ -192,10 +191,6 @@ void testMaxFlow()
             cut[i] = graph.inSetS(i) ? 0 : 1;
         }
         DRWN_LOG_MESSAGE("    cut:" << toString(cut));
-        const list<drwnAugmentingPath>& h = graph.history();
-        for (list<drwnAugmentingPath>::const_iterator it = h.begin(); it != h.end(); ++it) {
-            DRWN_LOG_VERBOSE("  augmenting path: " << toString(it->path) << " (" << toString(it->edge) << ")");
-        }
     }
 
     {
