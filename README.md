@@ -10,6 +10,11 @@ following:
     git clone git@github.com:sgould/drwn.git darwin
     svn co https://github.com/sgould/drwn darwin
 
+If you have previously checked out code with "git clone" then you can
+obtain the latest changes with:
+
+    cd darwin; git pull
+
 Previously the Darwin software was stored in an Subversion repository
 at https://svn.anu.edu.au/AI/drwn. You can check out earlier versions
 (e.g., version 1.7) with:
