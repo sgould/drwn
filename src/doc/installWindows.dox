@@ -18,14 +18,14 @@ drwnDownloadsDoc "downloads page".
 
 \subsection Repository
 
-Use TortoiseSVN to check out the latest copy of the code from:
+Use GitHub Shell to check out the latest copy of the code from:
 \code
-https://svn.anu.edu.au/AI/drwn/trunk
+git clone https://github.com/sgould/drwn.git $DARWIN
 \endcode
-
-For a previous stable release (e.g., <x>.<y>) use:
+where $DARWIN is the directory you want to put the code in. To update previously cloned code use:
 \code
-https://svn.anu.edu.au/AI/drwn/release/<x>.<y>
+cd $DARWIN
+git pull
 \endcode
 
 \section winCodeBuild Building the Code
@@ -78,7 +78,7 @@ this software is not installed then some functionality may not be
 available.
 
 <ul>
-<li> TortoiseSVN (http://tortoisesvn.tigris.org/)
+<li> GitHub Windows Client (http://windows.github.com/)
 <li> OpenCV 2.4.6 (http://opencv.org/) installed in the \c external/opencv directory
 <ul>
 <li> make sure both the \p "$DARWIN\external\opencv\build\x86\vc10\bin" and 
@@ -207,6 +207,10 @@ opening the Visual Studio solution file in the corresponding project
 directory.
 
 \section winFAQ Frequently Asked Questions
+
+\b "How do I start the GitHub Shell?"
+
+From the Start menu select \c "All Programs | GitHub, Inc | Git Shell".
 
 \b "How do I turn off MSVC multi-threaded building?"
 
