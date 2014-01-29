@@ -56,7 +56,7 @@ endif
 
 # opencv
 if (! -e opencv && (("$1" == "OpenCV") || ("$1" == "opencv"))) then
-    set VERSION = "2.4.6"
+    set VERSION = "2.4.8"
     if (! -e opencv-${VERSION}) then
         wget -c https://github.com/Itseez/opencv/archive/${VERSION}.tar.gz
         tar zxvf ${VERSION}.tar.gz
