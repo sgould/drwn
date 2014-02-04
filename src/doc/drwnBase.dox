@@ -15,6 +15,7 @@ namespace drwn {
     \li \ref drwnConstants : \copybrief drwnConstants.h
     \li \ref drwnFactory : \copybrief drwnFactory
     \li \ref drwnFileUtils : \copybrief drwnFileUtils.h
+    \li drwnIndexQueue : \copybrief drwnIndexQueue
     \li drwnLogger : \copybrief drwnLogger
     \li drwnOrderedMap : \copybrief drwnOrderedMap
     \li drwnProperties : \copybrief drwnProperties

@@ -199,8 +199,7 @@ class drwnBKMaxFlow : public drwnMaxFlow {
     static const int TERMINAL = -1;  //! _parents flag for terminal state
     vector<pair<int, pair<double *, double *> > > _parents; //! search tree (also uses _cut)
 
-    vector<pair<int, int> > _activeList; //! doubly-linked list (prev, next)
-    int _activeHead, _activeTail;
+    drwnIndexQueue _activeList;
 
  public:
     drwnBKMaxFlow(unsigned maxNodes = 0) : drwnMaxFlow(maxNodes) {
@@ -223,51 +222,4 @@ class drwnBKMaxFlow : public drwnMaxFlow {
     void augmentBKPath(const pair<int, int>& path, deque<int>& orphans);
     //! adopt orphaned subtrees
     void adoptOrphans(deque<int>& orphans);
-
-    inline void clearActive() {
-        _activeHead = _activeTail = TERMINAL;
-        _activeList.resize(_nodes.size());
-        fill(_activeList.begin(), _activeList.end(), make_pair(TERMINAL, TERMINAL));
-    }
-
-    inline bool isActiveSetEmpty() const {
-        return (_activeHead == TERMINAL);
-    }
-
-    //! active if head or previous node is not the terminal
-    inline bool isActive(int u) const {
-        return ((u == _activeHead) || (_activeList[u].first != TERMINAL));
-    }
-
-    inline void markActive(int u) {
-        if (isActive(u)) return;
-
-        _activeList[u].first = _activeTail;
-        _activeList[u].second = TERMINAL;
-        if (_activeTail == TERMINAL) {
-            _activeHead = u;
-        } else {
-            _activeList[_activeTail].second = u;
-        }
-        _activeTail = u;
-    }
-
-    inline void markInActive(int u) {
-        //if (!isActive(u)) return;
-
-        if (u == _activeHead) {
-            _activeHead = _activeList[u].second;
-            if (u != _activeTail) {
-                _activeList[_activeList[u].second].first = TERMINAL;
-            }
-        } else if (u == _activeTail) {
-            _activeTail = _activeList[u].first;
-            _activeList[_activeList[u].first].second = TERMINAL;
-        } else if (_activeList[u].first != TERMINAL) {
-            _activeList[_activeList[u].first].second = _activeList[u].second;
-            _activeList[_activeList[u].second].first = _activeList[u].first;
-        }
-        //_activeList[u] = make_pair(TERMINAL, TERMINAL);
-        _activeList[u].first = TERMINAL;
-    }
 };

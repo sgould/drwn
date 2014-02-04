@@ -22,6 +22,7 @@
 #include "../src/lib/base/drwnFactory.h"
 #include "../src/lib/base/drwnFileUtils.h"
 #include "../src/lib/base/drwnInterfaces.h"
+#include "../src/lib/base/drwnIndexQueue.h"
 #include "../src/lib/base/drwnLogger.h"
 #include "../src/lib/base/drwnOrderedMap.h"
 #include "../src/lib/base/drwnProperties.h"

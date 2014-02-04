@@ -233,14 +233,14 @@ void drwnBKMaxFlow::reset()
 {
     drwnMaxFlow::reset();
     _parents.clear();
-    clearActive();
+    _activeList.resize(_nodes.size());
 }
 
 void drwnBKMaxFlow::clear()
 {
     drwnMaxFlow::clear();
     _parents.clear();
-    clearActive();
+    _activeList.resize(_nodes.size());
 }
 
 double drwnBKMaxFlow::solve()
@@ -251,8 +251,7 @@ double drwnBKMaxFlow::solve()
     _cut.resize(_nodes.size());
     fill(_cut.begin(), _cut.end(), FREE);
     _parents.resize(_nodes.size());
-
-    clearActive();
+    _activeList.resize(_nodes.size());
 
     // pre-augment paths
     preAugmentPaths();
@@ -261,7 +260,7 @@ double drwnBKMaxFlow::solve()
     initializeTrees();
 
     deque<int> orphans;
-    while (!isActiveSetEmpty()) {
+    while (!_activeList.empty()) {
         //DRWN_LOG_DEBUG("current flow: " << _flowValue);
         const pair<int, int> path = expandTrees();
         augmentBKPath(path, orphans);
@@ -281,11 +280,11 @@ void drwnBKMaxFlow::initializeTrees()
         if (_sourceEdges[u] > 0.0) {
             _cut[u] = SOURCE;
             _parents[u].first = TERMINAL;
-            markActive(u);
+            _activeList.push_back(u);
         } else if (_targetEdges[u] > 0.0) {
             _cut[u] = TARGET;
             _parents[u].first = TERMINAL;
-            markActive(u);
+            _activeList.push_back(u);
         }
     }
 }
@@ -293,8 +292,8 @@ void drwnBKMaxFlow::initializeTrees()
 pair<int, int> drwnBKMaxFlow::expandTrees()
 {
     // expand trees looking for augmenting paths
-    while (!isActiveSetEmpty()) {
-        const int u = _activeHead;
+    while (!_activeList.empty()) {
+        const int u = _activeList.front();
 
         if (_cut[u] == SOURCE) {
             for (_drwnCapacitatedEdge::const_iterator it = _nodes[u].begin(); it != _nodes[u].end(); it++) {
@@ -302,7 +301,7 @@ pair<int, int> drwnBKMaxFlow::expandTrees()
                     if (_cut[it->first] == FREE) {
                         _cut[it->first] = SOURCE;
                         _parents[it->first] = make_pair(u, make_pair(&_edgeWeights[it->second.first], &_edgeWeights[it->second.second]));
-                        markActive(it->first);
+                        _activeList.push_back(it->first);
                     } else if (_cut[it->first] == TARGET) {
                         // found augmenting path
                         return make_pair(u, it->first);
@@ -316,7 +315,7 @@ pair<int, int> drwnBKMaxFlow::expandTrees()
                     if (_cut[it->first] == FREE) {
                         _cut[it->first] = TARGET;
                         _parents[it->first] = make_pair(u, make_pair(&_edgeWeights[it->second.second], &_edgeWeights[it->second.first]));
-                        markActive(it->first);
+                        _activeList.push_back(it->first);
                     } else if (_cut[it->first] == SOURCE) {
                         // found augmenting path
                         return make_pair(it->first, u);
@@ -326,7 +325,7 @@ pair<int, int> drwnBKMaxFlow::expandTrees()
         }
 
         // remove node from active set
-        markInActive(u);
+        _activeList.pop_front();
     }
 
     return make_pair(TERMINAL, TERMINAL);
@@ -370,13 +369,13 @@ void drwnBKMaxFlow::augmentBKPath(const pair<int, int>& path, deque<int>& orphan
         *_parents[u].second.first -= c;
         *_parents[u].second.second += c;
         if (*_parents[u].second.first == 0.0) {
-            orphans.push_front(u);
+            orphans.push_back(u);
         }
         u = _parents[u].first;
     }
     _sourceEdges[u] -= c;
     if (_sourceEdges[u] == 0.0) {
-        orphans.push_front(u);
+        orphans.push_back(u);
     }
 
     // link
@@ -389,7 +388,7 @@ void drwnBKMaxFlow::augmentBKPath(const pair<int, int>& path, deque<int>& orphan
         *_parents[u].second.first -= c;
         *_parents[u].second.second += c;
         if (*_parents[u].second.first == 0.0) {
-            orphans.push_front(u);
+            orphans.push_back(u);
         }
         u = _parents[u].first;
     }
@@ -405,7 +404,7 @@ void drwnBKMaxFlow::adoptOrphans(deque<int>& orphans)
     // re-initialize
     orphans.clear();
     fill(_cut.begin(), _cut.end(), FREE);
-    clearActive();
+    _activeList.clear();
     initializeTrees();
 #else
     // find new parent for orphaned subtree or free it
@@ -426,8 +425,7 @@ void drwnBKMaxFlow::adoptOrphans(deque<int>& orphans)
             if (_cut[jt->first] != treeLabel) continue;
 
             // check edge capacity
-            if (((treeLabel == TARGET) && (_edgeWeights[jt->second.first] <= 0.0)) ||
-                ((treeLabel == SOURCE) && (_edgeWeights[jt->second.second] <= 0.0)))
+            if (_edgeWeights[(treeLabel == TARGET) ? jt->second.first : jt->second.second] == 0.0)
                 continue;
 
             // check that u is not an ancestor of jt->first
@@ -452,15 +450,15 @@ void drwnBKMaxFlow::adoptOrphans(deque<int>& orphans)
         if (bFreeOrphan) {
             for (_drwnCapacitatedEdge::const_iterator jt = _nodes[u].begin(); jt != _nodes[u].end(); ++jt) {
                 if ((_cut[jt->first] == treeLabel) && (_parents[jt->first].first == u)) {
-                    orphans.push_front(jt->first);
-                    markActive(jt->first);
+                    orphans.push_back(jt->first);
+                    _activeList.push_back(jt->first);
                 } else if (_cut[jt->first] != FREE) {
-                    markActive(jt->first);
+                    _activeList.push_back(jt->first);
                 }
             }
 
             // mark inactive and free
-            markInActive(u);
+            _activeList.erase(u);
             _cut[u] = FREE;
         }
     }
