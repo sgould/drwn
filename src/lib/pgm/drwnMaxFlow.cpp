@@ -233,6 +233,7 @@ void drwnBKMaxFlow::reset()
 {
     drwnMaxFlow::reset();
     _parents.clear();
+    _weightptrs.clear();
     _activeList.resize(_nodes.size());
 }
 
@@ -240,6 +241,7 @@ void drwnBKMaxFlow::clear()
 {
     drwnMaxFlow::clear();
     _parents.clear();
+    _weightptrs.clear();
     _activeList.resize(_nodes.size());
 }
 
@@ -251,6 +253,7 @@ double drwnBKMaxFlow::solve()
     _cut.resize(_nodes.size());
     fill(_cut.begin(), _cut.end(), FREE);
     _parents.resize(_nodes.size());
+    _weightptrs.resize(_nodes.size());
     _activeList.resize(_nodes.size());
 
     // pre-augment paths
@@ -279,11 +282,11 @@ void drwnBKMaxFlow::initializeTrees()
     for (int u = 0; u < (int)_nodes.size(); u++) {
         if (_sourceEdges[u] > 0.0) {
             _cut[u] = SOURCE;
-            _parents[u].first = TERMINAL;
+            _parents[u] = TERMINAL;
             _activeList.push_back(u);
         } else if (_targetEdges[u] > 0.0) {
             _cut[u] = TARGET;
-            _parents[u].first = TERMINAL;
+            _parents[u] = TERMINAL;
             _activeList.push_back(u);
         }
     }
@@ -300,7 +303,8 @@ pair<int, int> drwnBKMaxFlow::expandTrees()
                 if (_edgeWeights[it->second.first] > 0.0) {
                     if (_cut[it->first] == FREE) {
                         _cut[it->first] = SOURCE;
-                        _parents[it->first] = make_pair(u, make_pair(&_edgeWeights[it->second.first], &_edgeWeights[it->second.second]));
+                        _parents[it->first] = u;
+                        _weightptrs[it->first] = make_pair(&_edgeWeights[it->second.first], &_edgeWeights[it->second.second]);
                         _activeList.push_back(it->first);
                     } else if (_cut[it->first] == TARGET) {
                         // found augmenting path
@@ -314,7 +318,8 @@ pair<int, int> drwnBKMaxFlow::expandTrees()
                 if (_edgeWeights[it->second.second] > 0.0) {
                     if (_cut[it->first] == FREE) {
                         _cut[it->first] = TARGET;
-                        _parents[it->first] = make_pair(u, make_pair(&_edgeWeights[it->second.second], &_edgeWeights[it->second.first]));
+                        _parents[it->first] = u;
+                        _weightptrs[it->first] = make_pair(&_edgeWeights[it->second.second], &_edgeWeights[it->second.first]);
                         _activeList.push_back(it->first);
                     } else if (_cut[it->first] == SOURCE) {
                         // found augmenting path
@@ -343,18 +348,18 @@ void drwnBKMaxFlow::augmentBKPath(const pair<int, int>& path, deque<int>& orphan
     double c = _edgeWeights[e->second.first];
 
     int u = path.first;
-    while (_parents[u].first != TERMINAL) {
-        c = std::min(c, *_parents[u].second.first);
-        u = _parents[u].first;
+    while (_parents[u] != TERMINAL) {
+        c = std::min(c, *_weightptrs[u].first);
+        u = _parents[u];
         //DRWN_ASSERT(_cut[u] == SOURCE);
     }
     c = std::min(c, _sourceEdges[u]);
 
     // forward track
     u = path.second;
-    while (_parents[u].first != TERMINAL) {
-        c = std::min(c, *_parents[u].second.first);
-        u = _parents[u].first;
+    while (_parents[u] != TERMINAL) {
+        c = std::min(c, *_weightptrs[u].first);
+        u = _parents[u];
         //DRWN_ASSERT(_cut[u] == TARGET);
     }
     c = std::min(c, _targetEdges[u]);
@@ -365,13 +370,13 @@ void drwnBKMaxFlow::augmentBKPath(const pair<int, int>& path, deque<int>& orphan
 
     // backtrack
     u = path.first;
-    while (_parents[u].first != TERMINAL) {
-        *_parents[u].second.first -= c;
-        *_parents[u].second.second += c;
-        if (*_parents[u].second.first == 0.0) {
+    while (_parents[u] != TERMINAL) {
+        *_weightptrs[u].first -= c;
+        *_weightptrs[u].second += c;
+        if (*_weightptrs[u].first == 0.0) {
             orphans.push_back(u);
         }
-        u = _parents[u].first;
+        u = _parents[u];
     }
     _sourceEdges[u] -= c;
     if (_sourceEdges[u] == 0.0) {
@@ -384,13 +389,13 @@ void drwnBKMaxFlow::augmentBKPath(const pair<int, int>& path, deque<int>& orphan
 
     // forward track
     u = path.second;
-    while (_parents[u].first != TERMINAL) {
-        *_parents[u].second.first -= c;
-        *_parents[u].second.second += c;
-        if (*_parents[u].second.first == 0.0) {
+    while (_parents[u] != TERMINAL) {
+        *_weightptrs[u].first -= c;
+        *_weightptrs[u].second += c;
+        if (*_weightptrs[u].first == 0.0) {
             orphans.push_back(u);
         }
-        u = _parents[u].first;
+        u = _parents[u];
     }
     _targetEdges[u] -= c;
     if (_targetEdges[u] == 0.0) {
@@ -407,14 +412,20 @@ void drwnBKMaxFlow::adoptOrphans(deque<int>& orphans)
     _activeList.clear();
     initializeTrees();
 #else
+    // clear parents for all orphans to prevent orphan from being added multiple times
+    for (deque<int>::iterator it = orphans.begin(); it != orphans.end(); ++it) {
+        _parents[*it] = TERMINAL;
+    }
+
     // find new parent for orphaned subtree or free it
     while (!orphans.empty()) {
-        const int u = orphans.front();
+        const int u = orphans.back();
         const char treeLabel = _cut[u];
-        orphans.pop_front();
+        orphans.pop_back();
 
         // can occur if same node is inserted into orphans multiple times
-        if (treeLabel == FREE) continue;
+        // (e.g., when the edge weight goes to zero between descendants)
+        //if (treeLabel == FREE) continue;
         //DRWN_ASSERT(treeLabel != FREE);
 
         // look for new parent
@@ -425,22 +436,28 @@ void drwnBKMaxFlow::adoptOrphans(deque<int>& orphans)
             if (_cut[jt->first] != treeLabel) continue;
 
             // check edge capacity
-            if (_edgeWeights[(treeLabel == TARGET) ? jt->second.first : jt->second.second] == 0.0)
+            if (_edgeWeights[(_cut[jt->first] == TARGET) ? jt->second.first : jt->second.second] == 0.0)
                 continue;
 
             // check that u is not an ancestor of jt->first
+#if 1
             int v = jt->first;
             while ((v != u) && (v != TERMINAL)) {
-                v = _parents[v].first;
+                v = _parents[v];
             }
             if (v != TERMINAL) continue;
-
+#else
+            if (isAncestor(u, jt->first)) continue;
+#endif
             // add as parent
-            if (treeLabel == SOURCE) {
-                _parents[u] = make_pair(jt->first, make_pair(&_edgeWeights[jt->second.second], &_edgeWeights[jt->second.first]));
+            if (_cut[jt->first] == TARGET) {
+                _parents[u] = jt->first;
+                _weightptrs[u] = make_pair(&_edgeWeights[jt->second.first], &_edgeWeights[jt->second.second]);
             } else {
-                _parents[u] = make_pair(jt->first, make_pair(&_edgeWeights[jt->second.first], &_edgeWeights[jt->second.second]));
+                _parents[u] = jt->first;
+                _weightptrs[u] = make_pair(&_edgeWeights[jt->second.second], &_edgeWeights[jt->second.first]);
             }
+
             bFreeOrphan = false;
             break;
         }
@@ -449,11 +466,11 @@ void drwnBKMaxFlow::adoptOrphans(deque<int>& orphans)
         // free the orphan subtree and remove it from the active set
         if (bFreeOrphan) {
             for (_drwnCapacitatedEdge::const_iterator jt = _nodes[u].begin(); jt != _nodes[u].end(); ++jt) {
-                if ((_cut[jt->first] == treeLabel) && (_parents[jt->first].first == u)) {
+                if ((_cut[jt->first] == treeLabel) && (_parents[jt->first] == u)) {
                     orphans.push_back(jt->first);
                     _activeList.push_back(jt->first);
-                } else if (_cut[jt->first] != FREE) {
-                    _activeList.push_back(jt->first);
+              //} else if (_cut[jt->first] != FREE) {
+                  //_activeList.push_back(jt->first);
                 }
             }
 
@@ -463,4 +480,13 @@ void drwnBKMaxFlow::adoptOrphans(deque<int>& orphans)
         }
     }
 #endif
+}
+
+bool drwnBKMaxFlow::isAncestor(int u, int v) const
+{
+    while (v != u) {
+        if (v == TERMINAL) return false;
+        v = _parents[v];
+    }
+    return true;
 }

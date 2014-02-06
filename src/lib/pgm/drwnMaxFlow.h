@@ -197,8 +197,10 @@ class drwnEdmondsKarpMaxFlow : public drwnMaxFlow {
 class drwnBKMaxFlow : public drwnMaxFlow {
  protected:
     static const int TERMINAL = -1;  //! _parents flag for terminal state
-    vector<pair<int, pair<double *, double *> > > _parents; //! search tree (also uses _cut)
 
+    //! search tree and active list
+    vector<int> _parents;
+    vector<pair<double *, double *> > _weightptrs;
     drwnIndexQueue _activeList;
 
  public:
@@ -222,4 +224,6 @@ class drwnBKMaxFlow : public drwnMaxFlow {
     void augmentBKPath(const pair<int, int>& path, deque<int>& orphans);
     //! adopt orphaned subtrees
     void adoptOrphans(deque<int>& orphans);
+    //! return true if u is an ancestor of v
+    bool isAncestor(int u, int v) const;
 };
