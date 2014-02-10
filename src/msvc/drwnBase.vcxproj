@@ -227,6 +227,7 @@
     <ClCompile Include="..\lib\base\drwnCodeProfiler.cpp" />
     <ClCompile Include="..\lib\base\drwnConfigManager.cpp" />
     <ClCompile Include="..\lib\base\drwnFileUtils.cpp" />
+    <ClCompile Include="..\lib\base\drwnIndexQueue.cpp" />
     <ClCompile Include="..\lib\base\drwnInterfaces.cpp" />
     <ClCompile Include="..\lib\base\drwnLogger.cpp" />
     <ClCompile Include="..\lib\base\drwnProperties.cpp" />

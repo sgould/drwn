@@ -8,7 +8,7 @@ DRWN_PATH := $(shell pwd)/../..
 # library source files ---------------------------------------------------
 
 BASE_LIB_SRC = drwnBitArray.cpp drwnCodeProfiler.cpp drwnConfigManager.cpp \
-	drwnFileUtils.cpp drwnInterfaces.cpp drwnLogger.cpp \
+	drwnFileUtils.cpp drwnIndexQueue.cpp drwnInterfaces.cpp drwnLogger.cpp \
 	drwnProperties.cpp drwnStatsUtils.cpp drwnStrUtils.cpp drwnThreadPool.cpp \
 	drwnXMLParser.cpp drwnXMLUtils.cpp
 

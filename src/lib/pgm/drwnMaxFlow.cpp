@@ -21,12 +21,13 @@
 
 using namespace std;
 
-// drwnMaxFlow statics ------------------------------------------------------
+// drwnMaxFlow and drwnBKMaxFlow statics ------------------------------------
 
 #ifdef __APPLE__
 const unsigned char drwnMaxFlow::FREE;
 const unsigned char drwnMaxFlow::SOURCE;
 const unsigned char drwnMaxFlow::TARGET;
+const int drwnBKMaxFlow::TERMINAL;
 #endif
 
 // drwnMaxFlow --------------------------------------------------------------
