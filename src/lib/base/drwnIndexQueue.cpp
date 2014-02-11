@@ -14,6 +14,9 @@
 #include <cstdio>
 #include <vector>
 
+#include "drwnLogger.h"
+#include "drwnIndexQueue.h"
+
 using namespace std;
 
 // drwnIndexQueue -----------------------------------------------------------
