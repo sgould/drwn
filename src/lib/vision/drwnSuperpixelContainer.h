@@ -43,8 +43,8 @@ using namespace std;
 //!         segMask = container.mask(segId, segMask);
 //!         // draw a white and red boundary around the superpixel on a temporary image
 //!         cv::Mat canvas = img.clone();
-//!         drwnDrawRegionBoundaries(canvas, mask, CV_RGB(255, 255, 255), 3);
-//!         drwnDrawRegionBoundaries(canvas, mask, CV_RGB(255, 0, 0), 1);
+//!         drwnDrawRegionBoundaries(canvas, segMask, CV_RGB(255, 255, 255), 3);
+//!         drwnDrawRegionBoundaries(canvas, segMask, CV_RGB(255, 0, 0), 1);
 //!         // show the image and superpixel
 //!         drwnShowDebuggingImage(canvas, string("superpixel"), true);
 //!     }

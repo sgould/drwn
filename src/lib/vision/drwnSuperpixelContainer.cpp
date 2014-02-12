@@ -268,6 +268,10 @@ cv::Mat drwnSuperpixelContainer::mask(unsigned segId) const
 
 cv::Mat& drwnSuperpixelContainer::mask(unsigned segId, cv::Mat& m) const
 {
+    if ((m.rows == 0) || (m.cols == 0)) {
+        m = cv::Mat(height(), width(), CV_8UC1);
+    }
+
     DRWN_ASSERT((m.rows == height()) && (m.cols == width()));
 
     unsigned indx = 0;
