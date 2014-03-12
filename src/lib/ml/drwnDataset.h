@@ -227,7 +227,7 @@ int drwnDataset<XType, YType, WType>::size(const char *filename)
 
     unsigned flags;
     ifs.read((char *)&flags, sizeof(unsigned));
-    DRWN_ASSERT_MSG(flags & 0xffff0000 == 0x00010000, "unrecognized file version");
+    DRWN_ASSERT_MSG((flags & 0xffff0000) == 0x00010000, "unrecognized file version");
 
     int nFeatures;
     ifs.read((char *)&nFeatures, sizeof(int));
@@ -238,8 +238,8 @@ int drwnDataset<XType, YType, WType>::size(const char *filename)
 
     // determine number of records
     int bytesPerRecord = sizeof(YType) + nFeatures * sizeof(XType);
-    if (flags & 0x00000001 == 0x00000001) bytesPerRecord += sizeof(WType);
-    if (flags & 0x00000002 == 0x00000002) bytesPerRecord += sizeof(int);
+    if ((flags & 0x00000001) == 0x00000001) bytesPerRecord += sizeof(WType);
+    if ((flags & 0x00000002) == 0x00000002) bytesPerRecord += sizeof(int);
 
     DRWN_ASSERT_MSG(len % bytesPerRecord == 0, "corrupt file " << filename
         << " (len: " << len << ", bytes/record = " << bytesPerRecord << ")");
@@ -265,7 +265,7 @@ int drwnDataset<XType, YType, WType>::numFeatures(const char *filename)
 
     unsigned flags;
     ifs.read((char *)&flags, sizeof(unsigned));
-    DRWN_ASSERT_MSG(flags & 0xffff0000 == 0x00010000, "unrecognized file version");
+    DRWN_ASSERT_MSG((flags & 0xffff0000) == 0x00010000, "unrecognized file version");
 
     int nFeatures;
     ifs.read((char *)&nFeatures, sizeof(int));
@@ -293,9 +293,9 @@ bool drwnDataset<XType, YType, WType>::hasWeights(const char *filename)
 
     unsigned flags;
     ifs.read((char *)&flags, sizeof(unsigned));
-    DRWN_ASSERT_MSG(flags & 0xffff0000 == 0x00010000, "unrecognized file version");
+    DRWN_ASSERT_MSG((flags & 0xffff0000) == 0x00010000, "unrecognized file version");
 
-    return (flags & 0x00000001 == 0x00000001);
+    return ((flags & 0x00000001) == 0x00000001);
 }
 
 template <typename XType, typename YType, typename WType>
@@ -317,9 +317,9 @@ bool drwnDataset<XType, YType, WType>::hasIndexes(const char *filename)
 
     unsigned flags;
     ifs.read((char *)&flags, sizeof(unsigned));
-    DRWN_ASSERT_MSG(flags & 0xffff0000 == 0x00010000, "unrecognized file version");
+    DRWN_ASSERT_MSG((flags & 0xffff0000) == 0x00010000, "unrecognized file version");
 
-    return (flags & 0x00000002 == 0x00000002);
+    return ((flags & 0x00000002) == 0x00000002);
 }
 
 // i/o

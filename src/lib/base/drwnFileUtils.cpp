@@ -15,6 +15,7 @@
 #include <algorithm>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <limits.h>
 
 #if defined(_WIN32)||defined(WIN32)||defined(__WIN32__)
 #include "win32/dirent.h"
@@ -53,7 +54,7 @@ vector<string> drwnDirectoryListing(const char *directory,
     if (bIncludeDir) {
         prefix = string(directory) + DRWN_DIRSEP;
     }
-    
+
     int extLength = 0;
     if (extension != NULL) {
         extLength = strlen(extension);
@@ -66,7 +67,7 @@ vector<string> drwnDirectoryListing(const char *directory,
             e = readdir(dir);
             continue;
         }
-            
+
         bool bIncludeFile = false;
         if (extension == NULL) {
             bIncludeFile = true;
@@ -84,9 +85,9 @@ vector<string> drwnDirectoryListing(const char *directory,
             }
             filenames.push_back(prefix + filename);
         }
-            
+
         e = readdir(dir);
-    }    
+    }
     closedir(dir);
 
     sort(filenames.begin(), filenames.end());
@@ -98,7 +99,7 @@ vector<string> drwnDirectoryListing(const char *directory,
 {
     vector<string> filenames;
 
-    for (set<const char *>::const_iterator it = extensions.begin(); 
+    for (set<const char *>::const_iterator it = extensions.begin();
          it != extensions.end(); it++) {
         vector<string> names = drwnDirectoryListing(directory, *it, bIncludeDir, true);
         filenames.insert(filenames.end(), names.begin(), names.end());
@@ -247,7 +248,7 @@ vector<string> drwnReadFile(const char *filename)
         if (ifs.fail()) break;
         if (str.empty()) continue;
         fileLines.push_back(str);
-    }    
+    }
     ifs.close();
 
     return fileLines;
@@ -266,7 +267,7 @@ vector<string> drwnReadLines(const char *filename)
         if (ifs.fail()) break;
         if (str.empty()) continue;
         fileLines.push_back(str);
-    }    
+    }
     ifs.close();
 
     return fileLines;
@@ -287,7 +288,7 @@ string drwnReadAll(const char *filename)
         if (ifs.fail()) break;
         if (str.empty()) continue;
         data += str;
-    }    
+    }
     ifs.close();
 
     return data;
@@ -306,7 +307,7 @@ int drwnCountLines(const char *filename)
         if (ifs.fail()) break;
         if (str.empty()) continue;
         lineCount += 1;
-    }    
+    }
     ifs.close();
 
     return lineCount;
@@ -337,7 +338,7 @@ bool drwnFileExists(const char *filename)
         return false;
     }
 
-    // next check read access on file    
+    // next check read access on file
     return (access(filename, R_OK) == 0);
 #endif
 }
@@ -361,7 +362,7 @@ bool drwnDirExists(const char *dirname)
 
 	if (access(dirname, 0) == 0) {
         struct stat status;
-        stat(dirname, &status);        
+        stat(dirname, &status);
         if (status.st_mode & S_IFDIR)
             return true;
     }
@@ -403,7 +404,7 @@ bool drwnFileResize(const char *filename, unsigned int size)
 int drwnDirSize(const char *dirname)
 {
     int numEntities = 0;
-    
+
     DIR *dir = opendir(dirname);
     if (dir == NULL) {
         return -1;
@@ -419,7 +420,7 @@ int drwnDirSize(const char *dirname)
 
         numEntities += 1;
         e = readdir(dir);
-    }    
+    }
     closedir(dir);
 
     return numEntities;

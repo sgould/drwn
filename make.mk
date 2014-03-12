@@ -129,10 +129,10 @@ endif
 ifeq ($(OS), Darwin)
   ifeq ($(strip $(DRWN_FORCE_32BIT)), 0)
     PLAT_CFLAGS += -arch x86_64
-    PLAT_LFLAGS += -arch x86_64
+    PLAT_LFLAGS += -arch x86_64 -L/usr/bin/clang++ -stdlib=libstdc++
   else
     PLAT_CFLAGS += -arch i386
-    PLAT_LFLAGS += -arch i386
+    PLAT_LFLAGS += -arch i386 -L/usr/bin/clang++ -stdlib=libstdc++
   endif
 endif
 

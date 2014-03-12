@@ -56,6 +56,7 @@ LIB_VER = ${PROJ_MAJORVER}.${PROJ_MINORVER}
 
 ifeq (,${LIB_SRC})
   LIB_NAMES =
+  PROJLIB =
 else
   LIB_NAMES = lib${PROJ_NAME}.a lib${PROJ_NAME}.so.${LIB_VER}
 
@@ -67,21 +68,22 @@ else
   endif
 endif
 
-.PHONY: clean lib mex
+.PHONY: clean lib app
 .PRECIOUS: $(APP_OBJ) $(LIB_OBJ)
 
 ifeq ($(wildcard $(EXT_PATH)/matlab), $(EXT_PATH)/matlab)
-all: lib mex
+all: lib app
 else
 all:
 endif
 
-mex: ${addprefix ${BIN_PATH}/,$(APP_PROG_NAMES)}
+app: ${addprefix ${BIN_PATH}/,$(APP_PROG_NAMES)}
 lib: ${addprefix ${BIN_PATH}/,$(LIB_NAMES)}
 
 # applications
 $(BIN_PATH)/%.${MEXEXT}: %.cpp $(PROJLIB) $(LIBDRWN)
-	mex -v -g $*.cpp -o $(@:.cpp=) $(PROJLIB) $(MEXFLAGS) $(LIBDRWN) $(EXTLIB)
+	mex -v -g $*.cpp -output $(@:.cpp=) $(PROJLIB) $(MEXFLAGS) $(LIBDRWN) $(EXTLIB)
+
 
 # static libraries
 $(BIN_PATH)/lib${PROJ_NAME}.a: $(LIB_OBJ)
@@ -89,7 +91,7 @@ $(BIN_PATH)/lib${PROJ_NAME}.a: $(LIB_OBJ)
 
 # shared libraries
 $(BIN_PATH)/lib${PROJ_NAME}.so.${LIB_VER}: $(LIB_OBJ)
-	gcc ${CFLAGS} -shared -Wl,-soname,lib${PROJ_NAME}.so.${PROJ_MAJORVER} -o $(BIN_PATH)/lib${PROJ_NAME}.so.${LIB_VER} $(LIB_OBJ)
+	${CCC} ${CFLAGS} -shared -Wl,-soname,lib${PROJ_NAME}.so.${PROJ_MAJORVER} -o $(BIN_PATH)/lib${PROJ_NAME}.so.${LIB_VER} $(LIB_OBJ)
 	${LDCONFIG} -n $(BIN_PATH)
 
 # darwin libraries
@@ -102,7 +104,7 @@ $(LIBDRWN):
 	$(CCC) -MM -MF $(subst .o,.d,$@) -MP -MT $@ $(CFLAGS) $<
 	${CCC} ${CFLAGS} -c $< -o $@
 
-# clear
+# clean
 clean:
 	-rm $(APP_OBJ)
 	-rm $(LIB_OBJ)
@@ -113,4 +115,3 @@ clean:
 	-rm *~
 
 -include ${PROJ_DEP}
-
