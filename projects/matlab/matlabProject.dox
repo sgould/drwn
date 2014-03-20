@@ -34,12 +34,14 @@ namespace drwn {
 
    \subsection drwnProjMatlabInstallLinux Linux
 
+   \li build the \b Darwin libraries (\ref linuxCodeBuild)
    \li change to the \p external directory
    \li create a symbolic link to matlab, e.g.,
    \code
      ln -s /usr/local/MATLAB/R2010b/ matlab
    \endcode
    \li change to the root \b Darwin directory and type \p "make drwnprojs"
+   \li alternatively, start Matlab, change to the \p projects/matlab directory and execute \p buildLinux
 
    \warning On the latest versions of Ubuntu and older versions of
    Matlab you may get compiler warnings complaining about gcc version
@@ -59,7 +61,7 @@ namespace drwn {
    \li compile the \b Darwin libraries in Release Mode
    \li start Matlab
    \li configure the mex compiler (\p "mex -setup")
-   \li change to the \p projects/matlab directory
+   \li change to the \p projects\\matlab directory
    \li execute \p buildWindows
 
    \warning Make sure you have compiled the \b Darwin libraries for
