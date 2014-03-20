@@ -15,6 +15,7 @@ codebase:
 \li Stephen Gould (core developer)
 \li Hendra Gunadi (drwnTRWSInference class)
 \li Robin Liang (drwnInPaint class)
+\li Jimmy Lin (drwnSLICSuperpixels function)
 
 Please email stephen.gould@anu.edu.au if you find an omission in this list.
 

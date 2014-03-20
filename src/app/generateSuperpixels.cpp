@@ -34,8 +34,8 @@ void usage()
     cerr << DRWN_USAGE_HEADER << endl;
     cerr << "USAGE: ./generateSuperpixels [OPTIONS] <img>\n";
     cerr << "OPTIONS:\n"
-         << "  -m <method>       :: segmentation method (SUPERPIXEL (default) or KMEANS)\n"
-         << "  -g <grid>         :: set grid size for superpixel segmentation (default: 10)\n"
+         << "  -m <method>       :: segmentation method (SUPERPIXEL (default), SLIC or KMEANS)\n"
+         << "  -g <grid>         :: set grid size for superpixel/SLIC segmentation (default: 10)\n"
          << "  -k <clusters>     :: number of clusters for k-means segmentation (default: 100)\n"
          << "  -o <filename>     :: save segmentation to file <filename> (use .txt extension)\n"
          << "                    :: for text; else drwnSuperpixelContainer format is used)\n"
@@ -92,6 +92,8 @@ int main(int argc, char *argv[])
     cv::Mat seg;
     if (!strcasecmp(method, "SUPERPIXEL")) {
         seg = drwnFastSuperpixels(img, gridSize);
+    } else if (!strcasecmp(method, "SLIC")) {
+        seg = drwnSLICSuperpixels(img, gridSize * gridSize);
     } else if (!strcasecmp(method, "KMEANS")) {
         seg = drwnKMeansSegments(img, numClusters);
     } else {

@@ -7,6 +7,7 @@
 ******************************************************************************
 ** FILENAME:    drwnVisionUtils.h
 ** AUTHOR(S):   Stephen Gould <stephen.gould@anu.edu.au>
+**              Jimmy Lin <JimmyLin@utexas.edu>
 **
 *****************************************************************************/
 
@@ -76,4 +77,9 @@ cv::Mat drwnFastSuperpixels(const cv::Mat& img, unsigned gridSize);
 //! number of regions. A value of 10 will produce up to 10 regions.
 cv::Mat drwnKMeansSegments(const cv::Mat& img, unsigned numCentroids);
 
-
+//! Generates an over-segmentation (superpixels) of an image based
+//! on the SLIC algorithm (Achanta et al., PAMI 2012). The parameter
+//! \p nClusters controls the number of superpixels and the parameter
+//! \p threshold (between 0 and 1) defines a stopping criteria. The
+//! image schould be provided in CIELAB format.
+cv::Mat drwnSLICSuperpixels(const cv::Mat& img, unsigned nClusters, double threshold = 1.0e-3);

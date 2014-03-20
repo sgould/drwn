@@ -65,6 +65,7 @@ downloaded from the following links:
 
 \subsection drwnChangeLog1_8 Release 1.8 (beta)
 
+\li Added drwnSLICSuperpixels function
 \li Added drwnIndexQueue class
 \li mexLearnClassifier and mexAnalyseClassifier now support integer label types
 \li Bug fix in mexSaveSuperpixels to support single channel

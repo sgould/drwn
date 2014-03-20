@@ -7,6 +7,7 @@
 ******************************************************************************
 ** FILENAME:    drwnVisionUtils.cpp
 ** AUTHOR(S):   Stephen Gould <stephen.gould@anu.edu.au>
+**              Jimmy Lin <JimmyLin@utexas.edu>
 **
 *****************************************************************************/
 
@@ -405,7 +406,8 @@ cv::Mat drwnFastSuperpixels(const cv::Mat& img, unsigned gridSize)
 
 cv::Mat drwnKMeansSegments(const cv::Mat& img, unsigned numCentroids)
 {
-    DRWN_ASSERT((img.depth() == CV_8U) && (img.channels() == 3) && (img.rows * img.cols > numCentroids));
+    DRWN_ASSERT((img.depth() == CV_8U) && (img.channels() == 3) && 
+        ((unsigned)(img.rows * img.cols) > numCentroids));
 
     // extract data
     vector<vector<double> > data;
@@ -442,5 +444,213 @@ cv::Mat drwnKMeansSegments(const cv::Mat& img, unsigned numCentroids)
         }
     }
 
+    return seg;
+}
+
+class drwnSLICCentroid {
+public:
+    int l, a, b;   //!< colour components
+    int x, y;      //!< spatial components
+    
+public:
+    inline drwnSLICCentroid() : l(0), a(0), b(0), x(0), y(0) { /* do nothing */ }
+    inline drwnSLICCentroid(int ll, int aa, int bb, int xx, int yy) : 
+        l(ll), a(aa), b(bb), x(xx), y(yy) { /* do nothing */ }
+    
+    inline void update(int ll, int aa, int bb, int xx, int yy) {
+        l = ll; a = aa; b = bb; x = xx; y = yy;
+    }
+};
+
+cv::Mat drwnSLICSuperpixels(const cv::Mat& img, unsigned nClusters, double threshold)
+{
+    DRWN_ASSERT(nClusters > 0);
+    DRWN_ASSERT((threshold > 0.0) && (threshold < 1.0));
+
+    // height and width of the provided image
+    const int H = img.rows;
+    const int W = img.cols;
+    DRWN_ASSERT((H > 0) && (W > 0));
+
+    // initialize segmentation to -1
+    cv::Mat seg(img.rows, img.cols, CV_32SC1, cv::Scalar(-1));
+
+    // randomly pick up initial cluster center
+    //! \todo replace with separate x and y grid sizes
+    const int S = sqrt(H * W / nClusters);  // grid size 
+    const int gridPerRow = (W + S - 1) / S;
+    nClusters = gridPerRow * (H + S - 1) / S;
+
+    vector<drwnSLICCentroid> ccs(nClusters, drwnSLICCentroid());
+
+    // randomize the position of drwnSLICCentroid 
+    for (unsigned i = 0; i < nClusters; i ++) {
+        const int gridx = i % gridPerRow;
+        const int gridy = i / gridPerRow;
+        const int x = (rand() % S) + gridx * S;
+        const int y = (rand() % S) + gridy * S;
+        ccs[i].update(img.at<cv::Vec3b>(y, x)[0], img.at<cv::Vec3b>(y, x)[1], img.at<cv::Vec3b>(y, x)[2], x, y);
+    }
+
+    // Gradient computation
+    // Compute gradient magnitude of the given image
+    //! \todo replace with cv::Sobel
+    cv::Mat gradient(H, W, CV_64F, cv::Scalar(0.0));
+    for (int y = 0; y < H; y++) {
+        for (int x = 0; x < W; x++) {
+            int countx = 0, county = 0;
+            double gradientx = 0.0, gradienty = 0.0;
+            const int l = img.at<cv::Vec3b>(y, x)[0];
+            const int a = img.at<cv::Vec3b>(y, x)[1];
+            const int b = img.at<cv::Vec3b>(y, x)[2];
+            if (x - 1 > 0) {
+                int tmpl = img.at<cv::Vec3b>(y, x-1)[0];
+                int tmpa = img.at<cv::Vec3b>(y, x-1)[1];
+                int tmpb = img.at<cv::Vec3b>(y, x-1)[2];
+                gradientx += abs(l-tmpl) + abs(a-tmpa) + abs(b-tmpb);
+                countx += 1;
+            }
+            if (x + 1 < W) {
+                int tmpl = img.at<cv::Vec3b>(y, x+1)[0];
+                int tmpa = img.at<cv::Vec3b>(y, x+1)[1];
+                int tmpb = img.at<cv::Vec3b>(y, x+1)[2];
+                gradientx += abs(l-tmpl) + abs(a-tmpa) + abs(b-tmpb);
+                countx += 1;
+            }
+
+            if (y - 1 > 0) {
+                int tmpl = img.at<cv::Vec3b>(y-1, x)[0];
+                int tmpa = img.at<cv::Vec3b>(y-1, x)[1];
+                int tmpb = img.at<cv::Vec3b>(y-1, x)[2];
+                gradienty += abs(l-tmpl) + abs(a-tmpa) + abs(b-tmpb);
+                county += 1;
+            }
+            if (y + 1 < H) {
+                int tmpl = img.at<cv::Vec3b>(y+1, x)[0];
+                int tmpa = img.at<cv::Vec3b>(y+1, x)[1];
+                int tmpb = img.at<cv::Vec3b>(y+1, x)[2];
+                gradienty += abs(l-tmpl) + abs(a-tmpa) + abs(b-tmpb);
+                county += 1;
+            }
+
+            if ((countx == 0) && (county == 0)) {
+                gradient.at<double>(y, x) = DRWN_DBL_MAX;
+            } else {
+                gradient.at<double>(y, x) = sqrt(pow(gradientx / countx, 2.0) +
+                    pow(gradienty / county, 2.0));
+            }
+        }
+    }
+
+    // Move cluster center to the lowest gradient position
+    for (unsigned i = 0; i < nClusters; i ++) {
+        const int x = ccs[i].x;
+        const int y = ccs[i].y;
+        int min_x = x;
+        int min_y = y;
+        double min_gradient = gradient.at<double>(y, x);
+        for (int tmpy = std::max(y-1, 0); tmpy <= std::min(y+1, H-1); tmpy++) {
+            for (int tmpx = std::max(x-1, 0); tmpx <= std::min(x+1, W-1); tmpx++) {
+                const double g = gradient.at<double>(tmpy, tmpx);
+                if (g < min_gradient) {
+                    min_x = tmpx;
+                    min_y = tmpy;
+                    min_gradient = g;
+                }
+            }
+        }
+        const int min_l = img.at<cv::Vec3b>(min_y, min_x)[0];
+        const int min_a = img.at<cv::Vec3b>(min_y, min_x)[1];
+        const int min_b = img.at<cv::Vec3b>(min_y, min_x)[2];
+        ccs[i].update(min_l, min_a, min_b, min_x, min_y);
+    }
+
+    // Distance matrix represents the distance between one pixel and its centroid
+    cv::Mat distance(H, W, CV_64F, cv::Scalar(DRWN_DBL_MAX));
+
+    // iteration starts
+    int iter = 1;  // iteration number
+    const double m = 40.0; // relative importance between two type of distances
+    while (true) {
+        for (unsigned i = 0; i < nClusters; i ++) {
+            // acquire labxy attribute of drwnCentroid
+            int x = ccs[i].x;
+            int y = ccs[i].y;
+            int l = ccs[i].l;
+            int a = ccs[i].a;
+            int b = ccs[i].b;
+
+            // look around its 2S x 2S region
+            for (int tmpy = std::max(y-S, 0); tmpy <= std::min(y+S, H-1); tmpy++) {
+                for (int tmpx = std::max(x-S, 0); tmpx <= std::min(x+S, W-1); tmpx++) {
+                    const int tmpl = img.at<cv::Vec3b>(tmpy, tmpx)[0];
+                    const int tmpa = img.at<cv::Vec3b>(tmpy, tmpx)[1];
+                    const int tmpb = img.at<cv::Vec3b>(tmpy, tmpx)[2];
+
+                    const double color_distance = sqrt (pow(tmpl - l, 2.0) + pow(tmpa - a, 2.0) + pow(tmpb - b, 2.0)); 
+                    const double spatial_distance = sqrt (pow(tmpx - x, 2.0) + pow(tmpy - y, 2.0));
+                    const double D = sqrt(pow(color_distance, 2.0) + pow(spatial_distance * m / S, 2.0));
+
+                    // if distance is smaller, update the drwnCentroid it belongs to
+                    if (D < distance.at<double>(tmpy, tmpx)) {
+                        distance.at<double>(tmpy, tmpx) = D;
+                        seg.at<int>(tmpy, tmpx) = i;
+                    }
+                }
+            }
+        }
+
+        // Compute new cluster center by taking the mean of each dimension
+        vector<unsigned int> count(nClusters, 0);
+        vector<double> sumx(nClusters, 0.0);
+        vector<double> sumy(nClusters, 0.0);
+        vector<double> suml(nClusters, 0.0);
+        vector<double> suma(nClusters, 0.0);
+        vector<double> sumb(nClusters, 0.0);
+
+        for (int y = 0; y < H; y++) {
+            for (int x = 0; x < W; x++) {
+                const int segId = seg.at<int>(y, x);
+                if (segId < 0) continue;
+                count[segId] += 1;
+                sumx[segId] += x;
+                sumy[segId] += y;
+                suml[segId] += img.at<cv::Vec3b>(y,x)[0];
+                suma[segId] += img.at<cv::Vec3b>(y,x)[1];
+                sumb[segId] += img.at<cv::Vec3b>(y,x)[2];
+            }
+        }
+
+        // statistics about each superpixel
+        double E = 0.0; // residual
+        for (unsigned i = 0; i < nClusters; i ++) {
+            const int x = (int)(sumx[i] / count[i]);
+            const int y = (int)(sumy[i] / count[i]);
+            const int l = (int)(suml[i] / count[i]);
+            const int a = (int)(suma[i] / count[i]);
+            const int b = (int)(sumb[i] / count[i]);
+            
+            E += pow((ccs[i].x - x), 2.0);
+            E += pow((ccs[i].y - y), 2.0);
+            E += pow((ccs[i].l - l), 2.0);
+            E += pow((ccs[i].a - a), 2.0);
+            E += pow((ccs[i].b - b), 2.0);
+
+            ccs[i].update(l, a, b, x, y);
+        }
+        E /= nClusters;
+
+        DRWN_LOG_DEBUG("SLIC iteration: " << iter << ", error: " << E);
+        if (E < threshold) {
+            break;
+        }
+
+        // update iteration counter
+        iter += 1;
+    }
+
+    //! \todo connected components
+
+    // return the segmentation
     return seg;
 }
