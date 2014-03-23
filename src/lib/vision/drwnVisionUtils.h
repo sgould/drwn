@@ -83,3 +83,7 @@ cv::Mat drwnKMeansSegments(const cv::Mat& img, unsigned numCentroids);
 //! \p threshold (between 0 and 1) defines a stopping criteria. The
 //! image schould be provided in CIELAB format.
 cv::Mat drwnSLICSuperpixels(const cv::Mat& img, unsigned nClusters, double threshold = 1.0e-3);
+
+//! Merges small superpixels into neighbours until at most \p maxSegs
+//! remain.
+void drwnMergeSuperpixels(const cv::Mat& img, cv::Mat& seg, unsigned maxSegs);

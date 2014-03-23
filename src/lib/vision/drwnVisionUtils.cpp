@@ -14,6 +14,7 @@
 #include <cstdlib>
 #include <vector>
 #include <list>
+#include <set>
 
 #include "cv.h"
 
@@ -406,7 +407,7 @@ cv::Mat drwnFastSuperpixels(const cv::Mat& img, unsigned gridSize)
 
 cv::Mat drwnKMeansSegments(const cv::Mat& img, unsigned numCentroids)
 {
-    DRWN_ASSERT((img.depth() == CV_8U) && (img.channels() == 3) && 
+    DRWN_ASSERT((img.depth() == CV_8U) && (img.channels() == 3) &&
         ((unsigned)(img.rows * img.cols) > numCentroids));
 
     // extract data
@@ -451,14 +452,20 @@ class drwnSLICCentroid {
 public:
     int l, a, b;   //!< colour components
     int x, y;      //!< spatial components
-    
+
 public:
     inline drwnSLICCentroid() : l(0), a(0), b(0), x(0), y(0) { /* do nothing */ }
-    inline drwnSLICCentroid(int ll, int aa, int bb, int xx, int yy) : 
+    inline drwnSLICCentroid(int ll, int aa, int bb, int xx, int yy) :
         l(ll), a(aa), b(bb), x(xx), y(yy) { /* do nothing */ }
-    
+
     inline void update(int ll, int aa, int bb, int xx, int yy) {
         l = ll; a = aa; b = bb; x = xx; y = yy;
+    }
+    inline void update(const cv::Mat &img, int xx, int yy) {
+        l = img.at<cv::Vec3b>(yy, xx)[0];
+        a = img.at<cv::Vec3b>(yy, xx)[1];
+        b = img.at<cv::Vec3b>(yy, xx)[2];
+        x = xx; y = yy;
     }
 };
 
@@ -477,70 +484,23 @@ cv::Mat drwnSLICSuperpixels(const cv::Mat& img, unsigned nClusters, double thres
 
     // randomly pick up initial cluster center
     //! \todo replace with separate x and y grid sizes
-    const int S = sqrt(H * W / nClusters);  // grid size 
+    const int S = sqrt(H * W / nClusters);  // grid size
     const int gridPerRow = (W + S - 1) / S;
     nClusters = gridPerRow * (H + S - 1) / S;
 
     vector<drwnSLICCentroid> ccs(nClusters, drwnSLICCentroid());
 
-    // randomize the position of drwnSLICCentroid 
+    // randomize the position of drwnSLICCentroid
     for (unsigned i = 0; i < nClusters; i ++) {
         const int gridx = i % gridPerRow;
         const int gridy = i / gridPerRow;
         const int x = (rand() % S) + gridx * S;
         const int y = (rand() % S) + gridy * S;
-        ccs[i].update(img.at<cv::Vec3b>(y, x)[0], img.at<cv::Vec3b>(y, x)[1], img.at<cv::Vec3b>(y, x)[2], x, y);
+        ccs[i].update(img, x, y);
     }
 
     // Gradient computation
-    // Compute gradient magnitude of the given image
-    //! \todo replace with cv::Sobel
-    cv::Mat gradient(H, W, CV_64F, cv::Scalar(0.0));
-    for (int y = 0; y < H; y++) {
-        for (int x = 0; x < W; x++) {
-            int countx = 0, county = 0;
-            double gradientx = 0.0, gradienty = 0.0;
-            const int l = img.at<cv::Vec3b>(y, x)[0];
-            const int a = img.at<cv::Vec3b>(y, x)[1];
-            const int b = img.at<cv::Vec3b>(y, x)[2];
-            if (x - 1 > 0) {
-                int tmpl = img.at<cv::Vec3b>(y, x-1)[0];
-                int tmpa = img.at<cv::Vec3b>(y, x-1)[1];
-                int tmpb = img.at<cv::Vec3b>(y, x-1)[2];
-                gradientx += abs(l-tmpl) + abs(a-tmpa) + abs(b-tmpb);
-                countx += 1;
-            }
-            if (x + 1 < W) {
-                int tmpl = img.at<cv::Vec3b>(y, x+1)[0];
-                int tmpa = img.at<cv::Vec3b>(y, x+1)[1];
-                int tmpb = img.at<cv::Vec3b>(y, x+1)[2];
-                gradientx += abs(l-tmpl) + abs(a-tmpa) + abs(b-tmpb);
-                countx += 1;
-            }
-
-            if (y - 1 > 0) {
-                int tmpl = img.at<cv::Vec3b>(y-1, x)[0];
-                int tmpa = img.at<cv::Vec3b>(y-1, x)[1];
-                int tmpb = img.at<cv::Vec3b>(y-1, x)[2];
-                gradienty += abs(l-tmpl) + abs(a-tmpa) + abs(b-tmpb);
-                county += 1;
-            }
-            if (y + 1 < H) {
-                int tmpl = img.at<cv::Vec3b>(y+1, x)[0];
-                int tmpa = img.at<cv::Vec3b>(y+1, x)[1];
-                int tmpb = img.at<cv::Vec3b>(y+1, x)[2];
-                gradienty += abs(l-tmpl) + abs(a-tmpa) + abs(b-tmpb);
-                county += 1;
-            }
-
-            if ((countx == 0) && (county == 0)) {
-                gradient.at<double>(y, x) = DRWN_DBL_MAX;
-            } else {
-                gradient.at<double>(y, x) = sqrt(pow(gradientx / countx, 2.0) +
-                    pow(gradienty / county, 2.0));
-            }
-        }
-    }
+    cv::Mat gradient = drwnSoftEdgeMap(img, false);
 
     // Move cluster center to the lowest gradient position
     for (unsigned i = 0; i < nClusters; i ++) {
@@ -548,10 +508,10 @@ cv::Mat drwnSLICSuperpixels(const cv::Mat& img, unsigned nClusters, double thres
         const int y = ccs[i].y;
         int min_x = x;
         int min_y = y;
-        double min_gradient = gradient.at<double>(y, x);
+        float min_gradient = gradient.at<const float>(y, x);
         for (int tmpy = std::max(y-1, 0); tmpy <= std::min(y+1, H-1); tmpy++) {
             for (int tmpx = std::max(x-1, 0); tmpx <= std::min(x+1, W-1); tmpx++) {
-                const double g = gradient.at<double>(tmpy, tmpx);
+                const float g = gradient.at<const float>(tmpy, tmpx);
                 if (g < min_gradient) {
                     min_x = tmpx;
                     min_y = tmpy;
@@ -559,10 +519,7 @@ cv::Mat drwnSLICSuperpixels(const cv::Mat& img, unsigned nClusters, double thres
                 }
             }
         }
-        const int min_l = img.at<cv::Vec3b>(min_y, min_x)[0];
-        const int min_a = img.at<cv::Vec3b>(min_y, min_x)[1];
-        const int min_b = img.at<cv::Vec3b>(min_y, min_x)[2];
-        ccs[i].update(min_l, min_a, min_b, min_x, min_y);
+        ccs[i].update(img, min_x, min_y);
     }
 
     // Distance matrix represents the distance between one pixel and its centroid
@@ -570,7 +527,7 @@ cv::Mat drwnSLICSuperpixels(const cv::Mat& img, unsigned nClusters, double thres
 
     // iteration starts
     int iter = 1;  // iteration number
-    const double m = 40.0; // relative importance between two type of distances
+    const double m = 200.0; // relative importance between two type of distances
     while (true) {
         for (unsigned i = 0; i < nClusters; i ++) {
             // acquire labxy attribute of drwnCentroid
@@ -587,8 +544,8 @@ cv::Mat drwnSLICSuperpixels(const cv::Mat& img, unsigned nClusters, double thres
                     const int tmpa = img.at<cv::Vec3b>(tmpy, tmpx)[1];
                     const int tmpb = img.at<cv::Vec3b>(tmpy, tmpx)[2];
 
-                    const double color_distance = sqrt (pow(tmpl - l, 2.0) + pow(tmpa - a, 2.0) + pow(tmpb - b, 2.0)); 
-                    const double spatial_distance = sqrt (pow(tmpx - x, 2.0) + pow(tmpy - y, 2.0));
+                    const double color_distance = sqrt(pow(tmpl - l, 2.0) + pow(tmpa - a, 2.0) + pow(tmpb - b, 2.0));
+                    const double spatial_distance = sqrt(pow(tmpx - x, 2.0) + pow(tmpy - y, 2.0));
                     const double D = sqrt(pow(color_distance, 2.0) + pow(spatial_distance * m / S, 2.0));
 
                     // if distance is smaller, update the drwnCentroid it belongs to
@@ -629,7 +586,7 @@ cv::Mat drwnSLICSuperpixels(const cv::Mat& img, unsigned nClusters, double thres
             const int l = (int)(suml[i] / count[i]);
             const int a = (int)(suma[i] / count[i]);
             const int b = (int)(sumb[i] / count[i]);
-            
+
             E += pow((ccs[i].x - x), 2.0);
             E += pow((ccs[i].y - y), 2.0);
             E += pow((ccs[i].l - l), 2.0);
@@ -649,8 +606,82 @@ cv::Mat drwnSLICSuperpixels(const cv::Mat& img, unsigned nClusters, double thres
         iter += 1;
     }
 
-    //! \todo connected components
+    // merge small connected components
+    drwnMergeSuperpixels(img, seg, nClusters);
 
     // return the segmentation
     return seg;
+}
+
+void drwnMergeSuperpixels(const cv::Mat& img, cv::Mat& seg, unsigned maxSegs)
+{
+    DRWN_ASSERT((img.rows == seg.rows) && (img.cols == seg.cols));
+
+    int nComponents = drwnConnectedComponents(seg, false);
+    if (nComponents <= (int)maxSegs) {
+        return;
+    }
+
+    const int H = img.rows;
+    const int W = img.cols;
+
+    // determine superpixel sizes and neighbours
+    vector<int> segSize(nComponents, 0);
+    vector<set<int> > segNeighbours(nComponents, set<int>());
+
+    for (int y = 0; y < H; y++) {
+        for (int x = 0; x < W; x++) {
+            const int segId = seg.at<const int>(y, x);
+            DRWN_ASSERT((segId >= 0) && (segId < nComponents));
+            segSize[segId] += 1;
+
+            if ((y > 0) && (seg.at<const int>(y - 1, x) != segId)) {
+                segNeighbours[segId].insert(seg.at<const int>(y - 1, x));
+                segNeighbours[seg.at<const int>(y - 1, x)].insert(segId);
+            }
+
+            if ((x > 0) && (seg.at<const int>(y, x - 1) != segId)) {
+                segNeighbours[segId].insert(seg.at<const int>(y, x - 1));
+                segNeighbours[seg.at<const int>(y, x - 1)].insert(segId);
+            }
+        }
+    }
+
+    drwnDisjointSets segSets(nComponents);
+    while (segSets.sets() > (int)maxSegs) {
+        // find smallest segment to merge
+        //! \todo speed this up by maintaining a sorted list
+        const int segId = drwn::argmin(segSize);
+
+        // find a neighbour
+        //! \todo look for "best matching" neighbour to merge with
+        DRWN_ASSERT(!segNeighbours[segId].empty());
+        int parentId = *segNeighbours[segId].begin();
+        DRWN_ASSERT(segSize[parentId] != DRWN_INT_MAX);
+        segSets.join(segSets.find(segId), segSets.find(parentId));
+
+        // merge neighbours
+        segSize[parentId] += segSize[segId];
+        segNeighbours[parentId].insert(segNeighbours[segId].begin(), segNeighbours[segId].end());
+        for (set<int>::const_iterator it = segNeighbours[segId].begin(); it != segNeighbours[segId].end(); ++it) {            
+            segNeighbours[*it].erase(segId);
+            segNeighbours[*it].insert(parentId);
+        }
+        segNeighbours[parentId].erase(parentId);
+        segSize[segId] = DRWN_INT_MAX;
+    }
+
+    // renumber superpixels
+    map<int, int> renumbering;
+    vector<int> setIds = segSets.getSetIds();
+    for (int i = 0; i < (int)setIds.size(); i++) {
+        renumbering.insert(make_pair(setIds[i], i));
+    }
+
+    for (int y = 0; y < H; y++) {
+        for (int x = 0; x < W; x++) {
+            const int clusterId = segSets.find(seg.at<int>(y, x));
+            seg.at<int>(y, x) = renumbering[clusterId];
+        }
+    }
 }

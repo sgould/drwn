@@ -93,12 +93,15 @@ int main(int argc, char *argv[])
     if (!strcasecmp(method, "SUPERPIXEL")) {
         seg = drwnFastSuperpixels(img, gridSize);
     } else if (!strcasecmp(method, "SLIC")) {
-        seg = drwnSLICSuperpixels(img, gridSize * gridSize);
+        cv::Mat imgLab;
+        cv::cvtColor(img, imgLab, CV_BGR2Lab);
+        seg = drwnSLICSuperpixels(imgLab, gridSize * gridSize);
     } else if (!strcasecmp(method, "KMEANS")) {
         seg = drwnKMeansSegments(img, numClusters);
     } else {
         DRWN_LOG_FATAL("unrecognized method " << method);
     }
+    DRWN_LOG_VERBOSE(cv::norm(seg, cv::NORM_INF) << " superpixels generated");
 
     // visualize
     if (bVisualize) {
