@@ -469,9 +469,11 @@ public:
     }
 };
 
-cv::Mat drwnSLICSuperpixels(const cv::Mat& img, unsigned nClusters, double threshold)
+cv::Mat drwnSLICSuperpixels(const cv::Mat& img, unsigned nClusters,
+    double spatialWeight, double threshold)
 {
     DRWN_ASSERT(nClusters > 0);
+    DRWN_ASSERT(spatialWeight > 0.0);
     DRWN_ASSERT((threshold > 0.0) && (threshold < 1.0));
 
     // height and width of the provided image
@@ -527,7 +529,6 @@ cv::Mat drwnSLICSuperpixels(const cv::Mat& img, unsigned nClusters, double thres
 
     // iteration starts
     int iter = 1;  // iteration number
-    const double m = 200.0; // relative importance between two type of distances
     while (true) {
         for (unsigned i = 0; i < nClusters; i ++) {
             // acquire labxy attribute of drwnCentroid
@@ -546,7 +547,7 @@ cv::Mat drwnSLICSuperpixels(const cv::Mat& img, unsigned nClusters, double thres
 
                     const double color_distance = sqrt(pow(tmpl - l, 2.0) + pow(tmpa - a, 2.0) + pow(tmpb - b, 2.0));
                     const double spatial_distance = sqrt(pow(tmpx - x, 2.0) + pow(tmpy - y, 2.0));
-                    const double D = sqrt(pow(color_distance, 2.0) + pow(spatial_distance * m / S, 2.0));
+                    const double D = sqrt(pow(color_distance, 2.0) + pow(spatial_distance * spatialWeight / S, 2.0));
 
                     // if distance is smaller, update the drwnCentroid it belongs to
                     if (D < distance.at<double>(tmpy, tmpx)) {
@@ -648,10 +649,15 @@ void drwnMergeSuperpixels(const cv::Mat& img, cv::Mat& seg, unsigned maxSegs)
     }
 
     drwnDisjointSets segSets(nComponents);
+    multimap<int, int, std::less<int> > mergeQueue;
+    for (int segId = 0; segId < nComponents; segId++) {
+        mergeQueue.insert(make_pair(segSize[segId], segId));
+    }
+
     while (segSets.sets() > (int)maxSegs) {
         // find smallest segment to merge
-        //! \todo speed this up by maintaining a sorted list
-        const int segId = drwn::argmin(segSize);
+        const int segId = mergeQueue.begin()->second;
+        mergeQueue.erase(mergeQueue.begin());
 
         // find a neighbour
         //! \todo look for "best matching" neighbour to merge with
@@ -660,15 +666,28 @@ void drwnMergeSuperpixels(const cv::Mat& img, cv::Mat& seg, unsigned maxSegs)
         DRWN_ASSERT(segSize[parentId] != DRWN_INT_MAX);
         segSets.join(segSets.find(segId), segSets.find(parentId));
 
+        // remove from queue
+        pair<multimap<int, int, std::less<int> >::iterator, 
+             multimap<int, int, std::less<int> >::iterator> range = mergeQueue.equal_range(segSize[parentId]);
+        multimap<int, int, std::less<int> >::iterator jt = range.first;
+        while (jt->second != parentId) {
+            DRWN_ASSERT(jt != range.second);
+            ++jt;
+        }
+        mergeQueue.erase(jt);
+
         // merge neighbours
         segSize[parentId] += segSize[segId];
         segNeighbours[parentId].insert(segNeighbours[segId].begin(), segNeighbours[segId].end());
-        for (set<int>::const_iterator it = segNeighbours[segId].begin(); it != segNeighbours[segId].end(); ++it) {            
+        for (set<int>::const_iterator it = segNeighbours[segId].begin(); it != segNeighbours[segId].end(); ++it) {
             segNeighbours[*it].erase(segId);
             segNeighbours[*it].insert(parentId);
         }
         segNeighbours[parentId].erase(parentId);
         segSize[segId] = DRWN_INT_MAX;
+
+        // update queue
+        mergeQueue.insert(make_pair(segSize[parentId], parentId));
     }
 
     // renumber superpixels
