@@ -496,8 +496,8 @@ cv::Mat drwnSLICSuperpixels(const cv::Mat& img, unsigned nClusters,
     for (unsigned i = 0; i < nClusters; i ++) {
         const int gridx = i % gridPerRow;
         const int gridy = i / gridPerRow;
-        const int x = (rand() % S) + gridx * S;
-        const int y = (rand() % S) + gridy * S;
+        const int x = std::min((rand() % S) + gridx * S, W - 1);
+        const int y = std::min((rand() % S) + gridy * S, H - 1);
         ccs[i].update(img, x, y);
     }
 
