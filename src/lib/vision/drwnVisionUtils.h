@@ -77,12 +77,14 @@ cv::Mat drwnFastSuperpixels(const cv::Mat& img, unsigned gridSize);
 //! number of regions. A value of 10 will produce up to 10 regions.
 cv::Mat drwnKMeansSegments(const cv::Mat& img, unsigned numCentroids);
 
-//! Generates an over-segmentation (superpixels) of an image based
-//! on the SLIC algorithm (Achanta et al., PAMI 2012). The parameter
-//! \p nClusters controls the number of superpixels and the parameter
-//! \p threshold (between 0 and 1) defines a stopping criteria. The
-//! image schould be provided in CIELAB format.
-cv::Mat drwnSLICSuperpixels(const cv::Mat& img, unsigned nClusters, double threshold = 1.0e-3);
+//! Generates an over-segmentation (superpixels) of an image based on
+//! the SLIC algorithm (Achanta et al., PAMI 2012). The parameter \p
+//! nClusters controls the number of superpixels, the parameter \p
+//! spatialWeight controls the relative weight of the spatial term,
+//! and the parameter \p threshold (between 0 and 1) defines a
+//! stopping criteria. The image schould be provided in CIELAB format.
+cv::Mat drwnSLICSuperpixels(const cv::Mat& img, unsigned nClusters, 
+    double spatialWeight = 200.0, double threshold = 1.0e-3);
 
 //! Merges small superpixels into neighbours until at most \p maxSegs
 //! remain.
