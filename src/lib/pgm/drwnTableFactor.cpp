@@ -591,7 +591,7 @@ void drwnTableFactorStorage::reserve(int nSize)
 {
     if (_dataSize < nSize) {
 #ifdef DRWN_FACTOR_DEBUG_STATISTICS
-        drwnFactor::updateMemoryStats(nSize, _dataSize);
+        drwnTableFactor::updateMemoryStats(nSize, _dataSize);
 #endif
         // allocate new data
         double *newData = new double[nSize];
