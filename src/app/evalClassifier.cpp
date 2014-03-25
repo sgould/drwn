@@ -37,6 +37,7 @@ void usage()
     cerr << "OPTIONS:\n"
          << "  -g <labels>       :: ground-truth labels for evaluation\n"
          << "  -o <filename>     :: output predictions\n"
+         << "  -s <filename>     :: output classifier scores\n"
          << DRWN_STANDARD_OPTIONS_USAGE
 	 << endl;
 }
@@ -47,11 +48,13 @@ int main(int argc, char *argv[])
 {
     const char *trueLabelsFilename = NULL;
     const char *outputFilename = NULL;
+    const char *outputScoreFile = NULL;
 
     // process commandline arguments
     DRWN_BEGIN_CMDLINE_PROCESSING(argc, argv)
         DRWN_CMDLINE_STR_OPTION("-g", trueLabelsFilename)
         DRWN_CMDLINE_STR_OPTION("-o", outputFilename)
+        DRWN_CMDLINE_STR_OPTION("-s", outputScoreFile)
     DRWN_END_CMDLINE_PROCESSING(usage());
 
     if (DRWN_CMDLINE_ARGC != 2) {
@@ -99,6 +102,17 @@ int main(int argc, char *argv[])
     if (outputFilename != NULL) {
         ofstream ofs(outputFilename);
         ofs << toString(predictions) << endl;
+        ofs.close();
+    }
+
+    // output scores
+    if (outputScoreFile != NULL) {
+        ofstream ofs(outputScoreFile);
+        vector<double> scores;
+        for (unsigned i = 0; i < features.size(); i++) {
+            classifier->getClassScores(features[i], scores);
+            ofs << toString(scores) << "\n";
+        }
         ofs.close();
     }
 

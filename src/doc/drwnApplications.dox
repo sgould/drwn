@@ -105,6 +105,11 @@ namespace drwn {
    file. The \p -g flag provides ground truth labels which the
    application uses to report classifier accuracy.
 
+   You can also provide a \p "-s <SCORE_FILE>" to produce a file of
+   classifier scores (usually log-likelihoods). There is one score per
+   label and the highest score for each feature vector corresponds to
+   the predicted class label.   
+
    \sa drwnClassifier
    \sa \ref drwnApplications
 */
