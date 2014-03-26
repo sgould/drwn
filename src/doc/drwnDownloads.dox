@@ -65,6 +65,7 @@ downloaded from the following links:
 
 \subsection drwnChangeLog1_8 Release 1.8 (beta)
 
+\li Added pruneRounds function to drwnBoostedClassifier
 \li Added \ref drwnSLICSuperpixels function
 \li Added drwnIndexQueue class
 \li mexLearnClassifier and mexAnalyseClassifier now support integer label types

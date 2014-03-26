@@ -93,7 +93,7 @@ bool drwnBoostedClassifier::save(drwnXMLNode& xml) const
     for (unsigned i = 0; i < _weakLearners.size(); i++) {
         drwnXMLNode *node = drwnAddXMLChildNode(xml, "weakLearner", NULL, false);
         drwnAddXMLAttribute(*node, "weight", toString(_alphas[i]).c_str(), false);
-        _weakLearners[i]->save(*node);        
+        _weakLearners[i]->save(*node);
     }
 
     return true;
@@ -107,7 +107,7 @@ bool drwnBoostedClassifier::load(drwnXMLNode& xml)
          node = node->next_sibling("weakLearner")) {
         _alphas.push_back(atof(drwnGetXMLAttribute(*node, "weight")));
         _weakLearners.push_back(new drwnDecisionTree());
-        _weakLearners.back()->load(*node);        
+        _weakLearners.back()->load(*node);
     }
 
     return true;
@@ -232,6 +232,18 @@ double drwnBoostedClassifier::train(const drwnClassifierDataset& dataset)
 
     DRWN_FCN_TOC;
     return (totalWeight > 0.0) ? totalCorrect / totalWeight : 1.0;
+}
+
+void drwnBoostedClassifier::pruneRounds(unsigned numRounds)
+{
+    DRWN_ASSERT(numRounds > 0);
+    if (numRounds < _alphas.size()) {
+        for (unsigned i = numRounds; i < _weakLearners.size(); i++) {
+            delete _weakLearners[i];
+        }
+        _weakLearners.resize(numRounds);
+        _alphas.resize(numRounds);
+    }
 }
 
 // evaluation (log-probability)

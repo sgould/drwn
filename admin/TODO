@@ -278,7 +278,7 @@
 8a. interpolate between bins when accumulating
 8b. colour histogram regions (like drwnKMeansRegions)
 [DONE] 9. mex parsing of types other than mxDOUBLE_CLASS
-10. drwnSLICSuperpixels
+[DONE] 10. drwnSLICSuperpixels
 
 * RELEASE 1.9
 

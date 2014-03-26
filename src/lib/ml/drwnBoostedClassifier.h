@@ -28,7 +28,7 @@ typedef enum _drwnBoostingMethod {
 } drwnBoostingMethod;
 
 // drwnBoostedClassifier -----------------------------------------------------
-//! Implements a mult-class boosted decision-tree classifier. See Zhu et al., 
+//! Implements a mult-class boosted decision-tree classifier. See Zhu et al.,
 //! Multi-class AdaBoost, 2006.
 //!
 //! The following code snippet shows example learning a boosted classifier on
@@ -46,7 +46,7 @@ typedef enum _drwnBoostingMethod {
 //!
 //!   // load evaluation set
 //!   dataset.read("testing_data.bin", false);
-//!   
+//!
 //!   // predict labels
 //!   vector<int> predictions;
 //!   model.getClassifications(dataset.features, predictions);
@@ -102,6 +102,12 @@ class drwnBoostedClassifier : public drwnClassifier {
     // training
     using drwnClassifier::train;
     virtual double train(const drwnClassifierDataset& dataset);
+
+    //! Truncates the boosted classifier to \p numRounds. This allows
+    //! for fast cross-validation of the number of rounds since the
+    //! classifier can be trained and then the number of rounds pealed
+    //! back.
+    void pruneRounds(unsigned numRounds);
 
     // evaluation (log-probability)
     using drwnClassifier::getClassScores;
