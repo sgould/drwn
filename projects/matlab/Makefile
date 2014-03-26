@@ -82,7 +82,7 @@ lib: ${addprefix ${BIN_PATH}/,$(LIB_NAMES)}
 
 # applications
 $(BIN_PATH)/%.${MEXEXT}: %.cpp $(PROJLIB) $(LIBDRWN)
-	mex -v -g $*.cpp -output $(@:.cpp=) $(PROJLIB) $(MEXFLAGS) $(LIBDRWN) $(EXTLIB)
+	$(EXT_PATH)/matlab/bin/mex -v -g $*.cpp -output $(@:.cpp=) $(PROJLIB) $(MEXFLAGS) $(LIBDRWN) $(EXTLIB)
 
 
 # static libraries

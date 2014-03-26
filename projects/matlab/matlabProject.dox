@@ -69,6 +69,16 @@ namespace drwn {
    Matlab then you will need to compile the \b Darwin libraries using
    the x64 configuration.
 
+   \subsection drwnProjMatlabInstallMacOSX Mac OS X
+
+   \li build the \b Darwin libraries (\ref osxCodeBuild)
+   \li create a symbolic link to matlab in the \p external directory, e.g.,
+   \code
+     ln -s /Applications/MATLAB_R2014a.app/ external/matlab
+   \endcode
+   \li type \p "make drwnprojs"
+   \li alternatively, start Matlab, change to the \p projects/matlab directory and execute \p buildMacOSX
+
    \section drwnProjMatlabExamples Examples
 
    \subsection drwnProjMatlabExampleClassifier Multi-class Classification
