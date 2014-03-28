@@ -122,6 +122,71 @@ void drwnFilterBankResponse::exponentiateResponses(double alpha)
     }
 }
 
+void drwnFilterBankResponse::normalizeResponses()
+{
+    if (empty()) return;
+
+    vector<float *> p(size());
+    for (int y = 0; y < height(); y++) {
+        for (int i = 0; i < size(); i++) {
+            p[i] = _responses[i].ptr<float>(y);
+        }
+        for (int x = 0; x < width(); x++) {
+            float z = 0.0;
+            for (int i = 0; i < size(); i++) {
+                z += fabs(p[i][x]);
+            }
+            if (z > 0.0) {
+                for (int i = 0; i < size(); i++) {
+                    p[i][x] /= z;
+                }
+            }
+        }
+    }
+
+    for (int i = 0; i < size(); i++) {
+        cv::integral(_responses[i], _sum[i], _sqSum[i]);
+    }
+}
+
+void drwnFilterBankResponse::expAndNormalizeResponses(double alpha)
+{
+    if (empty()) return;
+
+    vector<float *> p(size());
+    for (int y = 0; y < height(); y++) {
+        for (int i = 0; i < size(); i++) {
+            p[i] = _responses[i].ptr<float>(y);
+        }
+
+        for (int x = 0; x < width(); x++) {
+            float maxValue = p[0][x];
+            if (alpha > 0.0) {
+                for (int i = 1; i < size(); i++) {
+                    maxValue = std::max(maxValue, p[i][x]);
+                }
+            } else {
+                for (int i = 1; i < size(); i++) {
+                    maxValue = std::min(maxValue, p[i][x]);
+                }
+            }
+
+            float z = 0.0;
+            for (int i = 0; i < size(); i++) {
+                p[i][x] = exp(alpha * (p[i][x] - maxValue));
+                z += p[i][x];
+            }
+            for (int i = 0; i < size(); i++) {
+                p[i][x] /= z;
+            }
+        }
+    }
+
+    for (int i = 0; i < size(); i++) {
+        cv::integral(_responses[i], _sum[i], _sqSum[i]);
+    }
+}
+
 // pixel and region features --- no index checking
 VectorXd drwnFilterBankResponse::value(int x, int y) const
 {

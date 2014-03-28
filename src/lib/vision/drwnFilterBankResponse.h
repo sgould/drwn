@@ -101,6 +101,11 @@ class drwnFilterBankResponse {
     //! transform responses by exponentiation (useful, for example, when approximating
     //! max over a region, via log-sum-exp)
     void exponentiateResponses(double alpha = 1.0);
+    //! transform responses by pixelwise normalization (e.g., following an exponentiation)
+    void normalizeResponses();
+    //! transform responses by pixelwise exponentiation and normalization. More numerically
+    //! stable than exponentiateResponses followed by normalizeResponses.
+    void expAndNormalizeResponses(double alpha = 1.0);
 
     //! value of each filter at given pixel
     VectorXd value(int x, int y) const;
