@@ -47,5 +47,5 @@ class drwnTextonFilterBank {
     //! Filtering function. The caller must provide a vector of CV32F destination
     //! matrices. The source image should be a 3-channel RGB color image (it is
     //! automatically converted to CIELab).
-    void filter(const cv::Mat& img, std::vector<cv::Mat>& response);
+    void filter(const cv::Mat& img, std::vector<cv::Mat>& response) const;
 };

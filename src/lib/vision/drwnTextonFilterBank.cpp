@@ -31,7 +31,7 @@ drwnTextonFilterBank::~drwnTextonFilterBank()
     // do nothing
 }
 
-void drwnTextonFilterBank::filter(const cv::Mat& img, std::vector<cv::Mat>& response)
+void drwnTextonFilterBank::filter(const cv::Mat& img, std::vector<cv::Mat>& response) const
 {
     // check input
     DRWN_ASSERT(img.data != NULL);

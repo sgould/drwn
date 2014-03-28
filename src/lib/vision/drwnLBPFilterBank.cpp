@@ -31,7 +31,7 @@ drwnLBPFilterBank::~drwnLBPFilterBank()
     // do nothing
 }
 
-void drwnLBPFilterBank::filter(const cv::Mat& img, std::vector<cv::Mat>& response)
+void drwnLBPFilterBank::filter(const cv::Mat& img, std::vector<cv::Mat>& response) const
 {
     // check input
     DRWN_ASSERT(img.data != NULL);

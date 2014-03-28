@@ -43,7 +43,7 @@ class drwnLBPFilterBank {
     //! Filtering function. The caller must provide a vector of CV32F destination
     //! matrices (or empty). The source image should be a 3-channel RGB color or 
     //! 1-channel greyscale image.
-    void filter(const cv::Mat& img, std::vector<cv::Mat>& response);
+    void filter(const cv::Mat& img, std::vector<cv::Mat>& response) const;
 
     //! Compute LBP histograms over given superpixel regions. The \p response input
     //! comes from running the \p filter member function. Features are output in
