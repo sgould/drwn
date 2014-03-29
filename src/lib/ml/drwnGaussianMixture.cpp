@@ -26,6 +26,54 @@
 
 using namespace std;
 
+// drwnGaussianMixtureThread ------------------------------------------------
+
+class drwnGaussianMixtureThread : public drwnThreadJob {
+protected:
+    unsigned _n;
+    const vector<vector<double> >& _x;
+    const vector<drwnGaussian> *_g;
+    const VectorXd *_logLambda;
+    unsigned _offset;
+    unsigned _step;
+
+public:
+    vector<drwnSuffStats> stats;
+    double logLikelihood;
+
+public:
+    drwnGaussianMixtureThread(unsigned n, const vector<vector<double> >& x,
+        const vector<drwnGaussian> *g, const VectorXd *logLambda, unsigned offset, unsigned step) : 
+        _n(n), _x(x), _g(g), _logLambda(logLambda), _offset(offset), _step(step) {
+        stats.resize(_g->size(), drwnSuffStats(_n, DRWN_PSS_FULL));
+    }
+
+    ~drwnGaussianMixtureThread() { /* do nothing */ }
+
+    void operator()() {
+        vector<double> y(_g->size());
+        for (unsigned k = 0; k < _g->size(); k++) {
+            stats[k].clear();
+        }
+
+        // E-step
+        logLikelihood = 0.0;
+        for (unsigned i = _offset; i < _x.size(); i += _step) {
+            for (unsigned k = 0; k < _g->size(); k++) {
+                y[k] = (*_logLambda)[k] + (*_g)[k].evaluateSingle(_x[i]);
+            }
+            const double logZ = drwn::expAndNormalize(y);
+
+            // maintain sufficient statistics
+            for (unsigned k = 0; k < _g->size(); k++) {
+                stats[k].accumulate(_x[i], y[k]);
+            }
+
+            logLikelihood += logZ; // evaluateSingle(x[i]);
+        }
+    }
+};
+
 // drwnGaussianMixture ------------------------------------------------------
 
 int drwnGaussianMixture::MAX_ITERATIONS = 100;
@@ -173,51 +221,120 @@ void drwnGaussianMixture::train(const vector<vector<double> >& x, double lambda)
     globalSuffStats.accumulate(x);
 
     // iterate expection-maximization
-    vector<double> y(_g.size());
-    vector<drwnSuffStats> suffStats(_g.size(), drwnSuffStats(_n, DRWN_PSS_FULL));
+    if (drwnThreadPool::MAX_THREADS <= 1) {
+        vector<double> y(_g.size());
+        vector<drwnSuffStats> suffStats(_g.size(), drwnSuffStats(_n, DRWN_PSS_FULL));
 
-    double lastLogLikelihood = -DRWN_DBL_MAX;
-    for (int t = 0; t < MAX_ITERATIONS; t++) {
-        // clear sufficient statistics
-        for (unsigned k = 0; k < _g.size(); k++) {
-            suffStats[k].clear();
-        }
-
-        // E-step
-        double logLikelihood = 0.0;
-        for (unsigned i = 0; i < x.size(); i++) {
+        double lastLogLikelihood = -DRWN_DBL_MAX;
+        for (int t = 0; t < MAX_ITERATIONS; t++) {
+            // clear sufficient statistics
             for (unsigned k = 0; k < _g.size(); k++) {
-                y[k] = _logLambda[k] + _g[k].evaluateSingle(x[i]);
-            }
-            double logZ = drwn::expAndNormalize(y);
-
-            // maintain sufficient statistics
-            for (unsigned k = 0; k < _g.size(); k++) {
-                suffStats[k].accumulate(x[i], y[k]);
+                suffStats[k].clear();
             }
 
-            logLikelihood += logZ; //this->evaluateSingle(x[i]);
-        }
-        DRWN_LOG_DEBUG("...iteration " << t << "; log-likelihood " << logLikelihood);
-        if ((logLikelihood - lastLogLikelihood)
-            <= DRWN_EPSILON * (fabs(logLikelihood) + fabs(lastLogLikelihood))) {
-            DRWN_LOG_DEBUG("...converged");
-            break;
-        }
-        lastLogLikelihood = logLikelihood;
+            // E-step
+            double logLikelihood = 0.0;
+            for (unsigned i = 0; i < x.size(); i++) {
+                for (unsigned k = 0; k < _g.size(); k++) {
+                    y[k] = _logLambda[k] + _g[k].evaluateSingle(x[i]);
+                }
+                const double logZ = drwn::expAndNormalize(y);
+                
+                // maintain sufficient statistics
+                for (unsigned k = 0; k < _g.size(); k++) {
+                    suffStats[k].accumulate(x[i], y[k]);
+                }
+                
+                logLikelihood += logZ; //this->evaluateSingle(x[i]);
+            }
+            DRWN_LOG_DEBUG("...iteration " << t << "; log-likelihood " << logLikelihood);
+            if ((logLikelihood - lastLogLikelihood)
+                <= DRWN_EPSILON * (fabs(logLikelihood) + fabs(lastLogLikelihood))) {
+                DRWN_LOG_DEBUG("...converged");
+                break;
+            }
+            lastLogLikelihood = logLikelihood;
 
-        // M-step
-        for (unsigned k = 0; k < _g.size(); k++) {
-            // regularize sufficient statistics by global mean/sigma
-            suffStats[k].accumulate(globalSuffStats, lambda);
-            // update cluster mean and covariance
-            _g[k].train(suffStats[k]);
-            // update mixture weights
-            _logLambda[k] = suffStats[k].count();
+            // M-step
+            for (unsigned k = 0; k < _g.size(); k++) {
+                // regularize sufficient statistics by global mean/sigma
+                suffStats[k].accumulate(globalSuffStats, lambda);
+                // update cluster mean and covariance
+                _g[k].train(suffStats[k]);
+                // update mixture weights
+                _logLambda[k] = suffStats[k].count();
+            }
+
+            // normalize mixture weights
+            _logLambda = (_logLambda / _logLambda.sum()).array().log();
         }
 
-        // normalize mixture weights
-        _logLambda = (_logLambda / _logLambda.sum()).array().log();
+    } else {
+
+        // create thread pool
+        const unsigned nThreads = std::min((unsigned)x.size(), drwnThreadPool::MAX_THREADS);
+        drwnThreadPool threadPool;
+        vector<drwnGaussianMixtureThread *> jobs(nThreads, (drwnGaussianMixtureThread *)NULL);
+        for (unsigned i = 0; i < nThreads; i++) {
+            jobs[i] = new drwnGaussianMixtureThread(_n, x, &_g, &_logLambda, i, nThreads);
+        }
+
+        vector<drwnSuffStats> suffStats(_g.size(), drwnSuffStats(_n, DRWN_PSS_FULL));
+
+        double lastLogLikelihood = -DRWN_DBL_MAX;
+        for (int t = 0; t < MAX_ITERATIONS; t++) {
+
+            // force caching of inverse covariance
+            for (unsigned k = 0; k < _g.size(); k++) {
+                _g[k].logPartitionFunction();
+            }
+
+            // E-step
+            threadPool.start();
+            for (unsigned i = 0; i < nThreads; i++) {
+                threadPool.addJob(jobs[i]);
+            }
+            threadPool.finish();
+
+            // clear sufficient statistics
+            for (unsigned k = 0; k < _g.size(); k++) {
+                suffStats[k].clear();
+            }
+
+            double logLikelihood = 0.0;
+            for (unsigned i = 0; i < nThreads; i++) {
+                logLikelihood += jobs[i]->logLikelihood;
+                for (unsigned k = 0; k < _g.size(); k++) {
+                    suffStats[k].accumulate(jobs[i]->stats[k]);
+                }
+            }
+
+            DRWN_LOG_DEBUG("...iteration " << t << "; log-likelihood " << logLikelihood);
+            if ((logLikelihood - lastLogLikelihood)
+                <= DRWN_EPSILON * (fabs(logLikelihood) + fabs(lastLogLikelihood))) {
+                DRWN_LOG_DEBUG("...converged");
+                break;
+            }
+            lastLogLikelihood = logLikelihood;
+
+            // M-step
+            for (unsigned k = 0; k < _g.size(); k++) {
+                // regularize sufficient statistics by global mean/sigma
+                suffStats[k].accumulate(globalSuffStats, lambda);
+                // update cluster mean and covariance
+                _g[k].train(suffStats[k]);
+                // update mixture weights
+                _logLambda[k] = suffStats[k].count();
+            }
+
+            // normalize mixture weights
+            _logLambda = (_logLambda / _logLambda.sum()).array().log();
+        }
+
+        // free jobs
+        for (unsigned i = 0; i < nThreads; i++) {
+            delete jobs[i];
+        }
     }
 
 #if 0
