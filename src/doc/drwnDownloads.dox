@@ -149,7 +149,7 @@ drwnProjMultiSeg)
 \li Added Matlab mex interface to max-flow algorithm
 \li XML code tidy up
 \li Improved user documentation
-\li Dug fixes and performance enhancements
+\li Bug fixes and performance enhancements
 
 \subsection drwnChangeLog1_2 Release 1.2
 

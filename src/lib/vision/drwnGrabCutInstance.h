@@ -34,6 +34,11 @@ using namespace Eigen;
 //! 255 foreground. Other values are treated as unknown but not used to
 //! learn colour models.
 //!
+//! When learning foreground colour models pixels marked as MASK_FG, MASK_C_FG 
+//! and MASK_C_BOTH are used. Likewise for background colour models (MASK_BG,
+//! MASK_C_BG and MASK_C_BOTH). During inference pixels marked as MASK_FG or
+//! MASK_BG are forced to take foreground or background labels, respectively.
+//!
 //! \sa \ref drwnAppGrabCut "grabCut Application"
 
 class drwnGrabCutInstance {
