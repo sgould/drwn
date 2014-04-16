@@ -47,7 +47,8 @@ class drwnMAPInference {
     //! Clear internally cached data (e.g., computation graph)
     virtual void clear() { /* do nothing */ };
     //! Run inference (or resume for iterative algorithms). Algorithms may
-    //! initialize from \p mapAssignment if not empty.
+    //! initialize from \p mapAssignment if not empty. Returns the energy of
+    //! the best solution found (same as \p graph.getEnergy(mapAssignment)).
     virtual double inference(drwnFullAssignment& mapAssignment) = 0;
 };
 

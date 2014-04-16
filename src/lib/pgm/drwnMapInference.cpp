@@ -153,6 +153,9 @@ double drwnMessagePassingMAPInference::inference(drwnFullAssignment& mapAssignme
     DRWN_LOG_VERBOSE("Starting message passing loop...");
     DRWN_LOG_VERBOSE("..." << _graph.numVariables() << " variables; "
         << _graph.numFactors() << " factors; " << _graph.numEdges() << " edges");
+    if (_graph.numEdges() == 0) {
+        DRWN_LOG_WARNING("no edges defined in factor graph");
+    }
     bool bConverged = false;
     int nIteration = 0;
 

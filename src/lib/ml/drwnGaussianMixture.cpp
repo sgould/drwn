@@ -247,7 +247,7 @@ void drwnGaussianMixture::train(const vector<vector<double> >& x, double lambda)
                 
                 logLikelihood += logZ; //this->evaluateSingle(x[i]);
             }
-            DRWN_LOG_STATUS("...GMM learning iteration " << t << "; log-likelihood " << logLikelihood);
+            DRWN_LOG_STATUS("...GMM learning iteration " << t << "; log-likelihood " << logLikelihood << ";");
             if ((logLikelihood - lastLogLikelihood)
                 <= DRWN_EPSILON * (fabs(logLikelihood) + fabs(lastLogLikelihood))) {
                 DRWN_LOG_DEBUG("...converged");
@@ -309,7 +309,7 @@ void drwnGaussianMixture::train(const vector<vector<double> >& x, double lambda)
                 }
             }
 
-            DRWN_LOG_STATUS("...GMM learning iteration " << t << "; log-likelihood " << logLikelihood);
+            DRWN_LOG_STATUS("...GMM learning iteration " << t << "; log-likelihood " << logLikelihood << ";");
             if ((logLikelihood - lastLogLikelihood)
                 <= DRWN_EPSILON * (fabs(logLikelihood) + fabs(lastLogLikelihood))) {
                 DRWN_LOG_DEBUG("...converged");
