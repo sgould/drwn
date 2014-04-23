@@ -1,20 +1,26 @@
 --- Starting message passing loop...
---- ...4 variables; 8 factors; 0 edges
---- ...iteration 1 (0 of 0 messages converged)
---- ...converged in 1 iterations
---- map assignment has energy 1
---- map assignment is  1 0 0 0
+--- ...4 variables; 8 factors; 8 edges
+--- ...iteration 1 (12 of 16 messages converged)
+--- ...iteration 2 (12 of 16 messages converged)
+--- ...iteration 3 (12 of 16 messages converged)
+--- ...iteration 4 (12 of 16 messages converged)
+--- ...iteration 5 (14 of 16 messages converged)
+--- ...iteration 6 (16 of 16 messages converged)
+--- ...converged in 6 iterations
+--- map assignment has energy -1
+--- lower bound energy is -1.79769e+308
+--- map assignment is  1 1 1 1
 --- drwnFactor class computed 0 products
 --- drwnFactor class computed 0 divisions
---- drwnFactor class computed 0 additions
+--- drwnFactor class computed 96 additions
 --- drwnFactor class computed 0 subtractions
 --- drwnFactor class computed 0 marginals
---- drwnFactor class computed 0 maximizations/minimizations
+--- drwnFactor class computed 96 maximizations/minimizations
 --- drwnFactor class computed 0 reductions
---- drwnFactor class computed 0 normalizations
+--- drwnFactor class computed 96 normalizations
 --- drwnFactor class computed 0 normalization errors
 --- drwnFactor class largest factor had 2 variables 
---- drwnFactor class allocated 32 total entries
---- drwnFactor class allocated 26 max. concurrent entries
+--- drwnFactor class allocated 100 total entries
+--- drwnFactor class allocated 94 max. concurrent entries
 --- drwnFactor class allocated 0 current entries
 --- drwnFactor class allocated 4 entries in largest factor

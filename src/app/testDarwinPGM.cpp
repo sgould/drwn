@@ -487,7 +487,7 @@ void testFactorGraph()
     // run MAP inference
     drwnICMInference icm(graph);
     drwnFullAssignment assignment;
-    double e = icm.inference(assignment);
+    double e = icm.inference(assignment).first;
     DRWN_LOG_MESSAGE("map assignment has energy " << e);
     DRWN_LOG_VERBOSE("map assignment is " << toString(assignment));
 }
@@ -619,6 +619,9 @@ void testMAPInference(const char *name, const char *filename)
     // load graph
     drwnFactorGraph graph;
     graph.read(filename);
+    if (graph.numEdges() == 0) {
+        graph.connectGraph();
+    }
 
     double de = drwnFactorGraphUtils::removeUniformFactors(graph);
 
@@ -626,8 +629,9 @@ void testMAPInference(const char *name, const char *filename)
     drwnMAPInference *inf = drwnMAPInferenceFactory::get().create(name, graph);
     DRWN_ASSERT(inf != NULL);
     drwnFullAssignment assignment;
-    double e = inf->inference(assignment);
-    DRWN_LOG_MESSAGE("map assignment has energy " << e + de);
+    pair<double, double> e = inf->inference(assignment);
+    DRWN_LOG_MESSAGE("map assignment has energy " << e.first + de);
+    DRWN_LOG_MESSAGE("lower bound energy is " << e.second + de);
     DRWN_LOG_VERBOSE("map assignment is " << toString(assignment));
     delete inf;
 

@@ -61,7 +61,7 @@ class drwnADLPInference : public drwnMAPInference
     ~drwnADLPInference();
 
     void clear();
-    double inference(drwnFullAssignment& mapAssignment);
+    pair<double, double> inference(drwnFullAssignment& mapAssignment);
 
  private:
     double TRIM(drwnTableFactor* v, double z);                          // Internal functions to implement the TRIM function described in the paper

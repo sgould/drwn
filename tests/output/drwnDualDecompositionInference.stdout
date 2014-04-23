@@ -1,4 +1,4 @@
---- ...4 variables; 8 factors; 0 edges
+--- ...4 variables; 8 factors; 8 edges
 --- ...iteration 0 dual: -1; integrality gap: 1
 --- ...iteration 1 dual: -1; integrality gap: 1
 --- ...iteration 2 dual: -1.05556; integrality gap: 1
@@ -8,6 +8,7 @@
 --- ...iteration 6 dual: -1.05556; integrality gap: -2.22045e-16
 --- dual decomposition converged after 7 iterations
 --- map assignment has energy -1
+--- lower bound energy is -1
 --- map assignment is  1 1 1 1
 --- drwnFactor class computed 0 products
 --- drwnFactor class computed 0 divisions

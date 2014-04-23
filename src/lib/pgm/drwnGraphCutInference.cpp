@@ -19,6 +19,8 @@
 #include "drwnBase.h"
 #include "drwnPGM.h"
 
+using namespace std;
+
 // drwnAlphaExpansionInference ---------------------------------------------
 
 drwnAlphaExpansionInference::drwnAlphaExpansionInference(const drwnFactorGraph& graph) :
@@ -32,7 +34,7 @@ drwnAlphaExpansionInference::~drwnAlphaExpansionInference()
     // do nothing
 }
 
-double drwnAlphaExpansionInference::inference(drwnFullAssignment& mapAssignment)
+pair<double, double> drwnAlphaExpansionInference::inference(drwnFullAssignment& mapAssignment)
 {
     // check factor graph is pairwise
     for (int i = 0; i < _graph.numFactors(); i++) {
@@ -45,7 +47,7 @@ double drwnAlphaExpansionInference::inference(drwnFullAssignment& mapAssignment)
     mapAssignment.resize(nVariables, 0);
     double bestEnergy = _graph.getEnergy(mapAssignment);
     const int maxAlpha = pUniverse->maxCardinality();
-    if (maxAlpha == 1) return bestEnergy;
+    if (maxAlpha == 1) return make_pair(bestEnergy, -DRWN_DBL_MAX);
 
     drwnFullAssignment assignment(mapAssignment);
 
@@ -152,7 +154,7 @@ double drwnAlphaExpansionInference::inference(drwnFullAssignment& mapAssignment)
     delete g;
 
     DRWN_LOG_DEBUG("..." << nonSubmodularMoves << " non-submodular moves");
-    return bestEnergy;
+    return make_pair(bestEnergy, -DRWN_DBL_MAX);
 }
 
 // drwnAlphaBetaSwapInference ----------------------------------------------
@@ -168,7 +170,7 @@ drwnAlphaBetaSwapInference::~drwnAlphaBetaSwapInference()
     // do nothing
 }
 
-double drwnAlphaBetaSwapInference::inference(drwnFullAssignment& mapAssignment)
+pair<double, double> drwnAlphaBetaSwapInference::inference(drwnFullAssignment& mapAssignment)
 {
     // check factor graph is pairwise
     for (int i = 0; i < _graph.numFactors(); i++) {
@@ -181,7 +183,7 @@ double drwnAlphaBetaSwapInference::inference(drwnFullAssignment& mapAssignment)
     mapAssignment.resize(nVariables, 0);
     double bestEnergy = _graph.getEnergy(mapAssignment);
     const int maxLabel = pUniverse->maxCardinality();
-    if (maxLabel == 1) return bestEnergy;
+    if (maxLabel == 1) return make_pair(bestEnergy, -DRWN_DBL_MAX);
 
     drwnFullAssignment assignment(mapAssignment);
 
@@ -310,5 +312,5 @@ double drwnAlphaBetaSwapInference::inference(drwnFullAssignment& mapAssignment)
     delete g;
 
     DRWN_LOG_DEBUG("..." << nonSubmodularMoves << " non-submodular moves");
-    return bestEnergy;
+    return make_pair(bestEnergy, -DRWN_DBL_MAX);
 }

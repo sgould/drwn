@@ -17,8 +17,6 @@
 #include "drwnFactorGraph.h"
 #include "drwnMapInference.h"
 
-using namespace std;
-
 // drwnAlphaExpansionInference -------------------------------------------------
 //! Implements alpha-expansion inference using graph-cuts (see Boykov et al, 2001).
 //! Factor graphs must be pairwise.
@@ -28,7 +26,7 @@ class drwnAlphaExpansionInference : public drwnMAPInference {
     drwnAlphaExpansionInference(const drwnFactorGraph& graph);
     ~drwnAlphaExpansionInference();
 
-    double inference(drwnFullAssignment& mapAssignment);
+    std::pair<double, double> inference(drwnFullAssignment& mapAssignment);
 };
 
 // drwnAlphaBetaSwapInference --------------------------------------------------
@@ -40,5 +38,5 @@ class drwnAlphaBetaSwapInference : public drwnMAPInference {
     drwnAlphaBetaSwapInference(const drwnFactorGraph& graph);
     ~drwnAlphaBetaSwapInference();
 
-    double inference(drwnFullAssignment& mapAssignment);
+    std::pair<double, double> inference(drwnFullAssignment& mapAssignment);
 };

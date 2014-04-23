@@ -47,9 +47,11 @@ class drwnMAPInference {
     //! Clear internally cached data (e.g., computation graph)
     virtual void clear() { /* do nothing */ };
     //! Run inference (or resume for iterative algorithms). Algorithms may
-    //! initialize from \p mapAssignment if not empty. Returns the energy of
-    //! the best solution found (same as \p graph.getEnergy(mapAssignment)).
-    virtual double inference(drwnFullAssignment& mapAssignment) = 0;
+    //! initialize from \p mapAssignment if not empty. Returns an upper and
+    //! lower bound (if available) of the minimum energy. The upper bound
+    //! is the same as the energy of the best solution found (i.e., same as
+    //! \p graph.getEnergy(mapAssignment)).
+    virtual std::pair<double, double> inference(drwnFullAssignment& mapAssignment) = 0;
 };
 
 // drwnICMInference class --------------------------------------------------
@@ -61,7 +63,7 @@ class drwnICMInference : public drwnMAPInference {
     drwnICMInference(const drwnFactorGraph& graph);
     ~drwnICMInference();
 
-    double inference(drwnFullAssignment& mapAssignment);
+    std::pair<double, double> inference(drwnFullAssignment& mapAssignment);
 };
 
 // drwnMessagePassingMAPInference class -------------------------------------
@@ -76,17 +78,17 @@ class drwnMessagePassingMAPInference : public drwnMAPInference
 
  protected:
     // forward and backward messages during each iteration
-    vector<drwnTableFactor *> _forwardMessages;
-    vector<drwnTableFactor *> _backwardMessages;
-    vector<drwnTableFactor *> _oldForwardMessages;
-    vector<drwnTableFactor *> _oldBackwardMessages;
+    std::vector<drwnTableFactor *> _forwardMessages;
+    std::vector<drwnTableFactor *> _backwardMessages;
+    std::vector<drwnTableFactor *> _oldForwardMessages;
+    std::vector<drwnTableFactor *> _oldBackwardMessages;
 
     // computation tree: intermediate factors, and (atomic) factor operations
-    vector<drwnTableFactor *> _intermediateFactors;
-    vector<drwnFactorOperation *> _computations;
+    std::vector<drwnTableFactor *> _intermediateFactors;
+    std::vector<drwnFactorOperation *> _computations;
 
     // shared storage for intermediate factors
-    vector<drwnTableFactorStorage *> _sharedStorage;
+    std::vector<drwnTableFactorStorage *> _sharedStorage;
 
  public:
     drwnMessagePassingMAPInference(const drwnFactorGraph& graph);
@@ -94,7 +96,7 @@ class drwnMessagePassingMAPInference : public drwnMAPInference
     virtual ~drwnMessagePassingMAPInference();
 
     void clear();
-    double inference(drwnFullAssignment& mapAssignment);
+    std::pair<double, double> inference(drwnFullAssignment& mapAssignment);
 
  protected:
     virtual void initializeMessages();
@@ -145,7 +147,7 @@ class drwnJunctionTreeInference : public drwnMAPInference {
     drwnJunctionTreeInference(const drwnFactorGraph& graph);
     ~drwnJunctionTreeInference();
 
-    double inference(drwnFullAssignment& mapAssignment);
+    std::pair<double, double> inference(drwnFullAssignment& mapAssignment);
 };
 
 // drwnGEMPLPInference class ------------------------------------------------
@@ -154,19 +156,19 @@ class drwnJunctionTreeInference : public drwnMAPInference {
 
 class drwnGEMPLPInference : public drwnMessagePassingMAPInference {
  protected:
-    vector<drwnClique> _separators;      // list of all separators, S
-    vector<drwnEdge> _edges;             // list of edges (c,s)
-    vector<set<int> > _cliqueEdges;      // mapping from c to _edges
-    vector<set<int> > _separatorEdges;   // mapping from s to _edges
-    double _lastDualObjective;           // previous dual objecive value
-    unsigned _maxIterations;             // maximum number of iterations
+    std::vector<drwnClique> _separators;      // list of all separators, S
+    std::vector<drwnEdge> _edges;             // list of edges (c,s)
+    std::vector<std::set<int> > _cliqueEdges; // mapping from c to _edges
+    std::vector<std::set<int> > _separatorEdges; // mapping from s to _edges
+    double _lastDualObjective;                // previous dual objecive value
+    unsigned _maxIterations;                  // maximum number of iterations
 
  public:
     drwnGEMPLPInference(const drwnFactorGraph& graph);
     ~drwnGEMPLPInference();
 
     void clear();
-    double inference(drwnFullAssignment& mapAssignment);
+    std::pair<double, double> inference(drwnFullAssignment& mapAssignment);
 
  protected:
     void initializeMessages();
@@ -192,14 +194,14 @@ class drwnSontag08Inference : public drwnGEMPLPInference {
     static unsigned MAX_CLIQUES_TO_ADD;   //!< number of cliques to add per cycle
 
  protected:
-    vector<drwnClique> _additionalCliques;
+    std::vector<drwnClique> _additionalCliques;
 
  public:
     drwnSontag08Inference(const drwnFactorGraph& graph);
     ~drwnSontag08Inference();
 
     void clear();
-    double inference(drwnFullAssignment& mapAssignment);
+    std::pair<double, double> inference(drwnFullAssignment& mapAssignment);
 
  protected:
     void buildComputationGraph();
@@ -207,7 +209,7 @@ class drwnSontag08Inference : public drwnGEMPLPInference {
     //! Generates the set of clique candidates to test after each
     //! GEMPLP iteration. Derived classes can override this to implement
     //! different clique candidate strategies.
-    virtual void findCliqueCandidates(map<drwnClique, vector<int> >& cliqueCandidateSet);
+    virtual void findCliqueCandidates(std::map<drwnClique, std::vector<int> >& cliqueCandidateSet);
 };
 
 // drwnDualDecompositionInference class ------------------------------------
@@ -219,9 +221,10 @@ class drwnDualDecompositionInference : public drwnMAPInference {
  public:
     static double INITIAL_ALPHA; //!< initial gradient step size
     static bool USE_MIN_MARGINALS; //!< use min-marginals for subgradients
+
  public:
     drwnDualDecompositionInference(const drwnFactorGraph& graph);
     ~drwnDualDecompositionInference();
 
-    double inference(drwnFullAssignment& mapAssignment);
+    std::pair<double, double> inference(drwnFullAssignment& mapAssignment);
 };

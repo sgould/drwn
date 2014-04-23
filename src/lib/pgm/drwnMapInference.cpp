@@ -19,6 +19,8 @@
 #include "drwnBase.h"
 #include "drwnPGM.h"
 
+using namespace std;
+
 // drwnMAPInference class --------------------------------------------------
 
 drwnMAPInference::drwnMAPInference(const drwnFactorGraph& graph) : _graph(graph)
@@ -50,7 +52,7 @@ drwnICMInference::~drwnICMInference()
     // do nothing
 }
 
-double drwnICMInference::inference(drwnFullAssignment& mapAssignment)
+pair<double, double> drwnICMInference::inference(drwnFullAssignment& mapAssignment)
 {
     // initialize MAP assignment
     mapAssignment.resize(_graph.getUniverse()->numVariables(), 0);
@@ -90,7 +92,7 @@ double drwnICMInference::inference(drwnFullAssignment& mapAssignment)
         }
     }
 
-    return _graph.getEnergy(mapAssignment);
+    return make_pair(bestEnergy, -DRWN_DBL_MAX);
 }
 
 // drwnMessagePassingMAPInference class -------------------------------------
@@ -141,7 +143,7 @@ void drwnMessagePassingMAPInference::clear()
     _sharedStorage.clear();
 }
 
-double drwnMessagePassingMAPInference::inference(drwnFullAssignment& mapAssignment)
+pair<double, double> drwnMessagePassingMAPInference::inference(drwnFullAssignment& mapAssignment)
 {
     // initialize messages and build computation graph
     if (_computations.empty()) {
@@ -211,7 +213,7 @@ double drwnMessagePassingMAPInference::inference(drwnFullAssignment& mapAssignme
     fill(mapAssignment.begin(), mapAssignment.end(), -1);
     decodeBeliefs(mapAssignment);
 
-    return _graph.getEnergy(mapAssignment);
+    return make_pair(_graph.getEnergy(mapAssignment), -DRWN_DBL_MAX);
 }
 
 void drwnMessagePassingMAPInference::initializeMessages()
@@ -592,19 +594,19 @@ drwnJunctionTreeInference::~drwnJunctionTreeInference()
     // do nothing
 }
 
-double drwnJunctionTreeInference::inference(drwnFullAssignment& mapAssignment)
+pair<double, double> drwnJunctionTreeInference::inference(drwnFullAssignment& mapAssignment)
 {
     // create new cluster graph (junction tree)
     drwnFactorGraph jt = drwnFactorGraphUtils::createJunctionTree(_graph);
 
     // run asynchronous max-product inference
     drwnAsyncMaxProdInference maxProduct(jt);
-    double e = maxProduct.inference(mapAssignment);
+    double e = maxProduct.inference(mapAssignment).first;
 
     DRWN_ASSERT(find(mapAssignment.begin(), mapAssignment.end(), -1) == mapAssignment.end());
     DRWN_ASSERT_MSG(fabs(_graph.getEnergy(mapAssignment) - e) < DRWN_EPSILON,
         "E(" << toString(mapAssignment) << ") = " << _graph.getEnergy(mapAssignment) << " != " << e);
-    return e;
+    return make_pair(e, -DRWN_DBL_MAX);
 }
 
 // drwnGEMPLPInference class ------------------------------------------------
@@ -634,7 +636,7 @@ void drwnGEMPLPInference::clear()
     _maxIterations = MAX_ITERATIONS;
 }
 
-double drwnGEMPLPInference::inference(drwnFullAssignment& mapAssignment)
+pair<double, double> drwnGEMPLPInference::inference(drwnFullAssignment& mapAssignment)
 {
     // initialize messages and build computation graph
     if (_computations.empty()) {
@@ -725,7 +727,7 @@ double drwnGEMPLPInference::inference(drwnFullAssignment& mapAssignment)
     }
 
     DRWN_ASSERT(bestEnergy != DRWN_DBL_MAX);
-    return bestEnergy;
+    return make_pair(bestEnergy, _lastDualObjective);
 }
 
 void drwnGEMPLPInference::initializeMessages()
@@ -961,15 +963,15 @@ void drwnSontag08Inference::clear()
     _additionalCliques.clear();
 }
 
-double drwnSontag08Inference::inference(drwnFullAssignment& mapAssignment)
+pair<double, double> drwnSontag08Inference::inference(drwnFullAssignment& mapAssignment)
 {
     // run initial inference
     _maxIterations = MAX_ITERATIONS;
-    double energy = drwnGEMPLPInference::inference(mapAssignment);
+    double energy = drwnGEMPLPInference::inference(mapAssignment).first;
     double integralityGap = energy - _lastDualObjective;
     if (integralityGap < DRWN_EPSILON) {
         DRWN_LOG_VERBOSE("MAP solution found (integrality gap is " << integralityGap << ")");
-        return energy;
+        return make_pair(energy, _lastDualObjective);
     }
 
     // generate clique candidates
@@ -1079,7 +1081,7 @@ double drwnSontag08Inference::inference(drwnFullAssignment& mapAssignment)
 
             DRWN_LOG_MESSAGE("running for an additional " << MAX_ITERATIONS << " iterations");
             _maxIterations = MAX_ITERATIONS;
-            energy = drwnGEMPLPInference::inference(mapAssignment);
+            energy = drwnGEMPLPInference::inference(mapAssignment).first;
             integralityGap = energy - _lastDualObjective;
             DRWN_LOG_VERBOSE("integrality gap: " << integralityGap);
             if (integralityGap < DRWN_EPSILON) {
@@ -1127,7 +1129,7 @@ double drwnSontag08Inference::inference(drwnFullAssignment& mapAssignment)
 
         // run inference (warm-start)
         _maxIterations = WARMSTART_ITERATIONS;
-        energy = drwnGEMPLPInference::inference(mapAssignment);
+        energy = drwnGEMPLPInference::inference(mapAssignment).first;
         integralityGap = energy - _lastDualObjective;
         DRWN_LOG_VERBOSE("integrality gap: " << integralityGap);
         if (integralityGap < DRWN_EPSILON) {
@@ -1136,7 +1138,7 @@ double drwnSontag08Inference::inference(drwnFullAssignment& mapAssignment)
         }
     }
 
-    return energy;
+    return make_pair(energy, _lastDualObjective);
 }
 
 void drwnSontag08Inference::buildComputationGraph()
@@ -1230,14 +1232,14 @@ drwnDualDecompositionInference::~drwnDualDecompositionInference()
     // do nothing
 }
 
-double drwnDualDecompositionInference::inference(drwnFullAssignment& mapAssignment)
+pair<double, double> drwnDualDecompositionInference::inference(drwnFullAssignment& mapAssignment)
 {
     DRWN_LOG_VERBOSE("..." << _graph.numVariables() << " variables; "
         << _graph.numFactors() << " factors; " << _graph.numEdges() << " edges");
 
 #if 1
     // initial assignment (using ICM)
-    double bestEnergy = drwnICMInference(_graph).inference(mapAssignment);
+    double bestEnergy = drwnICMInference(_graph).inference(mapAssignment).first;
 #else
     // initial assignment
     mapAssignment.resize(_graph.numVariables(), 0);
@@ -1402,7 +1404,7 @@ double drwnDualDecompositionInference::inference(drwnFullAssignment& mapAssignme
         DRWN_LOG_VERBOSE("dual decomposition converged after " << nIterations << " iterations");
     }
 
-    return bestEnergy;
+    return make_pair(bestEnergy, bestDualEnergy);
 }
 
 // drwnMAPInferenceConfig ---------------------------------------------------

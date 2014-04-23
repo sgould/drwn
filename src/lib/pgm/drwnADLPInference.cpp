@@ -316,7 +316,7 @@ void drwnADLPInference::clear()
     _flag.clear();
 }
 
-double drwnADLPInference::inference(drwnFullAssignment& mapAssignment)
+pair<double, double> drwnADLPInference::inference(drwnFullAssignment& mapAssignment)
 {
     int iteration = 0;
     drwnTableFactorStorage storage, storage_2;
@@ -328,6 +328,7 @@ double drwnADLPInference::inference(drwnFullAssignment& mapAssignment)
     mapAssignment.clear();
     mapAssignment.resize(_numNodes);
     double bestEnergy = _graph.getEnergy(mapAssignment);
+    double bestDualEnergy = -DRWN_DBL_MAX;
     double sumResidual, sumPrimalUpdate;
     bool notConverged = true;
 
@@ -456,7 +457,7 @@ double drwnADLPInference::inference(drwnFullAssignment& mapAssignment)
                 (*_tempMu[i])[k] = (*_lambda[i])[k];
             }
 
-            _tempMu[i]->dataCompareAndCopy(*_lambda[i]);            
+            _tempMu[i]->dataCompareAndCopy(*_lambda[i]);
             int tempSize = _updateMuOp[i].size();
             for (int j = 0; j < tempSize; j++) {
                 _updateMuOp[i][j]->execute();   // tempMu - delta_bar
@@ -473,9 +474,9 @@ double drwnADLPInference::inference(drwnFullAssignment& mapAssignment)
         drwnFullAssignment dashAssignment(_numNodes);
         for (int i = 0; i < _numNodes; i++) {
             drwnTableFactor thetaBar(universe, &storage);
-            thetaBar.addVariable(i); 
+            thetaBar.addVariable(i);
             drwnTableFactor thetaBarBar(universe, &storage_2);
-            thetaBarBar.addVariable(i); 
+            thetaBarBar.addVariable(i);
             int entries = thetaBar.entries();
             for (int k = 0; k < entries; k++) {
                 thetaBar[k] = 0.0;
@@ -533,8 +534,9 @@ double drwnADLPInference::inference(drwnFullAssignment& mapAssignment)
             notConverged = false;
         }
 
+        bestDualEnergy = -dualObjDelta;
         DRWN_LOG_VERBOSE("...iteration " << iteration
-            << "; dual objective " << -dualObjDelta << "; best energy " << bestEnergy);
+            << "; dual objective " << bestDualEnergy << "; best energy " << bestEnergy);
 
         iteration++;
         if (sqrt(sumResidual) > factorDiff*sqrt(sumPrimalUpdate)) {
@@ -546,7 +548,7 @@ double drwnADLPInference::inference(drwnFullAssignment& mapAssignment)
     }
     // end for
 
-    return _graph.getEnergy(mapAssignment);
+    return make_pair(bestEnergy, bestDualEnergy);
 }
 
 // drwnADLPInferenceConfig ---------------------------------------------------

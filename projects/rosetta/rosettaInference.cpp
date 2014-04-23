@@ -100,8 +100,11 @@ void runInference(const char *name, drwnMAPInference *inf, double de)
 {
     drwnCodeProfiler::tic(drwnCodeProfiler::getHandle(name));
     drwnFullAssignment assignment;
-    double e = inf->inference(assignment);
-    DRWN_LOG_MESSAGE(name << " returned energy " << e + de);
+    pair <double, double> e = inf->inference(assignment);
+    DRWN_LOG_MESSAGE(name << " returned energy " << e.first + de);
+    if (e.second > -DRWN_DBL_MAX) {
+        DRWN_LOG_MESSAGE(name << " returned lower bound " << e.second + de);
+    }
     DRWN_LOG_VERBOSE(name << " returned assignment " << toString(assignment));
     drwnCodeProfiler::toc(drwnCodeProfiler::getHandle(name));
 }

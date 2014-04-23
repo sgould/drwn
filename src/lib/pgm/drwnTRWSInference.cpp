@@ -126,7 +126,7 @@ void drwnTRWSInference::clear()
     _initialized = false;
 }
 
-double drwnTRWSInference::inference(drwnFullAssignment& mapAssignment)
+pair<double, double> drwnTRWSInference::inference(drwnFullAssignment& mapAssignment)
 {
     if (!_initialized) {
         initialize();
@@ -273,7 +273,7 @@ double drwnTRWSInference::inference(drwnFullAssignment& mapAssignment)
 
     mapAssignment = drwnFullAssignment(tempAssignment);
 
-    return _graph.getEnergy(mapAssignment);
+    return make_pair(_graph.getEnergy(mapAssignment), Ebound.back());
 }
 
 void drwnTRWSInference::initialize()

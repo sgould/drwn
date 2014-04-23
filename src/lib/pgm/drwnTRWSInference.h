@@ -64,7 +64,7 @@ class drwnTRWSInference : public drwnMAPInference
     ~drwnTRWSInference();
     
     void clear();
-    double inference(drwnFullAssignment& mapAssignment);
+    pair<double, double> inference(drwnFullAssignment& mapAssignment);
 
  private:
     void initialize();
