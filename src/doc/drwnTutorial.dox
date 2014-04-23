@@ -686,13 +686,13 @@ function.
     graph.addFactor(CDE);
 \endcode
 
-Now let's use ICM to compute the minimum-energy assignment:
+Now let's try use ICM to compute the minimum-energy assignment:
 
 \code
     drwnICMInference icm(graph);
     drwnFullAssignment assignment;
-    double e = icm.inference(assignment);
-    DRWN_LOG_MESSAGE("assignment has energy " << e);
+    icm.inference(assignment);
+    DRWN_LOG_MESSAGE("assignment has energy " << graph.getEnergy(assignment));
     DRWN_LOG_VERBOSE("assignment is " << toString(assignment));
 \endcode
 
@@ -702,8 +702,8 @@ first triangulates the graph, to compute the exact MAP assignment:
 \code
     drwnJunctionTreeInference jta(graph);
     drwnFullAssignment assignment;
-    double e = jta.inference(assignment);
-    DRWN_LOG_MESSAGE("map assignment has energy " << e);
+    jta.inference(assignment);
+    DRWN_LOG_MESSAGE("assignment has energy " << graph.getEnergy(assignment));
     DRWN_LOG_VERBOSE("map assignment is " << toString(assignment));
 \endcode
 

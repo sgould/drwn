@@ -227,8 +227,11 @@ algorithm on a factor graph.
     // run MAP inference
     drwnMaxProdInference mp(graph);
     drwnFullAssignment assignment;
-    double e = mp.inference(assignment);
-    DRWN_LOG_MESSAGE("map assignment has energy " << e);
+    pair<double, double> e = mp.inference(assignment);
+    DRWN_LOG_MESSAGE("map assignment has energy " << e.first);
+    if (e.second != -DRWN_DBL_MAX) {
+        DRWN_LOG_MESSAGE("lower bound energy is " << e.second);
+    }
     DRWN_LOG_VERBOSE("map assignment is " << toString(assignment));
 \endcode
 
