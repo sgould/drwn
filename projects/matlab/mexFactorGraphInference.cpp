@@ -119,7 +119,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     }
 
     drwnFullAssignment assignment;
-    e += inf->inference(assignment);
+    e += inf->inference(assignment).first;
     DRWN_LOG_MESSAGE("map assignment has energy " << e);
     DRWN_LOG_VERBOSE("map assignment is " << toString(assignment));
     DRWN_ASSERT(universe->numVariables() == assignment.size());
