@@ -223,10 +223,9 @@ appropriately.
 
 \code
   cd external
-  wget -c http://prdownloads.sourceforge.net/opencvlibrary/OpenCV-2.4.3.tar.bz2
-  bunzip2 OpenCV-2.4.3.tar.bz2
-  tar xvf OpenCV-2.4.3.tar
-  cd OpenCV-2.4.3
+  wget -c https://github.com/Itseez/opencv/archive/2.4.8.tar.gz
+  tar zxvf 2.4.8.tar.gz
+  cd opencv-2.4.8
   cmake -D CMAKE_BUILD_TYPE=RELEASE \
         -D CMAKE_INSTALL_PREFIX=../opencv \
         -D BUILD_NEW_PYTHON_SUPPORT=OFF .
