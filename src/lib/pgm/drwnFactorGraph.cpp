@@ -378,7 +378,7 @@ bool drwnFactorGraph::load(drwnXMLNode& xml)
     node = xml.first_node("edges");
     if (node != NULL) {
         vector<int> edgeList;
-        parseString<int>(string(drwnGetXMLText(*node)), edgeList);
+        drwn::parseString<int>(string(drwnGetXMLText(*node)), edgeList);
         DRWN_ASSERT(edgeList.size() % 2 == 0);
         _edges.reserve(edgeList.size() / 2);
         for (unsigned i = 0; i < edgeList.size(); i += 2) {

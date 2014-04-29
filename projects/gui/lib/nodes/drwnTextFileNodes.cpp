@@ -111,7 +111,7 @@ void drwnTextFileSourceNode::updateForwards()
         lineNum += 1;
         string nextLine;
         getline(ifs, nextLine);
-        trim(nextLine);
+        drwn::trim(nextLine);
         if (nextLine.empty()) {
             continue;
         }
@@ -127,21 +127,21 @@ void drwnTextFileSourceNode::updateForwards()
             }
 
             key = _keyPrefix + nextLine.substr(0, searchPos);
-            trim(key);
+            drwn::trim(key);
             if (existingRecords.find(key) != existingRecords.end()) {
                 continue;
             }
 
             nextLine = nextLine.substr(searchPos + _delimiter.length(), string::npos);
         } else {
-            //key = strBaseName(_filename) + padString(toString(lineNum), 8);
-            key = _keyPrefix + padString(toString(lineNum), 8);
+            //key = strBaseName(_filename) + drwn::padString(toString(lineNum), 8);
+            key = _keyPrefix + drwn::padString(toString(lineNum), 8);
         }
 
         // parse features
         vector<double> v;
-        parseString<double>(_delimiter.compare(" ") == 0 ? nextLine :
-            strReplaceSubstr(nextLine, _delimiter, string(" ")), v);
+        drwn::parseString<double>(_delimiter.compare(" ") == 0 ? nextLine :
+            drwn::strReplaceSubstr(nextLine, _delimiter, string(" ")), v);
 
         // add to record
         drwnDataRecord *recordOut = tblOut->lockRecord(key);

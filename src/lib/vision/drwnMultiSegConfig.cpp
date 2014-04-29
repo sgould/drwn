@@ -381,7 +381,7 @@ MatrixXi drwnMultiSegRegionDefinitions::convertImageToLabels(const char *filenam
 MatrixXi drwnMultiSegRegionDefinitions::loadLabelFile(const char *filename) const
 {
     DRWN_ASSERT(filename != NULL);
-    string ext = strExtension(string(filename));
+    string ext = drwn::strExtension(string(filename));
     std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
 
     // convert from an image file

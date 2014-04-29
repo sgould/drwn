@@ -201,7 +201,7 @@ void drwnMatlabNode::updateForwards()
 
     // change to correct directory
     engEvalString(_matlabEngine,
-        (string("cd ") + strDirectory(_fwdFcnName)).c_str());
+        (string("cd ") + drwn::strDirectory(_fwdFcnName)).c_str());
 
     // copy parameters into Matlab
     mxArray *mTheta = eigen2mat(_theta);
@@ -295,7 +295,7 @@ void drwnMatlabNode::sourceUpdateForwards()
 
     // change to correct directory
     engEvalString(_matlabEngine,
-        (string("cd ") + strDirectory(_fwdFcnName)).c_str());
+        (string("cd ") + drwn::strDirectory(_fwdFcnName)).c_str());
 
     // copy parameters into Matlab
     mxArray *mTheta = eigen2mat(_theta);

@@ -69,7 +69,7 @@ void drwnRandomSourceNode::evaluateForwards()
     DRWN_START_PROGRESS(getName().c_str(), _numRecords);
     for (int i = 0; i < _numRecords; i++) {
         DRWN_INC_PROGRESS;
-        string key = string("REC") + padString(toString(i), 5);
+        string key = string("REC") + drwn::padString(toString(i), 5);
         DRWN_LOG_VERBOSE("generating random record " << key << "...");
         drwnDataRecord *record = tbl->lockRecord(key);
         record->data().setRandom(_minObservations + rand() % obsRange, _numFeatures);
@@ -91,7 +91,7 @@ void drwnRandomSourceNode::updateForwards()
     DRWN_START_PROGRESS(getName().c_str(), _numRecords);
     for (int i = 0; i < _numRecords; i++) {
         DRWN_INC_PROGRESS;
-        string key = string("REC") + padString(toString(i), 5);
+        string key = string("REC") + drwn::padString(toString(i), 5);
 
         // don't overwrite existing output records
         if (tbl->hasKey(key)) continue;

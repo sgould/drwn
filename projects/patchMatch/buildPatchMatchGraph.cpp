@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
     learner.initialize();
     pair<double, double> lastEnergy = graph.energy();
     DRWN_LOG_VERBOSE("  Matchable Pixels: " << drwnPatchMatchUtils::countMatchablePixels(graph));
-    DRWN_LOG_MESSAGE("0. (" << millisecondsToString(1000 * difftime(std::time(NULL), startTime))
+    DRWN_LOG_MESSAGE("0. (" << drwn::millisecondsToString(1000 * difftime(std::time(NULL), startTime))
         << ") energy = " << lastEnergy.first << " top = " << lastEnergy.second);
 
 #if 1
@@ -200,7 +200,7 @@ int main(int argc, char *argv[])
         // check energy
         pair<double, double> e = graph.energy();
         DRWN_LOG_MESSAGE((nIterations + 1) << ". ("
-            << millisecondsToString(1000 * difftime(std::time(NULL), startTime))
+            << drwn::millisecondsToString(1000 * difftime(std::time(NULL), startTime))
             << ") energy = " << e.first << " top = " << e.second);
         if (e.first == lastEnergy.first) break;
         lastEnergy = e;

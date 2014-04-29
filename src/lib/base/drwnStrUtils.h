@@ -63,64 +63,70 @@ std::string toString(const std::pair<T, U>& p);
 //! specialized toString() routine for name/value pairs
 std::string toString(const map<std::string, std::string>& m);
 
-//! case-insensitive comparison of two strings
-int strNoCaseCompare(const std::string& A, const std::string& B);
+namespace drwn {
 
-//! parses a string representation of a vector
-template<typename T>
-int parseString(const std::string& str, std::vector<T>& v);
+    //! case-insensitive comparison of two strings
+    int strNoCaseCompare(const std::string& A, const std::string& B);
 
-//@cond
-template<typename T, bool B>
-struct parseInfToken {
-    static bool apply(const std::string& token, T& value);
+    //! parses a string representation of a vector
+    template<typename T>
+    int parseString(const std::string& str, std::vector<T>& v);
 };
-//@endcond
 
-//! parses a string of the form "name=value ..." into (name, value) pairs
-map<string, string> parseNameValueString(std::string str);
+    //@cond
+    template<typename T, bool B>
+    struct parseInfToken {
+        static bool apply(const std::string& token, T& value);
+    };
+    //@endcond
 
-//! returns \b true if string matches one of "1", "true" or "yes"
-bool trueString(const std::string& str);
+namespace drwn {
 
-//! pads \b str with \b padChar up to \b padLength size
-std::string padString(const std::string& str, int padLength,
-    unsigned char padChar = '0');
+    //! parses a string of the form "name=value ..." into (name, value) pairs
+    map<string, string> parseNameValueString(std::string str);
 
-//! breaks long strings into rows
-std::list<string> breakString(const std::string& str, unsigned lineLength);
+    //! returns \b true if string matches one of "1", "true" or "yes"
+    bool trueString(const std::string& str);
 
-//! trim leading and trailing spaces (modifies \b str inline and returns it)
-std::string& trim(std::string& str);
+    //! pads \b str with \b padChar up to \b padLength size
+    std::string padString(const std::string& str, int padLength,
+        unsigned char padChar = '0');
 
-//! replaces any occurrences in \b str of \b substr with \b rep
-string strReplaceSubstr(const string& str, const string& substr, const string& rep);
+    //! breaks long strings into rows
+    std::list<string> breakString(const std::string& str, unsigned lineLength);
 
-//! inserts spaces into camelCase string \b str
-//! (e.g., \a strSpacifyCamelCase becomes "str spacify camel case")
-string strSpacifyCamelCase(const string& str);
+    //! trim leading and trailing spaces (modifies \b str inline and returns it)
+    std::string& trim(std::string& str);
 
-//! conversion of bytes into a pretty string with units
-string bytesToString(unsigned b);
-//! conversion of milliseconds into a pretty string with units
-string millisecondsToString(unsigned ms);
+    //! replaces any occurrences in \b str of \b substr with \b rep
+    string strReplaceSubstr(const string& str, const string& substr, const string& rep);
 
-//! returns a base filename with directory and extension stripped
-string strBaseName(const string &fullPath);
-//! returns a filename with directory stripped
-string strFilename(const string &fullPath);
-//! returns the directory for a full path (filename stripped)
-string strDirectory(const string &fullPath);
-//! returns the extension for a given filename
-string strExtension(const string &fullPath);
-//! replaces the extension of a given file with \p ext
-string strReplaceExt(const string &fullPath, const string &ext);
-//! returns the full path of a file with extension stripped off
-string strWithoutExt(const string &fullPath);
-//! strips all terminating directory separators from a path
-string strWithoutEndSlashes(const string &fullPath);
-//! returns the index of a file with format base<nnn>.ext
-int strFileIndex(const string &fullPath);
+    //! inserts spaces into camelCase string \b str
+    //! (e.g., \a strSpacifyCamelCase becomes "str spacify camel case")
+    string strSpacifyCamelCase(const string& str);
+
+    //! conversion of bytes into a pretty string with units
+    string bytesToString(unsigned b);
+    //! conversion of milliseconds into a pretty string with units
+    string millisecondsToString(unsigned ms);
+
+    //! returns a base filename with directory and extension stripped
+    string strBaseName(const string &fullPath);
+    //! returns a filename with directory stripped
+    string strFilename(const string &fullPath);
+    //! returns the directory for a full path (filename stripped)
+    string strDirectory(const string &fullPath);
+    //! returns the extension for a given filename
+    string strExtension(const string &fullPath);
+    //! replaces the extension of a given file with \p ext
+    string strReplaceExt(const string &fullPath, const string &ext);
+    //! returns the full path of a file with extension stripped off
+    string strWithoutExt(const string &fullPath);
+    //! strips all terminating directory separators from a path
+    string strWithoutEndSlashes(const string &fullPath);
+    //! returns the index of a file with format base<nnn>.ext
+    int strFileIndex(const string &fullPath);
+};
 
 // Implementation -----------------------------------------------------------
 
@@ -185,7 +191,7 @@ std::string toString(const std::pair<T, U>& p)
 
 // Conversion from a string
 template<typename T>
-int parseString(const std::string& str, std::vector<T>& v)
+int drwn::parseString(const std::string& str, std::vector<T>& v)
 {
     std::stringstream buffer;
     T data;

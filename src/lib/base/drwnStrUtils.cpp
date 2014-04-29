@@ -46,7 +46,7 @@ string toString(const map<string, string>& p)
 }
 
 // Case insensitive comparison
-int strNoCaseCompare(const string& A, const string& B)
+int drwn::strNoCaseCompare(const string& A, const string& B)
 {
     string::const_iterator itA = A.begin();
     string::const_iterator itB = B.begin();
@@ -66,7 +66,7 @@ int strNoCaseCompare(const string& A, const string& B)
 // Function to break string of "<name>\s*=\s*<value>[,; ]" pairs
 // into an stl map. If the value part does not exist then sets to
 // "true".
-map<string, string> parseNameValueString(string str)
+map<string, string> drwn::parseNameValueString(string str)
 {
     // first tokenize into <name>=<value> pairs
     vector<string> tokens;
@@ -97,13 +97,13 @@ map<string, string> parseNameValueString(string str)
     return output;
 }
 
-bool trueString(const string& str) {
+bool drwn::trueString(const string& str) {
     return ((!strcasecmp(str.c_str(), "true")) ||
         (!strcasecmp(str.c_str(), "yes")) ||
         (!strcasecmp(str.c_str(), "1")));
 }
 
-string padString(const string& str, int padLength,
+string drwn::padString(const string& str, int padLength,
                  unsigned char padChar)
 {
     if (str.size() >= (unsigned)padLength) {
@@ -114,13 +114,13 @@ string padString(const string& str, int padLength,
     return (padString + str);
 }
 
-list<string> breakString(const std::string& str, unsigned lineLength)
+list<string> drwn::breakString(const std::string& str, unsigned lineLength)
 {
     DRWN_ASSERT(lineLength > 3);
     list<string> lines;
 
     vector<string> tokens;
-    parseString<string>(str, tokens);
+    drwn::parseString<string>(str, tokens);
 
     // truncate strings that are too long
     for (unsigned i = 0; i < tokens.size(); i++) {
@@ -151,12 +151,12 @@ list<string> breakString(const std::string& str, unsigned lineLength)
     return lines;
 }
 
-string& trim(string& str) {
+string& drwn::trim(string& str) {
     str.erase(str.find_last_not_of(" ") + 1);
     return str.erase(0, str.find_first_not_of(" "));
 }
 
-string strReplaceSubstr(const string & str, const string & substr, const string & rep)
+string drwn::strReplaceSubstr(const string & str, const string & substr, const string & rep)
 {
   string rval;
   size_t searchPos = 0, prevPos;
@@ -177,7 +177,7 @@ string strReplaceSubstr(const string & str, const string & substr, const string 
   return rval;
 }
 
-string strSpacifyCamelCase(const string& str)
+string drwn::strSpacifyCamelCase(const string& str)
 {
     string newStr;
     newStr.reserve(str.length());
@@ -198,7 +198,7 @@ string strSpacifyCamelCase(const string& str)
 }
 
 // Conversion of units to strings
-string bytesToString(unsigned b)
+string drwn::bytesToString(unsigned b)
 {
     unsigned minorUnits = 0;
     unsigned majorUnits = b;
@@ -223,7 +223,7 @@ string bytesToString(unsigned b)
     return toString(majorUnits) + '.' + toString(minorUnits / 100) + units;
 }
 
-string millisecondsToString(unsigned ms)
+string drwn::millisecondsToString(unsigned ms)
 {
     int seconds = ms / 1000;
     ms -= 1000 * seconds;
@@ -239,7 +239,7 @@ string millisecondsToString(unsigned ms)
     return toString(hours) + string(buffer);
 }
 
-string strBaseName(const string &fullPath)
+string drwn::strBaseName(const string &fullPath)
 {
     string baseName;
 
@@ -252,10 +252,10 @@ string strBaseName(const string &fullPath)
     }
 
     // strip extension
-    return strWithoutExt(baseName);
+    return drwn::strWithoutExt(baseName);
 }
 
-string strFilename(const string &fullPath)
+string drwn::strFilename(const string &fullPath)
 {
     // strip directory name
     string::size_type pos = fullPath.find_last_of("/\\");
@@ -266,7 +266,7 @@ string strFilename(const string &fullPath)
     return fullPath.substr(pos + 1, fullPath.length() - pos);
 }
 
-string strDirectory(const string &fullPath)
+string drwn::strDirectory(const string &fullPath)
 {
     string::size_type pos = fullPath.find_last_of("/\\");
     if (pos == string::npos) {
@@ -276,9 +276,9 @@ string strDirectory(const string &fullPath)
     return fullPath.substr(0, pos);
 }
 
-string strExtension(const string &fullPath)
+string drwn::strExtension(const string &fullPath)
 {
-    string filename = strFilename(fullPath);
+    string filename = drwn::strFilename(fullPath);
     string::size_type pos = filename.find_last_of(".");
     if (pos != string::npos) {
 	return filename.substr(pos + 1, filename.length() - pos);
@@ -287,14 +287,14 @@ string strExtension(const string &fullPath)
     return string("");
 }
 
-string strReplaceExt(const string &fullPath, const string &ext)
+string drwn::strReplaceExt(const string &fullPath, const string &ext)
 {
-    string oldExt = strExtension(fullPath);
+    string oldExt = drwn::strExtension(fullPath);
     size_t len = oldExt.length() == 0 ? 0 : oldExt.length() + 1;
     return (fullPath.substr(0, fullPath.length() - len) + ext);
 }
 
-string strWithoutExt(const string &fullPath)
+string drwn::strWithoutExt(const string &fullPath)
 {
   string filename = fullPath;
 
@@ -306,7 +306,7 @@ string strWithoutExt(const string &fullPath)
   return filename;
 }
 
-string strWithoutEndSlashes(const string &fullPath)
+string drwn::strWithoutEndSlashes(const string &fullPath)
 {
   string filename = fullPath;
   string::size_type pos = filename.find_last_not_of("/");
@@ -314,9 +314,9 @@ string strWithoutEndSlashes(const string &fullPath)
 }
 
 // Returns index from filenames with the form <base><index>.<ext>
-int strFileIndex(const string &fullPath)
+int drwn::strFileIndex(const string &fullPath)
 {
-    string baseName = strBaseName(fullPath);
+    string baseName = drwn::strBaseName(fullPath);
     string::size_type ib = baseName.find_first_of("0123456789");
     string::size_type ie = baseName.find_last_of("0123456789");
 

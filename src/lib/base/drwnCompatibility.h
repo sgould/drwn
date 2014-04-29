@@ -58,3 +58,7 @@ typedef unsigned __int32 uint32_t;
 #define DRWN_DIRSEP '/'
 #endif
 
+// Mac OS X
+#if defined(__APPLE__)
+#define DRWN_DIRSEP '/'
+#endif

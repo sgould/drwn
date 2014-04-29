@@ -764,7 +764,7 @@ public:
 
     void setConfiguration(const char *name, const char *value) {
         if (!strcmp(name, "visualize")) {
-            drwnGrabCutInstance::bVisualize = trueString(string(value));
+            drwnGrabCutInstance::bVisualize = drwn::trueString(string(value));
         } else if (!strcmp(name, "maxSamples")) {
             drwnGrabCutInstance::maxSamples = std::max(1, atoi(value));
         } else if (!strcmp(name, "numMixtures")) {

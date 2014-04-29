@@ -233,13 +233,13 @@ bool drwnVarUniverse::load(drwnXMLNode& xml)
 
     drwnXMLNode *node = xml.first_node("varCards");
     if (node != NULL) {
-        parseString<int>(string(drwnGetXMLText(*node)), _varCards);
+        drwn::parseString<int>(string(drwnGetXMLText(*node)), _varCards);
         DRWN_ASSERT(_varCards.size() == (size_t)_numVariables);
     }
 
     node = xml.first_node("varNames");
     if (node != NULL) {
-        parseString<string>(string(drwnGetXMLText(*node)), _varNames);
+        drwn::parseString<string>(string(drwnGetXMLText(*node)), _varNames);
         DRWN_ASSERT(_varNames.size() == (size_t)_numVariables);
     }
 

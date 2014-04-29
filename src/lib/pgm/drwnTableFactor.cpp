@@ -169,7 +169,7 @@ bool drwnFactor::load(drwnXMLNode& xml)
     vector<int> vars;
     drwnXMLNode *node = xml.first_node("vars");
     DRWN_ASSERT(node != NULL);
-    parseString<int>(string(drwnGetXMLText(*node)), vars);
+    drwn::parseString<int>(string(drwnGetXMLText(*node)), vars);
 
     addVariables(vars);
 

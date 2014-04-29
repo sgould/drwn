@@ -36,7 +36,7 @@ drwnSegImageInstance::drwnSegImageInstance(const char *imgFilename, const char *
     if (baseName != NULL) {
         _baseName = string(baseName);
     } else {
-        _baseName = strBaseName(imgFilename);
+        _baseName = drwn::strBaseName(imgFilename);
     }
     initInstance();
 }

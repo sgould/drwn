@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
     const double minWeight = (weight < 0.0) ? 1.0 : weight;
     const double maxWeight = (weight < 0.0) ? 256.0 : weight;
     drwnGrabCutInstance model;
-    model.name = strBaseName(imgFilename);
+    model.name = drwn::strBaseName(imgFilename);
     for (double w = minWeight; w <= maxWeight; ) {
         // initialize model
         model.initialize(img, mask, initialColourModelFile);
@@ -121,13 +121,13 @@ int main(int argc, char *argv[])
 
         // save segmentation mask
         if (outDir != NULL) {
-            string wStr = strReplaceSubstr(toString(0.01 * (int)(w * 100)), ".", "_");
-            string filename = string(outDir) + strBaseName(string(imgFilename)) +
+            string wStr = drwn::strReplaceSubstr(toString(0.01 * (int)(w * 100)), ".", "_");
+            string filename = string(outDir) + drwn::strBaseName(string(imgFilename)) +
                 string("_mask_") + wStr + string(".png");
             DRWN_LOG_VERBOSE("writing segmentation to " << filename << "...");
             cv::imwrite(filename, seg);
 
-            filename = string(outDir) + strBaseName(string(imgFilename)) +
+            filename = string(outDir) + drwn::strBaseName(string(imgFilename)) +
                 string("_img_") + wStr + string(".png");
             DRWN_LOG_VERBOSE("writing segmented image to " << filename << "...");
             cv::Mat m(img.clone());

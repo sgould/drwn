@@ -387,7 +387,7 @@ public:
         if (!strcmp(name, "encoder")) {
             drwnXMLUtils::DEFAULT_ENCODER = drwnXMLUtils::getEncoderType(value);
         } else if (!strcmp(name, "prettyBase64")) {
-            drwnBase64::INSERT_NEWLINES = trueString(value);
+            drwnBase64::INSERT_NEWLINES = drwn::trueString(value);
         } else {
             DRWN_LOG_FATAL("unrecognized configuration option " << name << " for " << this->name());
         }

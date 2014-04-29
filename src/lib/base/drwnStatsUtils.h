@@ -36,7 +36,7 @@ using namespace Eigen;
 
 using namespace std;
 
-//! initialize the standard C library random number generator 
+//! initialize the standard C library random number generator
 //! with a time-of-day seed
 void drwnInitializeRand();
 
@@ -177,7 +177,7 @@ namespace drwn {
     //! generate a vector of logarithmically-spaced values from \p startValue to \p endValue
     vector<double> logSpaceVector(double startValue, double endValue, unsigned n = 10);
 
-    //! Computes the predecessor of a discrete vector, 
+    //! Computes the predecessor of a discrete vector,
     //! for example, predecessor([1 0 0], 2) produces [0 0 0].
     //! Each position must have the same cardinality.
     void predecessor(std::vector<int>& array, int limit);
@@ -185,7 +185,7 @@ namespace drwn {
     //! for example, successor([1 0 0], 2) produces [0 1 0].
     //! Each position must have the same cardinality.
     void successor(std::vector<int>& array, int limit);
-    //! Computes the predecessor of a discrete vector, 
+    //! Computes the predecessor of a discrete vector,
     //! for example, predecessor([1 0 0], [2 2 2]) produces [0 0 0].
     //! Each position can have different cardinality.
     void predecessor(std::vector<int>& array, const std::vector<int>& limits);

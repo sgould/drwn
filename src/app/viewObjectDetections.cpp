@@ -96,12 +96,12 @@ int main(int argc, char *argv[])
     drwnResizeInPlace(canvas, cv::Size((int)(scale * canvas.cols), (int)(scale * canvas.rows)));
 
     if (bVisualize) {
-        drwnShowDebuggingImage(canvas, strBaseName(imgFilename), true);
+        drwnShowDebuggingImage(canvas, drwn::strBaseName(imgFilename), true);
     }
 
     // save
     if (outDir != NULL) {
-        string outFilename = string(outDir) + string("/") + strBaseName(imgFilename) + string("_objects.png");
+        string outFilename = string(outDir) + string("/") + drwn::strBaseName(imgFilename) + string("_objects.png");
         cv::imwrite(outFilename, canvas);
     }
 

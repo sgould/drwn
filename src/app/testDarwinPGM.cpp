@@ -64,7 +64,7 @@ void usage()
          << "  fullinf <fname>   :: test full inference\n"
          << "  map <inf> <fname> :: test MAP inference (<inf> can be one of\n";
 
-    list<string> mapOptions = breakString(toString(drwnMAPInferenceFactory::get().getRegisteredClasses()), 56);
+    list<string> mapOptions = drwn::breakString(toString(drwnMAPInferenceFactory::get().getRegisteredClasses()), 56);
     for (list<string>::const_iterator it = mapOptions.begin(); it != mapOptions.end(); ++it) {
         cerr << "                       " << *it << "\n";
     }

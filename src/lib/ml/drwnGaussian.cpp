@@ -659,7 +659,7 @@ public:
 
     void setConfiguration(const char *name, const char *value) {
         if (!strcmp(name, "autoRidge")) {
-            drwnGaussian::AUTO_RIDGE = trueString(string(value));
+            drwnGaussian::AUTO_RIDGE = drwn::trueString(string(value));
         } else {
             DRWN_LOG_FATAL("unrecognized configuration option " << name << " for " << this->name());
         }

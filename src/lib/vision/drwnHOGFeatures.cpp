@@ -515,7 +515,7 @@ public:
         } else if (!strcmp(name, "normClippingUB")) {
             drwnHOGFeatures::DEFAULT_CLIPPING_UB = std::min(1.0, atof(value));
         } else if (!strcmp(name, "dimReduction")) {
-            drwnHOGFeatures::DEFAULT_DIM_REDUCTION = trueString(string(value));
+            drwnHOGFeatures::DEFAULT_DIM_REDUCTION = drwn::trueString(string(value));
         } else {
             DRWN_LOG_FATAL("unrecognized configuration option " << name << " for " << this->name());
         }

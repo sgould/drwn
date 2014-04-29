@@ -192,7 +192,7 @@ void drwnMatlabUtils::processStandardOptions(map<string, string>& options)
     // module property setting
     if (!options[string("set")].empty()) {
         vector<string> tokens;
-        const int n = parseString(options[string("set")], tokens);
+        const int n = drwn::parseString(options[string("set")], tokens);
         if (n == 1) {
             drwnConfigurationManager::get().showModuleUsage(tokens[0].c_str());
             mexErrMsgTxt("");

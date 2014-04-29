@@ -167,8 +167,9 @@ The latest stable release can be downloaded from:
 Previous stable releases, pre-compiled Windows and Matlab mex
 binaries, and change logs are also \ref drwnDownloadsDoc "available".
 
-Please report bugs to stephen.gould@anu.edu.au and include a small
-example (code and data) that will trigger the bug.
+Please report bugs via the issue tracker https://github.com/sgould/drwn/issues 
+or email to stephen.gould@anu.edu.au and include a small example (code
+and data) that will trigger the bug.
 
 \section drwnVideoDocs Helper Videos
 

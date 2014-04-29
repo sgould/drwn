@@ -150,7 +150,7 @@ bool drwnSuperpixelContainer::read(istream& is)
 void drwnSuperpixelContainer::loadSuperpixels(const char *filename)
 {
     DRWN_ASSERT(filename != NULL);
-    string ext = strExtension(string(filename));
+    string ext = drwn::strExtension(string(filename));
     std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
 
     cv::Mat superpixels;

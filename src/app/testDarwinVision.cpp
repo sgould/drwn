@@ -349,7 +349,7 @@ void testHOGFeatures(const char *filename)
         // show features
         int ch = drwnShowDebuggingImage(canvas, string("testHOGFeatures"), true);
         if (ch == (int)'w') {
-            string outname = strBaseName(filename) + string(".hog.png");
+            string outname = drwn::strBaseName(filename) + string(".hog.png");
             DRWN_LOG_VERBOSE("...saving image to " << outname);
             cv::imwrite(outname, canvas);
         }
@@ -586,11 +586,11 @@ void testImageCache(const char *directory)
     for (unsigned i = 0; i < images.size(); i += 5) {
         for (unsigned j = i; j < i + 5; j++) {
             cache.lock(images[j]);
-            DRWN_LOG_VERBOSE("lock " << j << ", size " << cache.size() << ", memory " << bytesToString(cache.memory()));
+            DRWN_LOG_VERBOSE("lock " << j << ", size " << cache.size() << ", memory " << drwn::bytesToString(cache.memory()));
         }
         for (unsigned j = i; j < i + 5; j++) {
             cache.unlock(images[j]);
-            DRWN_LOG_VERBOSE("unlock " << j << ", size " << cache.size() << ", memory " << bytesToString(cache.memory()));
+            DRWN_LOG_VERBOSE("unlock " << j << ", size " << cache.size() << ", memory " << drwn::bytesToString(cache.memory()));
         }
     }
 
@@ -625,11 +625,11 @@ void testImagePyramidCache(const char *directory)
             cv::Mat canvas = drwnCombineImages(pyr);
             drwnShowDebuggingImage(canvas, string("pyramid"), false);
 #endif
-            DRWN_LOG_VERBOSE("lock " << j << ", size " << cache.size() << ", memory " << bytesToString(cache.memory()));
+            DRWN_LOG_VERBOSE("lock " << j << ", size " << cache.size() << ", memory " << drwn::bytesToString(cache.memory()));
         }
         for (unsigned j = i; j < i + 5; j++) {
             cache.unlock(images[j]);
-            DRWN_LOG_VERBOSE("unlock " << j << ", size " << cache.size() << ", memory " << bytesToString(cache.memory()));
+            DRWN_LOG_VERBOSE("unlock " << j << ", size " << cache.size() << ", memory " << drwn::bytesToString(cache.memory()));
         }
     }
 
@@ -649,7 +649,7 @@ void testImageInPainting(const char *imgFile)
     cv::Mat output;
     drwnInPaint::inPaint(img, output, mask);
 
-    cv::imwrite((strBaseName(imgFile) + string("_inpainted.png")).c_str(), output);
+    cv::imwrite((drwn::strBaseName(imgFile) + string("_inpainted.png")).c_str(), output);
 }
 
 void testColourHistogram(const char *imgFile)

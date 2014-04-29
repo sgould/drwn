@@ -144,7 +144,7 @@ void drwnSegImageStdPixelFeatures::cacheInstanceData(const drwnSegImageInstance&
             string filename = AUX_FEATURE_DIR + string("/") + _instanceName + AUX_FEATURE_EXT[i];
             DRWN_LOG_DEBUG("...loading features from " << filename);
 
-            string ext(strExtension(AUX_FEATURE_EXT[i]));
+            string ext(drwn::strExtension(AUX_FEATURE_EXT[i]));
             std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
 
             if (ext.compare("txt") == 0) {
@@ -448,20 +448,20 @@ public:
         } else if (!strcmp(name, "featureGridSpacing")) {
             drwnSegImageStdPixelFeatures::FEATURE_GRID_SPACING = std::max(0, atoi(value));
         } else if (!strcmp(name, "includeRGB")) {
-            drwnSegImageStdPixelFeatures::INCLUDE_RGB = trueString(string(value));
+            drwnSegImageStdPixelFeatures::INCLUDE_RGB = drwn::trueString(string(value));
         } else if (!strcmp(name, "includeHOG")) {
-            drwnSegImageStdPixelFeatures::INCLUDE_LBP = trueString(string(value));
+            drwnSegImageStdPixelFeatures::INCLUDE_LBP = drwn::trueString(string(value));
         } else if (!strcmp(name, "includeLBP")) {
-            drwnSegImageStdPixelFeatures::INCLUDE_HOG = trueString(string(value));
+            drwnSegImageStdPixelFeatures::INCLUDE_HOG = drwn::trueString(string(value));
         } else if (!strcmp(name, "includeRowCol")) {
-            drwnSegImageStdPixelFeatures::INCLUDE_ROWCOLAGG = trueString(string(value));
+            drwnSegImageStdPixelFeatures::INCLUDE_ROWCOLAGG = drwn::trueString(string(value));
         } else if (!strcmp(name, "includeLocation")) {
-            drwnSegImageStdPixelFeatures::INCLUDE_LOCATION = trueString(string(value));
+            drwnSegImageStdPixelFeatures::INCLUDE_LOCATION = drwn::trueString(string(value));
         } else if (!strcmp(name, "auxFeatureDir")) {
             drwnSegImageStdPixelFeatures::AUX_FEATURE_DIR = string(value);
         } else if (!strcmp(name, "auxFeatureExt")) {
             drwnSegImageStdPixelFeatures::AUX_FEATURE_EXT.clear();
-            parseString<string>(string(value), drwnSegImageStdPixelFeatures::AUX_FEATURE_EXT);
+            drwn::parseString<string>(string(value), drwnSegImageStdPixelFeatures::AUX_FEATURE_EXT);
         } else {
             DRWN_LOG_FATAL("unrecognized configuration option " << name << " for " << this->name());
         }

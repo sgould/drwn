@@ -86,8 +86,8 @@ int main(int argc, char *argv[])
             int originalBytes = tbl->size();
             tbl->defragment();
             int defragmentedBytes = tbl->size();
-            DRWN_LOG_VERBOSE("...from " << bytesToString(originalBytes)
-                << " to " << bytesToString(defragmentedBytes));
+            DRWN_LOG_VERBOSE("...from " << drwn::bytesToString(originalBytes)
+                << " to " << drwn::bytesToString(defragmentedBytes));
         }
 
     } else if (!strcasecmp(COMMAND, "statistics") || !strcasecmp(COMMAND, "stats")) {
@@ -103,12 +103,12 @@ int main(int argc, char *argv[])
             totalRecords += tbl->numRecords();
             totalBytes += (double)tbl->size();
             cout << "  " << setw(6) << tbl->numRecords()
-                 << "  " << setw(7) << bytesToString(tbl->size())
+                 << "  " << setw(7) << drwn::bytesToString(tbl->size())
                  << "  " << tbl->name() << "\n";
         }
         cout << "  ------  -------\n";
         cout << "  " << setw(6) << totalRecords
-             << "  " << setw(7) << bytesToString((int)totalBytes) << "\n";
+             << "  " << setw(7) << drwn::bytesToString((int)totalBytes) << "\n";
 
     } else if (!strcasecmp(COMMAND, "unlock")) {
         string lockFilename = string(DBNAME) + DRWN_DIRSEP + string("locked");

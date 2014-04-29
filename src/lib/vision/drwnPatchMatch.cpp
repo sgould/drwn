@@ -1741,19 +1741,19 @@ public:
         } else if (!strcmp(name, "fwdEnrichment")) {
             drwnPatchMatchGraphLearner::FORWARD_ENRICHMENT_K = atoi(value);
         } else if (!strcmp(name, "invEnrichment")) {
-            drwnPatchMatchGraphLearner::DO_INVERSE_ENRICHMENT = trueString(string(value));
+            drwnPatchMatchGraphLearner::DO_INVERSE_ENRICHMENT = drwn::trueString(string(value));
         } else if (!strcmp(name, "localSearch")) {
-            drwnPatchMatchGraphLearner::DO_LOCAL_SEARCH = trueString(string(value));
+            drwnPatchMatchGraphLearner::DO_LOCAL_SEARCH = drwn::trueString(string(value));
         } else if (!strcmp(name, "randomExhaustive")) {
-            drwnPatchMatchGraphLearner::DO_EXHAUSTIVE = trueString(string(value));
+            drwnPatchMatchGraphLearner::DO_EXHAUSTIVE = drwn::trueString(string(value));
         } else if (!strcmp(name, "allowHFlips")) {
-            if (trueString(string(value))) {
+            if (drwn::trueString(string(value))) {
                 drwnPatchMatchGraphLearner::ALLOWED_TRANSFORMATIONS |= DRWN_PM_TRANSFORM_HFLIP;
             } else {
                 drwnPatchMatchGraphLearner::ALLOWED_TRANSFORMATIONS &= ~DRWN_PM_TRANSFORM_HFLIP;
             }
         } else if (!strcmp(name, "allowVFlips")) {
-            if (trueString(string(value))) {
+            if (drwn::trueString(string(value))) {
                 drwnPatchMatchGraphLearner::ALLOWED_TRANSFORMATIONS |= DRWN_PM_TRANSFORM_VFLIP;
             } else {
                 drwnPatchMatchGraphLearner::ALLOWED_TRANSFORMATIONS &= ~DRWN_PM_TRANSFORM_VFLIP;

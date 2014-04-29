@@ -57,8 +57,8 @@ drwnCompressionBuffer::~drwnCompressionBuffer()
 #ifdef DRWN_DEBUG_STATISTICS
     _dbRefCount -= 1;
     if ((_dbRefCount == 0) && ((_dbCompressedBytes > 0) || (_dbOriginalBytes > 0))) {
-        cerr << "drwnCompressionBuffer compressed " << bytesToString(_dbOriginalBytes)
-             << " to " << bytesToString(_dbCompressedBytes) << "\n";
+        cerr << "drwnCompressionBuffer compressed " << drwn::bytesToString(_dbOriginalBytes)
+             << " to " << drwn::bytesToString(_dbCompressedBytes) << "\n";
         cerr << "drwnCompressionBuffer compression ratio "
              << (double)_dbCompressedBytes / (double)_dbOriginalBytes << "\n";
     }

@@ -838,9 +838,9 @@ class drwnInPaintConfig : public drwnConfigurableModule {
 
     void setConfiguration(const char *name, const char *value) {
         if (!strcmp(name, "stepIteration")) {
-            drwnInPaint::STEP_ITERATION = trueString(value);
+            drwnInPaint::STEP_ITERATION = drwn::trueString(value);
         } else if (!strcmp(name, "writeProgress")) {
-            drwnInPaint::WRITE_PROGRESS = trueString(value);
+            drwnInPaint::WRITE_PROGRESS = drwn::trueString(value);
         } else if (!strcmp(name, "cullFactor")) {
             drwnInPaint::CULL_FACTOR = std::min(std::max(0.0, atof(value)), 1.0);
         } else if (!strcmp(name, "minWindowSize")) {

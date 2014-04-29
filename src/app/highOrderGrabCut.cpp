@@ -121,7 +121,7 @@ int main(int argc, char *argv[])
 
     // learn foreground and background colour models
     drwnGrabCutInstance model;
-    model.name = strBaseName(imgFilename);
+    model.name = drwn::strBaseName(imgFilename);
     model.initialize(img, mask);
 
     // create instance

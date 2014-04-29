@@ -94,8 +94,8 @@ int main(int argc, char *argv[])
         drwnLogLevel level = drwnLogger::setAtLeastLogLevel(DRWN_LL_MESSAGE);
         DRWN_LOG_MESSAGE("Statistics for " << storageName);
         DRWN_LOG_MESSAGE("  " << storage.numRecords() << " records");
-        DRWN_LOG_MESSAGE("  " << bytesToString(storage.numTotalBytes()) << " total space");
-        DRWN_LOG_MESSAGE("  " << bytesToString(storage.numUsedBytes()) << " used space");
+        DRWN_LOG_MESSAGE("  " << drwn::bytesToString(storage.numTotalBytes()) << " total space");
+        DRWN_LOG_MESSAGE("  " << drwn::bytesToString(storage.numUsedBytes()) << " used space");
         drwnLogger::setLogLevel(level);
 
     } else if (!strcasecmp(action, "records")) {
@@ -111,7 +111,7 @@ int main(int argc, char *argv[])
         } else {
             DRWN_LOG_MESSAGE("Records in " << storageName);
             for (set<string>::const_iterator it = keys.begin(); it != keys.end(); ++it) {
-                DRWN_LOG_MESSAGE("  " << *it << "\t" << bytesToString(storage.bytes(it->c_str())));
+                DRWN_LOG_MESSAGE("  " << *it << "\t" << drwn::bytesToString(storage.bytes(it->c_str())));
             }
         }
         drwnLogger::setLogLevel(level);
@@ -165,7 +165,7 @@ int main(int argc, char *argv[])
             string filename = string(dir) + DRWN_DIRSEP + (*it) + string(ext);
             PersistentRecordBuffer record(drwnFileSize(filename.c_str()));
             DRWN_LOG_VERBOSE("merging record " << *it << " of size " 
-                << bytesToString(record.numBytesOnDisk()));
+                << drwn::bytesToString(record.numBytesOnDisk()));
             ifstream ifs(filename.c_str(), ios::binary);            
             record.read(ifs);
             ifs.close();
@@ -184,7 +184,7 @@ int main(int argc, char *argv[])
                 << "\" in storage " << storageName);
 
             storage.erase(key);
-            DRWN_LOG_VERBOSE("...storage has " << bytesToString(storage.numFreeBytes())
+            DRWN_LOG_VERBOSE("...storage has " << drwn::bytesToString(storage.numFreeBytes())
                 << " free bytes after deleting record " << key);
         }
 
@@ -194,9 +194,9 @@ int main(int argc, char *argv[])
             return -1;
         }
 
-        DRWN_LOG_MESSAGE("...defrag will save " << bytesToString(storage.numFreeBytes()));
+        DRWN_LOG_MESSAGE("...defrag will save " << drwn::bytesToString(storage.numFreeBytes()));
         storage.defragment();
-        DRWN_LOG_VERBOSE("...storage requires " << bytesToString(storage.numTotalBytes())
+        DRWN_LOG_VERBOSE("...storage requires " << drwn::bytesToString(storage.numTotalBytes())
             << " after defragmentation");
 
     } else {

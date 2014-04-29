@@ -543,7 +543,7 @@ void drwnGUIShellWindow::onKeyPress(wxKeyEvent &event)
 void drwnGUIShellWindow::onEnter(wxCommandEvent &event)
 {
     string cmd = string(_shellInput->GetValue().c_str());
-    trim(cmd);
+    drwn::trim(cmd);
     if (!cmd.empty()) {
         if (_history.empty() || (_history.back() != cmd)) {
             _history.push_back(cmd);

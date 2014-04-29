@@ -59,7 +59,7 @@ drwnImageCache::~drwnImageCache()
         DRWN_LOG_METRICS("drwnImageCache locked " << _dbImagesLocked << " and loaded "
             << _dbImagesLoaded << " images (ratio: "
             << (double)_dbImagesLoaded / (double)_dbImagesLocked << ")");
-        DRWN_LOG_METRICS("drwnImageCache used " << bytesToString(_dbMaxMemUsed));
+        DRWN_LOG_METRICS("drwnImageCache used " << drwn::bytesToString(_dbMaxMemUsed));
     }
 }
 
@@ -294,9 +294,9 @@ public:
         } else if (!strcmp(name, "maxMemory")) {
             drwnImageCache::MAX_MEMORY = (size_t)std::max(0.0, atof(value));
         } else if (!strcmp(name, "greyImages") || !strcmp(name, "grayImages")) {
-            drwnImageCache::GREY_IMAGES = trueString(value);
+            drwnImageCache::GREY_IMAGES = drwn::trueString(value);
         } else if (!strcmp(name, "bigMemory")) {
-            drwnImageCache::BIG_MEMORY = trueString(value);
+            drwnImageCache::BIG_MEMORY = drwn::trueString(value);
         } else {
             DRWN_LOG_FATAL("unrecognized configuration option " << name << " for " << this->name());
         }

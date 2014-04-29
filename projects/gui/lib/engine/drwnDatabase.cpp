@@ -779,7 +779,7 @@ void drwnDataCache::dump() const
         cout << " " << ((*it)->bLocked ? "X" : "_")
              << ((*it)->record->isDirty() ? "D" : "_")
              << ((*it)->tblMapIterator->first->getOwner()->isPersistent() ? "P" : "M")
-             << " " << setw(7) << bytesToString((*it)->record->numBytes())
+             << " " << setw(7) << drwn::bytesToString((*it)->record->numBytes())
              << "  " << (*it)->tblMapIterator->first->name()
              << "::" << (*it)->keyMapIterator->first << "\n";
     }

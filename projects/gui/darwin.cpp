@@ -246,7 +246,7 @@ MainCanvas::MainCanvas(wxWindow *parent, wxWindowID id,const wxPoint& pos,
         // add nodes
         vector<string> nodeNames = drwnNodeFactory::get().getNodes(ig->c_str());
         for (vector<string>::const_iterator it = nodeNames.begin(); it != nodeNames.end(); it++) {
-            string name = strReplaceSubstr(strSpacifyCamelCase(*it), string("drwn "), string());
+            string name = drwn::strReplaceSubstr(drwn::strSpacifyCamelCase(*it), string("drwn "), string());
             groupMenu->Append(POPUP_NODE_INSERT_BASE + indx, name);
             indx++;
         }
@@ -382,7 +382,7 @@ void MainCanvas::on_paint(wxPaintEvent &WXUNUSED(event))
 
         // draw text
         vector<string> nameTokens;
-        parseString(node->getName(), nameTokens);
+        drwn::parseString(node->getName(), nameTokens);
         DRWN_ASSERT_MSG(!nameTokens.empty(), "\"" << node->getName() << "\"");
 
         vector<string> lines;
@@ -1153,7 +1153,7 @@ void MainWindow::on_file_menu(wxCommandEvent& event)
         drwnGraph *graph = _activeCanvas->_graph;
         string filenameProposal;
         if (!_activeCanvas->_filename.empty()) {
-            filenameProposal = strReplaceExt(_activeCanvas->_filename, string(".html"));
+            filenameProposal = drwn::strReplaceExt(_activeCanvas->_filename, string(".html"));
         }
         wxFileDialog dlg(this, string("Export HTML for ") + graph->getTitle() + string(" as:"),
             "", filenameProposal, "HTML Files (*.html)|*.html|All Files (*.*)|*.*",
@@ -1300,7 +1300,7 @@ void MainWindow::on_database_menu(wxCommandEvent& event)
     if (event.GetId() == DATABASE_CONNECT) {
         drwnDatabase *db = _activeCanvas->_graph->getDatabase();
         wxDirDialog dlg(this, string("Select database for ") + _activeCanvas->_graph->getTitle(),
-            (db->isPersistent() ? strDirectory(db->name()).c_str() : ""), wxDD_DEFAULT_STYLE);
+            (db->isPersistent() ? drwn::strDirectory(db->name()).c_str() : ""), wxDD_DEFAULT_STYLE);
         if (dlg.ShowModal() == wxID_OK) {
             _activeCanvas->_graph->setDatabase(dlg.GetPath().c_str());
         }
@@ -1640,8 +1640,8 @@ bool DarwinApp::OnInit()
     // load network
     if (DRWN_CMDLINE_ARGC == 1) {
         string fullPath = string(DRWN_CMDLINE_ARGV[0]);
-        drwnChangeCurrentDir(strDirectory(fullPath).c_str());
-        gMainWindow->openGraphFile(strFilename(fullPath).c_str());
+        drwnChangeCurrentDir(drwn::strDirectory(fullPath).c_str());
+        gMainWindow->openGraphFile(drwn::strFilename(fullPath).c_str());
     }
 
     return true;

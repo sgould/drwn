@@ -210,7 +210,7 @@ void testThreadedPersistentStorage()
     DRWN_LOG_VERBOSE("write phase...");
     pool.start();
     for (int i = 0; i < 1000; i++) {
-        string name = string(storageName) + padString(toString(i), 4, '0');
+        string name = string(storageName) + drwn::padString(toString(i), 4, '0');
         jobs.push_back(new PersistentStorageJob(name));
         pool.addJob(jobs.back());
     }

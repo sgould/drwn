@@ -45,7 +45,7 @@ cv::Rect drwnTransformROI(const cv::Rect& roi, const cv::Size& srcSize, const cv
 void drwnLoadPixelLabels(cv::Mat& pixelLabels, const char *filename)
 {
     DRWN_ASSERT(filename != NULL);
-    string ext = strExtension(string(filename));
+    string ext = drwn::strExtension(string(filename));
     std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
 
     if (ext.compare("png") == 0) {
