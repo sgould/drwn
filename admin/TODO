@@ -272,8 +272,8 @@
 5. region features for pixel-labeling CRF
 6. robust potts model in multi-class segmentation
 [DONE] 7. move to GitHub hosting
-7a. bug reporting/issue tracking system
-7b. update install instructions (and previous releases)
+[DONE] 7a. bug reporting/issue tracking system
+[DONE] 7b. update install instructions (and previous releases)
 8. drwnColourHistogram
 8a. interpolate between bins when accumulating
 8b. colour histogram regions (like drwnKMeansRegions)
