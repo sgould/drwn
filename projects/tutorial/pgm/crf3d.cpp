@@ -136,10 +136,10 @@ int main(int argc, char *argv[])
     // run inference
     drwnAlphaExpansionInference infObj(graph);
     drwnFullAssignment mapAssignment;
-    double energy = infObj.inference(mapAssignment);
+    pair<double, double> energy = infObj.inference(mapAssignment);
 
     DRWN_LOG_VERBOSE(toString(mapAssignment));
-    DRWN_LOG_MESSAGE("Min. Energy: " << energy);
+    DRWN_LOG_MESSAGE("Min. Energy: " << energy.first);
 
     return 0;
 }
