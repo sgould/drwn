@@ -22,10 +22,10 @@ namespace drwn {
    implemented or supported.
 
    An example data flow network for classification is provided in \p
-   tests/exampleDataFlowNetwork.xml. You can open the network from the
-   command-line with
+   projects/gui/examples/exampleDataFlowNetwork.xml. You can open the
+   network from the command-line with
    \code
-   bin/darwin tests/exampleDataFlowNetwork.xml
+   bin/darwin projects/gui/examples/exampleDataFlowNetwork.xml
    \endcode
 
    There are four basic operations that you can perform on a network

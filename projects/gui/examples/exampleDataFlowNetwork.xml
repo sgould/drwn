@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<drwnGraph title="Example Classification Data Flow" version="100" drwnVersion="1.0">
+<drwnGraph title="Example Classification Data Flow" version="100">
 	<drwnNode type="drwnTextFileSourceNode" version="100">
 		<property name="name" value="Iris Data"/>
-		<property name="filename" value="input/iris.data.txt"/>
+		<property name="filename" value="iris.data.txt"/>
 		<property name="delimiter" value=" "/>
 		<property name="headerLines" value="0"/>
 		<property name="includesKey" value="0"/>
@@ -11,7 +11,7 @@
 	</drwnNode>
 	<drwnNode type="drwnTextFileSourceNode" version="100">
 		<property name="name" value="Iris Labels"/>
-		<property name="filename" value="input/iris.labels.txt"/>
+		<property name="filename" value="iris.labels.txt"/>
 		<property name="delimiter" value=" "/>
 		<property name="headerLines" value="0"/>
 		<property name="includesKey" value="0"/>
@@ -24,8 +24,8 @@
 		<property name="subSample" value="0"/>
 		<property name="maxIterations" value="1000"/>
 		<property name="regularizer" value="0">
-			<!-- [sum-of-squares (L2)] -->
-			<!--  huber (soft L1)  -->
+			<!---->
+			<!---->
 		</property>
 		<property name="regStrength" value="1e-09"/>
 		<property name="theta" rows="0" cols="0" encoder="base64"></property>
@@ -67,3 +67,5 @@
 	<drwnPort srcNode="Iris Labels" srcPort="dataOut" dstNode="Logistic PR Curve" dstPort="actual"/>
 	<drwnPort srcNode="Logistic Classifier" srcPort="dataOut" dstNode="Logistic PR Curve" dstPort="predicted"/>
 </drwnGraph>
+
+

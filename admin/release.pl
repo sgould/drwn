@@ -56,7 +56,6 @@ mkdir("${releaseName}/external");
 mkdir("${releaseName}/include");
 mkdir("${releaseName}/projects");
 mkdir("${releaseName}/src");
-#mkdir("${releaseName}/tests");
 
 fcopy("../INSTALL", ${releaseName});
 fcopy("../LICENSE", ${releaseName});
