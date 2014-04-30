@@ -143,7 +143,8 @@ namespace drwn {
 
    Implementation of bounding-box-based figure-ground segmentation
    "grabCut" algorithm by Rother et al., SIGGRAPH 2004. The bounding
-   box can be provided interactively by the user.
+   box can be provided interactively by the user or supplied on the
+   commandline.
    
    Example:
    \code
@@ -171,6 +172,24 @@ namespace drwn {
    consistency.
 
    \image html higherOrderGrabCutScreenshot.png
+
+   Instead of the user having to provide a mask interactively the \p
+   grabCut and \p highOrderGrabCut applications allow a mask to be
+   provided on the commandline. The mask should be a grayscale image
+   the same size as the original image. The value for each pixel then
+   determines how the pixel will be treated by the GrabCut algorithm
+   as follows:
+   
+   \li \p 0x00: definitely background (used to estimate background colour model)
+   \li \p 0x40: probably background (used to estimate background colour model
+       but can be labeled as foreground in final segmentation)
+   \li \p 0x80: probably foreground (used to estimate foreground colour model
+       but can be labeled as background in final segmentation)
+   \li \p 0xff: definitely foreground (used to estimate foreground colour model)
+   \li \p 0xc0: either foreground or background (used to estimate both colour models
+       and can be labeled as either foreground or background in final segmentation)
+   \li \p 0x20: neither foreground nor background (not used for estimating colour models
+      but will be labeled as one of foreground or background in final segmentation)
 
    \sa drwnGrabCutInstance
    \sa \ref drwnApplications
