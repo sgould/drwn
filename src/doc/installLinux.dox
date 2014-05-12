@@ -223,9 +223,9 @@ appropriately.
 
 \code
   cd external
-  wget -c https://github.com/Itseez/opencv/archive/2.4.8.tar.gz
-  tar zxvf 2.4.8.tar.gz
-  cd opencv-2.4.8
+  wget -c https://github.com/Itseez/opencv/archive/2.4.9.tar.gz
+  tar zxvf 2.4.9.tar.gz
+  cd opencv-2.4.9
   cmake -D CMAKE_BUILD_TYPE=RELEASE \
         -D CMAKE_INSTALL_PREFIX=../opencv \
         -D BUILD_NEW_PYTHON_SUPPORT=OFF .

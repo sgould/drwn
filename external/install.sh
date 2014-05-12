@@ -1,7 +1,7 @@
 #!/bin/csh
 #
 # DARWIN INSTALLATION OF EXTERNAL LIBRARIES
-# Copyright (c) 2007-2013, Stephen Gould
+# Copyright (c) 2007-2014, Stephen Gould
 #
 # FILENAME:    install.sh (wxWidgets | Eigen)
 # AUTHOR(S):   Stephen Gould <stephen.gould@anu.edu.au>
@@ -56,7 +56,7 @@ endif
 
 # opencv
 if (! -e opencv && (("$1" == "OpenCV") || ("$1" == "opencv"))) then
-    set VERSION = "2.4.8"
+    set VERSION = "2.4.9"
     if (! -e opencv-${VERSION}) then
         wget -c https://github.com/Itseez/opencv/archive/${VERSION}.tar.gz
         tar zxvf ${VERSION}.tar.gz
