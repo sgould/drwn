@@ -486,7 +486,7 @@ cv::Mat drwnSLICSuperpixels(const cv::Mat& img, unsigned nClusters,
 
     // randomly pick up initial cluster center
     //! \todo replace with separate x and y grid sizes
-    const int S = sqrt(H * W / nClusters);  // grid size
+    const int S = (int)sqrt((double)(H * W / nClusters));  // grid size
     const int gridPerRow = (W + S - 1) / S;
     nClusters = gridPerRow * (H + S - 1) / S;
 
