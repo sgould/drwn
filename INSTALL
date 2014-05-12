@@ -40,7 +40,7 @@ Optional (zlib):
 5. Copy appropriate static lib into external/zlib
 
 Optional (OpenCV):
-1. Download and install OpenCV 2.4.6
+1. Download and install OpenCV 2.4.9
 
 * MAC OS X ------------------------------------------------------------------
 
