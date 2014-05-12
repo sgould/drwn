@@ -72,7 +72,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>drwnBased.lib;drwnIOd.lib;drwnMLd.lib;drwnPGMd.lib;drwnVisiond.lib;opencv_core246d.lib;opencv_imgproc246d.lib;opencv_highgui246d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>drwnBased.lib;drwnIOd.lib;drwnMLd.lib;drwnPGMd.lib;drwnVisiond.lib;opencv_core249d.lib;opencv_imgproc249d.lib;opencv_highgui249d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\bin;..\..\external\opencv\build\x86\vc10\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
@@ -84,7 +84,7 @@
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>drwnBased.lib;drwnIOd.lib;drwnMLd.lib;drwnPGMd.lib;drwnVisiond.lib;opencv_core246d.lib;opencv_imgproc246d.lib;opencv_highgui246d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>drwnBased.lib;drwnIOd.lib;drwnMLd.lib;drwnPGMd.lib;drwnVisiond.lib;opencv_core249d.lib;opencv_imgproc249d.lib;opencv_highgui249d.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\bin;..\..\external\build\x64\vc10\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
@@ -95,7 +95,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>drwnBase.lib;drwnIO.lib;drwnML.lib;drwnPGM.lib;drwnVision.lib;opencv_core246.lib;opencv_imgproc246.lib;opencv_highgui246.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>drwnBase.lib;drwnIO.lib;drwnML.lib;drwnPGM.lib;drwnVision.lib;opencv_core249.lib;opencv_imgproc249.lib;opencv_highgui249.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\bin;..\..\external\opencv\build\x86\vc10\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -105,7 +105,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>drwnBase.lib;drwnIO.lib;drwnML.lib;drwnPGM.lib;drwnVision.lib;opencv_core246.lib;opencv_imgproc246.lib;opencv_highgui246.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>drwnBase.lib;drwnIO.lib;drwnML.lib;drwnPGM.lib;drwnVision.lib;opencv_core249.lib;opencv_imgproc249.lib;opencv_highgui249.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\..\bin;..\..\external\opencv\build\x64\vc10\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>

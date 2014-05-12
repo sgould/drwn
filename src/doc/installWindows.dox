@@ -39,14 +39,16 @@ codebase.
 
 <ul>
 <li> Make sure you have Visual Studio C++ installed (see \ref winEssentialSoftware)
-<li> Download Eigen 3.1.2 (or later) and unzip the archive (see \ref winEssentialSoftware)
+<li> Download Eigen 3.1.4 (or later) and unzip the archive (see \ref winEssentialSoftware)
 <ul>
 <li> Move the unzipped folder to the \p $DARWIN/external folder and rename it \p eigen3
 <li> A common problem is to copy the parent folder. Make sure the folder \p Eigen exists directly below \p $DARWIN/external/eigen3
 </ul>
-<li> Optionally download OpenCV-2.4.6.0.exe and save it to \c $DARWIN/external. This is a self-extracting archive.
+<li> Optionally download OpenCV-2.4.9.exe and save it to \c $DARWIN/external. This is a self-extracting archive.
      Running it should decompress OpenCV into folder \c $DARWIN/external/opencv (see \ref winOptionalSoftware)
-<li> Open \p $DARWIN/src/drwnlibs.sln and build either Debug or Release libraries.
+<li> Open \p $DARWIN/src/drwnlibs.sln
+<li> Select the configuration (e.g., Release x64 or Debug win32)
+<li> Build the libraries.
 
      \warning By default Visual Studio C++ performs multi-threaded
      compilation. This can cause problems when compiling in Debug mode
@@ -54,7 +56,7 @@ codebase.
      simplest way to solve this is to turn off multi-threaded building
      (see \ref winFAQ below).
 
-<li> Open \p $DARWIN/src/drwnapps.sln and build either Debug or Release applications.
+<li> Open \p $DARWIN/src/drwnapps.sln and build either Debug or Release applications (these should match the library configuration).
 </ul>
 
 The \b Darwin libraries and applications will now be built (in the \p
@@ -79,7 +81,7 @@ available.
 
 <ul>
 <li> GitHub Windows Client (http://windows.github.com/)
-<li> OpenCV 2.4.6 (http://opencv.org/) installed in the \c external/opencv directory
+<li> OpenCV 2.4.9 (http://opencv.org/) installed in the \c external/opencv directory
 <ul>
 <li> make sure both the \p "$DARWIN\external\opencv\build\x86\vc10\bin" and 
      \p "$DARWIN\external\opencv\build\common\tbb\ia32\vc10" directories are
@@ -132,7 +134,7 @@ $DARWIN/external directory, where \c $DARWIN is the folder where you
 have downloaded and decompressed the \b Darwin source code (e.g., \c
 C:/darwin). The Eigen template library for linear algebra should be
 downloaded from the <a href="http://eigen.tuxfamily.org/">Eigen
-website</a>. Make sure you download version 3.1.2 or above. Create a
+website</a>. Make sure you download version 3.1.4 or above. Create a
 folder called \c $DARWIN/external/eigen3 and decompress the Eigen code
 into this folder.
 
@@ -144,7 +146,7 @@ library headers. A common mistake is to for this code to be one level
 deeper in the directory hierarchy, resulting in compilation errors.
 
 OpenCV, which is optional, should be installed in \c
-$DARWIN/external/opencv. Download the \c OpenCV-2.4.6.0.exe
+$DARWIN/external/opencv. Download the \c OpenCV-2.4.9.exe
 self-extracting archive from
 http://sourceforge.net/projects/opencvlibrary/files/opencv-win and
 save it to \c $DARWIN/external. Running this application with the
