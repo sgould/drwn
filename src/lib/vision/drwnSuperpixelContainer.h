@@ -25,6 +25,14 @@ using namespace std;
 // drwnSuperpixelContainer -----------------------------------------------------
 //! Holds multiple oversegmentations for a given image.
 //!
+//! The container is populated with segment maps with the same dimensions as
+//! the image. A map is an integer array, each entry corresponding to a pixel
+//! in the image. Maps can define more than one segment/superpixel. A segment
+//! is defined as all pixels (in a map) labeled with the same non-negative
+//! integer. Pixels labeled with negative integers are ignored. Maps are 
+//! renumbered when added to the container. Member functions allow you to
+//! retrieve the mask of each segment/superpixel or the (renumbered) maps.
+//!
 //! The following code snippet shows how the container can be used to iterate
 //! through different superpixels:
 //! \code
