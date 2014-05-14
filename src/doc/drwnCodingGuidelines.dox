@@ -40,10 +40,9 @@ namespace drwn {
     how these changes will affect code alreay using these functions.
 
     \section drwnCodingSourceControl Source Control
-    
+
     \li Always use a source/revision control system. \b Darwin uses
-    Subversion (SVN), http://subversion.apache.org/. Other good
-    systems include Mecurial, Git and Perforce (commercial).
+    Git. Other good systems include Subversion (svn) and Mecurial (hg).
 
     \li Check-in all code, configuration files and scripts necessary
     for rebuilding a project from a clean environment. Do not check-in
@@ -88,7 +87,7 @@ namespace drwn {
     headers.
 
     \li Declare constructors and destructors before other methods.
-    
+
     \li Declare like-functions together.
 
     \li Always implement functions in the \a same order in which they
@@ -216,7 +215,7 @@ namespace drwn {
     will prevent bugs later on when you modify the code.
 
     \section drwnCodingTestingAndDebugging Testing and Debugging
-    
+
     \li Write and use regression tests.
 
     \li Make sure your code compiles without any compiler warnings.
@@ -232,7 +231,7 @@ namespace drwn {
     \li Run you code while watching system memory (Task Manager under
     Windows or <tt>top</tt> under Linux) to identify memory leaks. You
     can also use <tt>valgrind</tt>.
-    
+
     \li If you have a bug, first think about where in the design the
     bug could be, before jumping into the code.
 */
