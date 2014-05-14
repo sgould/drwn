@@ -130,7 +130,7 @@ private:
     drwnThreadArgs *_args;        //!< thread arguments
 
     CRITICAL_SECTION _mutex;      //!< mutex to schedule threads
-    HANDLE _cond;                 //!< condition event to wait for jobs
+    CONDITION_VARIABLE _cond;     //!< condition event to wait for jobs
 #endif
 
     bool _bQuit;                  //!< off button

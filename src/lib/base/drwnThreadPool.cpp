@@ -96,8 +96,10 @@ drwnThreadPool::drwnThreadPool(const unsigned size) :
         _threads = new HANDLE[_nThreads];
         _args = new drwnThreadArgs[_nThreads];
     }
+
+    InitializeConditionVariable(&_cond);
     InitializeCriticalSection(&_mutex);
-    _cond = CreateEvent(NULL, TRUE, FALSE, NULL);
+
     _bQuit = true;
 
     _bProfilerEnabled = drwnCodeProfiler::enabled;
@@ -131,9 +133,7 @@ drwnThreadPool::~drwnThreadPool()
     // tell threads to stop
     if (!_bQuit) {
         _bQuit = true;
-        EnterCriticalSection(&_mutex);
-        PulseEvent(_cond);
-        LeaveCriticalSection(&_mutex);
+        WakeAllConditionVariable(&_cond);
 
         // wait for them to finish
         for (unsigned i = 0; i < _nThreads; i++) {
@@ -142,7 +142,6 @@ drwnThreadPool::~drwnThreadPool()
         }
     }
 
-    CloseHandle(_cond);
     if (_threads != NULL) delete[] _threads;
     if (_args != NULL) delete[] _args;
 #endif
@@ -195,8 +194,8 @@ void drwnThreadPool::addJob(drwnThreadJob *job)
         // push job onto queue and tell threads about it
         EnterCriticalSection(&_mutex);
         _jobQ.push(job);
-        PulseEvent(_cond);
         LeaveCriticalSection(&_mutex);
+        WakeAllConditionVariable(&_cond);
     } else {
         // just do it in the main thread
         (*job)();
@@ -247,8 +246,8 @@ void drwnThreadPool::finish(bool bShowStatus)
     pthread_mutex_unlock(&_mutex);
 #endif
 #ifdef DRWN_USE_WIN32THREADS
-    PulseEvent(_cond);
     LeaveCriticalSection(&_mutex);
+    WakeAllConditionVariable(&_cond);
 #endif
 
     // now wait for them to be done
@@ -321,9 +320,7 @@ unsigned __stdcall drwnThreadPool::runJobs(void *argPtr)
         // wait for job
         EnterCriticalSection(&pool->_mutex);
         while (pool->_jobQ.empty() && !pool->_bQuit) {
-            LeaveCriticalSection(&pool->_mutex);
-            WaitForSingleObject(pool->_cond, INFINITE);
-            EnterCriticalSection(&pool->_mutex);
+            SleepConditionVariableCS(&pool->_cond, &pool->_mutex, INFINITE);
         }
 
         if (pool->_jobQ.empty()) {
