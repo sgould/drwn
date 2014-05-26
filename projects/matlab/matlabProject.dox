@@ -175,17 +175,49 @@ namespace drwn {
    factors(2).data = rand(prod(universe([2 3])), 1);
    \endcode
 
-   \warning In \b Darwin indexes are 0-based, while in Matlab they
-   are 1-based.
+   This defines the energy function \f$E(A, B, C) = \psi_1(A, B) +
+   \psi_2(B, C)\f$. \b Darwin will try to minimize this energy
+   function during inference.
 
-   We can now run inference over the factor graph. For example, to run
-   max-product inference and display the resulting MAP assignment we
-   have
+   \warning In \b Darwin indexes are 0-based, while in Matlab they
+   are 1-based. The first variable has id 0.
+
+   We can now run inference (energy minimization) over the factor
+   graph. For example, to run max-product inference and display the
+   resulting MAP assignment we have
 
    \code
    options = struct('verbose', 1, 'method', 'drwnMaxProdInference');
    assignment = mexFactorGraphInference(universe, factors, [], options);
    disp(assignment);
+   \endcode
+
+   Suppose that we wish to implement a Markov chain over variables
+   \f$X_1\f$ to \f$X_n\f$ where we want the labels in the chain to be
+   monotonically non-decreasing. The following code shows how this can
+   be achieved.
+
+   \code
+   N = 10; % length of chain
+   L = 5;  % label space
+
+   universe = repmat(L, N, 1);
+   factors = [];
+   for i=1:N,
+       factors(end + 1).vars = i - 1;
+       factors(end).data = rand(L, 1);
+   end;
+
+   pairwiseCost = tril(1000 * (ones(L, L) - eye(L, L)));
+   for i = 1:N - 1,
+       factors(end + 1).vars = [i - 1, i];
+       factors(end).data = pairwiseCost(:); 
+   end;
+
+   edges = [0:N-2, 1:N-1; N:2*N-2, N:2*N-2]';
+
+   options = struct('verbose', 1, 'method', 'drwnMaxProdInference');
+   assignment = mexFactorGraphInference(universe, factors, edges, options);
    \endcode
 
    \subsection drwnProjMatlabExampleMaxFlow Max-Flow/Min-Cut
