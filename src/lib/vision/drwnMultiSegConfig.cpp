@@ -300,7 +300,7 @@ void drwnMultiSegRegionDefinitions::initializeForDataset(const drwnStandardMulti
             unsigned int COLORS[8] = {
                 0x00808080, 0x00808000, 0x00804080, 0x00008000,
                 0x00000080, 0x00800000, 0x00803200, 0x00ff8000};
-            const char *NAMES[22] = {
+            const char *NAMES[8] = {
                 "sky", "tree", "road", "grass", "water", "building", "mountain", "foreground"
             };
 
@@ -321,10 +321,11 @@ void drwnMultiSegRegionDefinitions::initializeForDataset(const drwnStandardMulti
                 0x00000000, 0x00800000, 0x00008000, 0x00808000,
                 0x00000080, 0x00800080, 0x00008080, 0x00808080,
                 0x00400000, 0x00c00000, 0x00408000, 0x00c08000,
-                0x00400080, 0x00c00080, 0x00408080, 0x00004000,
-                0x00804000, 0x0000c000, 0x0080c000, 0x00004080
+                0x00400080, 0x00c00080, 0x00408080, 0x00c08080,
+                0x00004000, 0x00804000, 0x0000c000, 0x0080c000,
+                0x00004080
             };
-            const char *NAMES[22] = {
+            const char *NAMES[21] = {
                 "background", "aeroplane", "bicycle", "bird", "boat", "bottle",
                 "bus", "car", "cat", "chair", "cow", "diningtable", "dog", "horse",
                 "motorbike", "person", "pottedplant", "sheep", "sofa", "train",
