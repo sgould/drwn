@@ -23,12 +23,11 @@ li p {
 
 /* @group Heading Levels */
 
-h1 { text-align: center; font-size: 150%; font-weight: bold; border-bottom: none; }
-h2 { font-size: 140%; border-bottom: none; border-bottom: none; }
-.contents h2 { font-size: 140%; border-bottom: none; border-bottom: 1px solid #af1e2d;}
-h3 { font-size: 120%; border-bottom: none; }
-h3.version { text-align: right; }
-h4 { font-size: 110%; border-botton: none; }
+h1 { font-size: 140%; border-bottom: none; border-bottom: none; }
+.contents h1 { font-size: 140%; border-bottom: none; border-bottom: 1px solid #af1e2d;}
+h2 { font-size: 120%; border-bottom: none; }
+h2.version { text-align: right; }
+h3 { font-size: 110%; border-botton: none; }
 
 dt { font-weight: bold; }
 
@@ -43,12 +42,20 @@ p.startli, p.startdd {
   margin-top: 2px;
 }
 
+p.starttd {
+	margin-top: 0px;
+}
+
 p.endli {
   margin-bottom: 0px;
 }
 
 p.enddd {
   margin-bottom: 4px;
+}
+
+p.endtd {
+	margin-bottom: 2px;
 }
 
 /* @end */
@@ -59,6 +66,11 @@ font-weight: bold;
 
 span.legend {
         font-size: 70%;
+        text-align: center;
+}
+
+h3.version {
+        font-size: 90%;
         text-align: center;
 }
 
@@ -107,10 +119,12 @@ a.el {
 a.elRef {
 }
 
-a.code {
+a.code, a.code:visited, a.line, a.line:visited {
+    color: #4665A2; 
 }
 
-a.codeRef {
+a.codeRef, a.codeRef:visited, a.lineRef, a.lineRef:visited {
+    color: #4665A2; 
 }
 
 /* @end */
@@ -129,6 +143,67 @@ pre.fragment {
 	background-color: #f5f5f5;
 	padding: 4px 6px;
 	margin: 4px 8px 4px 2px;
+        overflow: auto;
+        word-wrap: break-word;
+        font-size:  9pt;
+        line-height: 125%;
+        font-family: monospace, fixed;
+        font-size: 105%;
+}
+
+div.fragment {
+        padding: 4px 6px;
+        margin: 4px 8px 4px 2px;
+	background-color: #FBFCFD;
+	border: 1px solid #C4CFE5;
+}
+
+div.line {
+	font-family: monospace, fixed;
+        font-size: 13px;
+	min-height: 13px;
+	line-height: 1.0;
+	text-wrap: unrestricted;
+	white-space: -moz-pre-wrap; /* Moz */
+	white-space: -pre-wrap;     /* Opera 4-6 */
+	white-space: -o-pre-wrap;   /* Opera 7 */
+	white-space: pre-wrap;      /* CSS3  */
+	word-wrap: break-word;      /* IE 5.5+ */
+	text-indent: -53px;
+	padding-left: 53px;
+	padding-bottom: 0px;
+	margin: 0px;
+	-webkit-transition-property: background-color, box-shadow;
+	-webkit-transition-duration: 0.5s;
+	-moz-transition-property: background-color, box-shadow;
+	-moz-transition-duration: 0.5s;
+	-ms-transition-property: background-color, box-shadow;
+	-ms-transition-duration: 0.5s;
+	-o-transition-property: background-color, box-shadow;
+	-o-transition-duration: 0.5s;
+	transition-property: background-color, box-shadow;
+	transition-duration: 0.5s;
+}
+
+div.line.glow {
+	background-color: cyan;
+	box-shadow: 0 0 10px cyan;
+}
+
+
+span.lineno {
+	padding-right: 4px;
+	text-align: right;
+	border-right: 2px solid #0F0;
+	background-color: #E8E8E8;
+        white-space: pre;
+}
+span.lineno a {
+	background-color: #D8D8D8;
+}
+
+span.lineno a:hover {
+	background-color: #C8C8C8;
 }
 
 div.ah {
