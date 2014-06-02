@@ -77,13 +77,19 @@ else
 all:
 endif
 
-app: ${addprefix ${BIN_PATH}/,$(APP_PROG_NAMES)}
 lib: ${addprefix ${BIN_PATH}/,$(LIB_NAMES)}
 
 # applications
-$(BIN_PATH)/%.${MEXEXT}: %.cpp $(PROJLIB) $(LIBDRWN)
-	$(EXT_PATH)/matlab/bin/mex -v -g $*.cpp -output $(@:.cpp=) $(PROJLIB) $(MEXFLAGS) $(LIBDRWN) $(EXTLIB)
 
+#app: ${addprefix ${BIN_PATH}/,$(APP_PROG_NAMES)}
+#
+#$(BIN_PATH)/%.${MEXEXT}: %.cpp $(PROJLIB) $(LIBDRWN)
+#	$(EXT_PATH)/matlab/bin/mex -v -g $*.cpp -output $(@:.cpp=) $(PROJLIB) $(MEXFLAGS) $(LIBDRWN) $(EXTLIB)
+
+app: 
+	for i in $(APP_SRC:.cpp=); do \
+	 $(EXT_PATH)/matlab/bin/mex -v -g $${i}.cpp -output $(BIN_PATH)/$${i}.${MEXEXT} $(PROJLIB) $(MEXFLAGS) $(LIBDRWN) $(EXTLIB); \
+	done
 
 # static libraries
 $(BIN_PATH)/lib${PROJ_NAME}.a: $(LIB_OBJ)
