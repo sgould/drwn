@@ -117,11 +117,15 @@ and then rerunning the script.
 
 You will need to install the Xcode developer tools manually.
 
-\section osxOpenCV OpenCV
+\subsection drwnMatlabOSX Matlab
 
-There may be some issues compiling OpenCV on OS X. See the OpenCV wiki
-(http://opencv.willowgarage.com) for details on getting OpenCV
-installed on a Mac.
+Building the Matlab project requires Matlab to be installed on the
+system and a symbolic link setup in the external directory, e.g.,
+\code
+  ln -s /Applications/MATLAB_R2014a.app/ external/matlab
+\endcode
+
+\sa \ref drwnProjMatlabInstall
 
 */
 }

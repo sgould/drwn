@@ -238,18 +238,20 @@ Make sure the file \p external/opencv/lib/pkgconfig/opencv.pc
 exists. If not you have probably installed OpenCV in the wrong
 location.
 
-\subsection drwnMatlab Matlab
+\subsection drwnMatlabLinux Matlab
 
 Building the Matlab project requires Matlab to be installed on the
 system and a symbolic link setup in the external directory, e.g.,
 \code
-  ln -s /usr/local/MATLAB/R2010b/ matlab
+  ln -s /usr/local/MATLAB/R2010b/ external/matlab
 \endcode
 
 Furthermore, the Matlab library directory should be added to the path,
 \code
   export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/MATLAB/R2010b/bin/glnx86/
 \endcode
+
+\sa \ref drwnProjMatlabInstall
 
 \subsection drwnNCI NCI National Facility (nf.nci.org.au)
 
