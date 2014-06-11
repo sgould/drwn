@@ -160,6 +160,8 @@ class drwnSuperpixelContainer : public drwnPersistentRecord {
 
     //! visualize superpixels
     cv::Mat visualize(const cv::Mat& img, bool bColourById = false) const;
+    //! visualize superpixels with specific colours
+    cv::Mat visualize(const cv::Mat& img, const vector<cv::Scalar>& colors, double alpha = 1.0) const;
 
     //! assignment operator
     drwnSuperpixelContainer& operator=(const drwnSuperpixelContainer& container);

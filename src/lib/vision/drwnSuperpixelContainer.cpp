@@ -525,6 +525,39 @@ cv::Mat drwnSuperpixelContainer::visualize(const cv::Mat& img, bool bColorById) 
     return drwnCombineImages(views);
 }
 
+cv::Mat drwnSuperpixelContainer::visualize(const cv::Mat& img, const vector<cv::Scalar>& colors, double alpha) const
+{
+    DRWN_ASSERT(img.data != NULL);
+    DRWN_ASSERT(img.type() == CV_8UC3);
+    DRWN_ASSERT(size() == (int)colors.size());
+
+    if (empty()) return img.clone();
+    alpha = std::min(1.0, std::max(0.0, alpha));
+
+    vector<cv::Mat> views;
+    for (unsigned i = 0; i < _maps.size(); i++) {
+        views.push_back(img.clone());
+
+        // colour pixels
+        for (int y = 0; y < _maps[i].rows; y++) {
+            const int *p = _maps[i].ptr<const int>(y);
+            unsigned char * const q = views.back().ptr<unsigned char>(y);
+            for (int x = 0; x < _maps[i].cols; x++) {
+                const cv::Scalar c = p[x] > 0 ? colors[p[x]] : cv::Scalar::all(0);
+                q[3 * x + 2] = (unsigned char)((1.0 - alpha) * q[3 * x + 2] + alpha * c.val[2]);
+                q[3 * x + 1] = (unsigned char)((1.0 - alpha) * q[3 * x + 1] + alpha * c.val[1]);
+                q[3 * x + 0] = (unsigned char)((1.0 - alpha) * q[3 * x + 0] + alpha * c.val[0]);
+            }
+        }
+
+        // draw boundaries
+        drwnDrawRegionBoundaries(views.back(), _maps[i], CV_RGB(0, 0, 0), 3);
+        drwnDrawRegionBoundaries(views.back(), _maps[i], CV_RGB(255, 255, 255), 1);
+    }
+
+    return drwnCombineImages(views);
+}
+
 drwnSuperpixelContainer& drwnSuperpixelContainer::operator=(const drwnSuperpixelContainer& container)
 {
     if (this != &container) {
