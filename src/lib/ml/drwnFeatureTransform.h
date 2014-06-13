@@ -58,7 +58,7 @@ class drwnFeatureTransform : public drwnStdObjIface, public drwnProperties {
     virtual bool save(drwnXMLNode& xml) const;
     virtual bool load(drwnXMLNode& xml);
 
-    // training (implemented in derived classes)
+    // training methods (implemented in derived classes)
 
     // evaluation (in-place and copy)
     //! transforms a feature vector in-place
@@ -70,6 +70,19 @@ class drwnFeatureTransform : public drwnStdObjIface, public drwnProperties {
     //! transforms a set of feature vectors from \p x to corresponding feature vectors \p y
     virtual void transform(const vector<vector<double> >& x,
         vector<vector<double> >& y) const;
+
+    // evaluation with pre-processing (in-place and copy)
+    //! transforms a feature vector in-place first applying another transform
+    virtual void transform(vector<double>& x, const drwnFeatureTransform& xform) const;
+    //! transforms feature vector \p x into feature vector \p y first applying another transform
+    virtual void transform(const vector<double>& x, vector<double>& y,
+        const drwnFeatureTransform& xform) const;
+    //! transforms a set of feature vectors in-place first applying another transform
+    virtual void transform(vector<vector<double> >& x, const drwnFeatureTransform& xform) const;
+    //! transforms a set of feature vectors from \p x to corresponding feature vectors \p y
+    //! first applying another transform
+    virtual void transform(const vector<vector<double> >& x,
+        vector<vector<double> >& y, const drwnFeatureTransform& xform) const;
 };
 
 // drwnTFeatureMapTranform --------------------------------------------------
@@ -94,7 +107,7 @@ class drwnTFeatureMapTransform : public drwnFeatureTransform {
     // evaluation
     void transform(const vector<double>& x, vector<double>& y) const {
         const FeatureMap phi(x.size());
-        y = phi();
+        y = phi(x);
     }
 };
 
@@ -123,6 +136,19 @@ class drwnUnsupervisedTransform : public drwnFeatureTransform {
     //! training examples.
     virtual double train(const vector<vector<double> >& features,
         const vector<double>& weights);
+
+    //! Estimate the parameters of the features transformation first applying
+    //! another transform. The default implementation of this function naively
+    //! transforms the data and passes the transformed data onto the relevant
+    //! training code.
+    virtual double train(const vector<vector<double> >& features,
+        const drwnFeatureTransform& xform);
+    //! Estimate the parameters of the feature transformation using weighted
+    //! training examples first applying another transform. The default
+    //! implementation of this function naively transforms the data and passes
+    //! the transformed data onto the relevant training code.
+    virtual double train(const vector<vector<double> >& features,
+        const vector<double>& weights, const drwnFeatureTransform& xform);
 };
 
 // drwnSupervisedTransform --------------------------------------------------
@@ -151,6 +177,20 @@ class drwnSupervisedTransform : public drwnFeatureTransform {
     //! training examples.
     virtual double train(const vector<vector<double> >& features,
         const vector<int>& labels, const vector<double>& weights);
+
+    //! Estimate the parameters of the features transformation first applying
+    //! another transform. The default implementation of this function naively
+    //! transforms the data and passes the transformed data onto the relevant
+    //! training code.
+    virtual double train(const vector<vector<double> >& features,
+        const vector<int>& labels, const drwnFeatureTransform& xform);
+    //! Estimate the parameters of the feature transformation using weighted
+    //! training examples first applying another transform. The default
+    //! implementation of this function naively transforms the data and passes
+    //! the transformed data onto the relevant training code.
+    virtual double train(const vector<vector<double> >& features,
+        const vector<int>& labels, const vector<double>& weights,
+        const drwnFeatureTransform& xform);
 };
 
 // drwnFeatureTransformFactory ----------------------------------------------

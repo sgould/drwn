@@ -771,7 +771,7 @@ void testSuffStats()
                           {1.0, 1.0, 1.0, 0.0},
                           {1.0, 1.0, 1.0, 1.0},
                           {0.5, 0.0, 0.5, 0.0} };
-                         
+
     vector<double> x(4);
 
     // full sufficient statistics
@@ -850,6 +850,56 @@ void testPCA()
     xml.clear();
     node = drwnAddXMLChildNode(xml, "test", NULL, false);
     pca2.save(*node);
+
+    child = node->first_node("translation");
+    drwnXMLUtils::deserialize(*child, translation);
+    cout << translation.transpose() << endl;
+
+    child = node->first_node("projection");
+    drwnXMLUtils::deserialize(*child, projection);
+    cout << projection << endl;
+
+    cout << "\n----------------------------------------------------\n\n";
+
+    drwnPCA pca3;
+    vector<vector<double> > features;
+    for (unsigned i = 0; i < 1000; i++) {
+        features.push_back(vector<double>(5));
+        Eigen::Map<VectorXd>(&(features.back()[0]), 5) = VectorXd::Random(5);
+    }
+    pca3.train(features);
+
+    xml.clear();
+    node = drwnAddXMLChildNode(xml, "test", NULL, false);
+    pca3.save(*node);
+
+    child = node->first_node("translation");
+    drwnXMLUtils::deserialize(*child, translation);
+    cout << translation.transpose() << endl;
+
+    child = node->first_node("projection");
+    drwnXMLUtils::deserialize(*child, projection);
+    cout << projection << endl;
+
+    pca3.train(features, drwnTFeatureMapTransform<drwnIdentityFeatureMap>());
+
+    xml.clear();
+    node = drwnAddXMLChildNode(xml, "test", NULL, false);
+    pca3.save(*node);
+
+    child = node->first_node("translation");
+    drwnXMLUtils::deserialize(*child, translation);
+    cout << translation.transpose() << endl;
+
+    child = node->first_node("projection");
+    drwnXMLUtils::deserialize(*child, projection);
+    cout << projection << endl;
+
+    pca3.train(features, drwnTFeatureMapTransform<drwnSquareFeatureMap>());
+
+    xml.clear();
+    node = drwnAddXMLChildNode(xml, "test", NULL, false);
+    pca3.save(*node);
 
     child = node->first_node("translation");
     drwnXMLUtils::deserialize(*child, translation);

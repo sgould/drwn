@@ -200,6 +200,22 @@ double drwnPCA::train(const vector<vector<double> >& features)
     return this->train(stats);
 }
 
+double drwnPCA::train(const vector<vector<double> >& features, const drwnFeatureTransform& xform)
+{
+    DRWN_ASSERT(!features.empty());
+    drwnSuffStats stats;
+
+    vector<double> z;
+    for (unsigned i = 0; i < features.size(); i++) {
+        xform.transform(features[i], z);
+        if (i == 0) {
+            stats.clear(z.size(), DRWN_PSS_FULL);
+        }
+        stats.accumulate(z, 1.0);
+    }
+    return this->train(stats);
+}
+
 void drwnPCA::transform(const vector<double>& x, vector<double>& y) const
 {
     DRWN_ASSERT_MSG((int)x.size() == _nFeatures, x.size() << "!=" << _nFeatures);

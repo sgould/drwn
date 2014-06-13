@@ -92,6 +92,7 @@ class drwnPCA : public drwnUnsupervisedTransform {
     //! previously accumulated second-order sufficient statistics.
     double train(const drwnSuffStats& stats);
     double train(const vector<vector<double> >& features);
+    double train(const vector<vector<double> >& features, const drwnFeatureTransform& xform);
 
     // evaluation
     using drwnFeatureTransform::transform;

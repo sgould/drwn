@@ -57,14 +57,14 @@ bool drwnFeatureTransform::load(drwnXMLNode& xml)
 void drwnFeatureTransform::transform(vector<double>& x) const
 {
     vector<double> y;
-    transform(x, y);
+    this->transform(x, y);
     x.swap(y);
 }
 
 void drwnFeatureTransform::transform(vector<vector<double> >& x) const
 {
     for (unsigned i = 0; i < x.size(); i++) {
-        transform(x[i]);
+        this->transform(x[i]);
     }
 }
 
@@ -74,6 +74,41 @@ void drwnFeatureTransform::transform(const vector<vector<double> >& x,
     y.resize(x.size());
     for (unsigned i = 0; i < x.size(); i++) {
         this->transform(x[i], y[i]);
+    }
+}
+
+void drwnFeatureTransform::transform(vector<double>& x, const drwnFeatureTransform& xform) const
+{
+    vector<double> z;
+    xform.transform(x, z);
+    this->transform(z, x);
+}
+
+void drwnFeatureTransform::transform(const vector<double>& x, vector<double>& y,
+    const drwnFeatureTransform& xform) const
+{
+    vector<double> z;
+    xform.transform(x, z);
+    this->transform(z, y);
+}
+
+void drwnFeatureTransform::transform(vector<vector<double> >& x, const drwnFeatureTransform& xform) const
+{
+    vector<double> z;
+    for (unsigned i = 0; i < x.size(); i++) {
+        xform.transform(x[i], z);
+        this->transform(z, x[i]);
+    }
+}
+
+void drwnFeatureTransform::transform(const vector<vector<double> >& x,
+    vector<vector<double> >& y, const drwnFeatureTransform& xform) const
+{
+    y.resize(x.size());
+    vector<double> z;
+    for (unsigned i = 0; i < x.size(); i++) {
+        xform.transform(x[i], z);
+        this->transform(z, y[i]);
     }
 }
 
@@ -99,6 +134,22 @@ double drwnUnsupervisedTransform::train(const vector<vector<double> >& features,
     return train(features);
 }
 
+double drwnUnsupervisedTransform::train(const vector<vector<double> >& features,
+    const drwnFeatureTransform& xform)
+{
+    vector<vector<double> > new_features;
+    xform.transform(features, new_features);
+    return train(new_features);
+}
+
+double drwnUnsupervisedTransform::train(const vector<vector<double> >& features,
+    const vector<double>& weights, const drwnFeatureTransform& xform)
+{
+    vector<vector<double> > new_features;
+    xform.transform(features, new_features);
+    return train(new_features, weights);
+}
+
 // drwnSupervisedTransform --------------------------------------------------
 
 drwnSupervisedTransform::drwnSupervisedTransform() : drwnFeatureTransform()
@@ -119,6 +170,23 @@ double drwnSupervisedTransform::train(const vector<vector<double> >& features,
     // default behaviour is to ignore weights
     DRWN_LOG_WARNING("ignoring weights for training " << this->type());
     return train(features, labels);
+}
+
+double drwnSupervisedTransform::train(const vector<vector<double> >& features,
+    const vector<int>& labels, const drwnFeatureTransform& xform)
+{
+    vector<vector<double> > new_features;
+    xform.transform(features, new_features);
+    return train(new_features, labels);
+}
+
+double drwnSupervisedTransform::train(const vector<vector<double> >& features,
+    const vector<int>& labels, const vector<double>& weights,
+    const drwnFeatureTransform& xform)
+{
+    vector<vector<double> > new_features;
+    xform.transform(features, new_features);
+    return train(new_features, labels, weights);
 }
 
 // drwnFeatureTransformFactory ----------------------------------------------

@@ -173,6 +173,45 @@ double drwnFisherLDA::train(const vector<vector<double> >& features,
     return this->train(stats);
 }
 
+double drwnFisherLDA::train(const vector<vector<double> >& features, const vector<int>& labels,
+    const drwnFeatureTransform& xform)
+{
+    DRWN_ASSERT(!features.empty() && (labels.size() == features.size()));
+
+    drwnCondSuffStats stats;
+
+    vector<double> z;
+    for (unsigned i = 0; i < features.size(); i++) {
+        xform.transform(features[i], z);
+        if (i == 0) {
+            stats.clear(z.size(), drwn::maxElem(labels) + 1, DRWN_PSS_FULL);
+        }
+        stats.accumulate(z, labels[i], 1.0);
+    }
+
+    return this->train(stats);
+}
+
+double drwnFisherLDA::train(const vector<vector<double> >& features, const vector<int>& labels,
+    const vector<double>& weights, const drwnFeatureTransform& xform)
+{
+    DRWN_ASSERT(!features.empty());
+    DRWN_ASSERT((labels.size() == features.size()) && (labels.size() == weights.size()));
+
+    drwnCondSuffStats stats;
+
+    vector<double> z;
+    for (unsigned i = 0; i < features.size(); i++) {
+        xform.transform(features[i], z);
+        if (i == 0) {
+            stats.clear(z.size(), drwn::maxElem(labels) + 1, DRWN_PSS_FULL);
+        }
+        stats.accumulate(z, labels[i], weights[i]);
+    }
+
+    return this->train(stats);
+}
+
 void drwnFisherLDA::transform(const vector<double>& x, vector<double>& y) const
 {
     DRWN_ASSERT_MSG((int)x.size() == _nFeatures, x.size() << "!=" << _nFeatures);

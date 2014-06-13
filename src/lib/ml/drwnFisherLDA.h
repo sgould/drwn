@@ -84,6 +84,10 @@ class drwnFisherLDA : public drwnSupervisedTransform {
     double train(const vector<vector<double> >& features, const vector<int>& labels);
     double train(const vector<vector<double> >& features,
         const vector<int>& labels, const vector<double>& weights);
+    double train(const vector<vector<double> >& features, const vector<int>& labels,
+        const drwnFeatureTransform& xform);
+    double train(const vector<vector<double> >& features, const vector<int>& labels,
+        const vector<double>& weights, const drwnFeatureTransform& xform);
 
     // evaluation
     using drwnFeatureTransform::transform;
