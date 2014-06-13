@@ -481,6 +481,36 @@ learning). For example,
     whitener.transform(y);
 \endcode
 
+The same data can be trasnformed via Principal Component Analysis
+(PCA). In the following example we set the number of output dimensions
+to 5.
+
+\code
+    // estimate principal directions
+    drwnPCA pca;
+    pca.setProperty("outputDim", 5);
+    pca.train(x);
+
+    // transform data from x to y
+    vector<vector<double> > y;
+    pca.transform(x, y);
+\endcode
+
+We can also perform PCA on a transformed feature space, e.g.,
+
+\code
+    // estimate principal directions on modified feature space
+    drwnPCA pca;
+    pca.setProperty("outputDim", 5);
+    pca.train(x, drwnTFeatureMapTransform<drwnSquareFeatureMap>());
+
+    // transform data via pca on modified feature space
+    pca.transform(x, y, drwnTFeatureMapTransform<drwnSquareFeatureMap>());
+\endcode
+
+Here the feature vectors are automatically transformed via the
+drwnSquareFeatureMap before learning or applying PCA.
+
 \sa \ref drwnBase, \ref drwnIO, \ref drwnML
 
 \subsection drwnTutorialClassifiers Classification and Regression
