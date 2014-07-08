@@ -68,6 +68,7 @@ class drwnDecisionTree : public drwnClassifier {
     static int MAX_DEPTH;          //!< default maximum tree depth
     static int MAX_FEATURE_THRESHOLDS; //!< maximum number of thresholds to try during learning
     static int MIN_SAMPLES;       //!< minimum number of samples (after first split)
+    static double LEAKAGE;        //!< probability that a training sample leaks to both splits
     static drwnTreeSplitCriterion SPLIT_CRITERION; //!< tree split criteria during learning
 
  protected:

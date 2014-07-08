@@ -127,6 +127,7 @@ public:
 int drwnDecisionTree::MAX_DEPTH = 1;
 int drwnDecisionTree::MAX_FEATURE_THRESHOLDS = 1000;
 int drwnDecisionTree::MIN_SAMPLES = 0;
+double drwnDecisionTree::LEAKAGE = 0.0;
 drwnTreeSplitCriterion drwnDecisionTree::SPLIT_CRITERION = DRWN_DT_SPLIT_ENTROPY;
 
 // drwnDecisionTree ---------------------------------------------------------
@@ -552,8 +553,10 @@ void drwnDecisionTree::learnDecisionTree(const vector<vector<double> >& x,
     // learn left tree
     drwnBitArray childSampleIndex(numSamples);
     for (int i = 0; i < numSamples; i++) {
-        if (sampleIndex[i] && (x[i][bestFeature] < bestSplit)) {
-            childSampleIndex.set(i);
+        if (sampleIndex[i]) {
+            if ((x[i][bestFeature] < bestSplit) || ((LEAKAGE > 0.0) && (drand48() < LEAKAGE))) {
+                childSampleIndex.set(i);
+            }
         }
     }
     _leftChild = new drwnDecisionTree(_nFeatures, _nClasses);
@@ -561,8 +564,19 @@ void drwnDecisionTree::learnDecisionTree(const vector<vector<double> >& x,
     _leftChild->learnDecisionTree(x, y, w, sortIndex, childSampleIndex);
 
     // learn right tree
-    childSampleIndex.negate();
-    childSampleIndex.bitwiseand(sampleIndex);
+    if (LEAKAGE == 0.0) {
+        childSampleIndex.negate();
+        childSampleIndex.bitwiseand(sampleIndex);
+    } else {
+        childSampleIndex.zeros();
+        for (int i = 0; i < numSamples; i++) {
+            if (sampleIndex[i]) {
+                if ((x[i][bestFeature] >= bestSplit) || (drand48() < LEAKAGE)) {
+                    childSampleIndex.set(i);
+                }
+            }
+        }
+    }
     _rightChild = new drwnDecisionTree(_nFeatures, _nClasses);
     _rightChild->_maxDepth = _maxDepth - 1;
     _rightChild->learnDecisionTree(x, y, w, sortIndex, childSampleIndex);
@@ -577,6 +591,7 @@ void drwnDecisionTree::learnDecisionTree(const vector<vector<double> >& x,
 //! \b maxDepth :: maximum depth of each decision tree (default: 2)\n
 //! \b maxThresholds :: maximum number of thresholds to try during learning (default: 1000)\n
 //! \b minSamples :: minimum number of samples after first split (default: 10)\n
+//! \b leakage :: probability that a training sample leaks to both sides of a split (default: 0.0)\n
 //! \b split :: split criterion for learning (ENTROPY (default), MISCLASS, GINI)\n
 
 class drwnDecisionTreeConfig : public drwnConfigurableModule {
@@ -591,6 +606,8 @@ public:
            << drwnDecisionTree::MAX_FEATURE_THRESHOLDS << ")\n";
         os << "      minSamples    :: minimum samples after first split (default: "
            << drwnDecisionTree::MIN_SAMPLES << ")\n";
+        os << "      leakage       :: probability that a training sample leaks to both sides of a split (default: "
+           << drwnDecisionTree::LEAKAGE << ")\n";
         os << "      split         :: split criterion for learning (ENTROPY (default), MISCLASS, GINI)\n";
     }
 
@@ -601,6 +618,8 @@ public:
             drwnDecisionTree::MAX_FEATURE_THRESHOLDS = std::max(1, atoi(value));
         } else if (!strcmp(name, "minSamples")) {
             drwnDecisionTree::MIN_SAMPLES = std::max(0, atoi(value));
+        } else if (!strcmp(name, "leakage")) {
+            drwnDecisionTree::LEAKAGE = std::min(std::max(0.0, atof(value)), 1.0);
         } else if (!strcmp(name, "split")) {
             if (!strcasecmp(value, "ENTROPY")) {
                 drwnDecisionTree::SPLIT_CRITERION = DRWN_DT_SPLIT_ENTROPY;
