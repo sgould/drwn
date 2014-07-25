@@ -13,8 +13,9 @@ namespace drwn {
 
    \section drwnProjRosetta1 Downloading the Data
 
-   The dataset can be downloaded using the \p getRosettaData.sh
-   script. Alternatively, you can fetch it manually from
+   The dataset can be downloaded and files extracted using the \p
+   getRosettaData.py Python script. Alternatively, you can fetch it
+   manually from
 
    http://jmlr.csail.mit.edu/papers/volume7/yanover06a/Rosetta_Design_Dataset.tgz
 
@@ -23,8 +24,8 @@ namespace drwn {
    \section drwnProjRosetta2 Converting Formats
 
    The data is in Matlab format. The script \p rosetta2drwn.m converts
-   it to an XML format that Darwin can recognize. The script \p
-   convertRosettaData.sh will automatically convert all the design
+   it to an XML format that Darwin can recognize. The Python script \p
+   convertRosettaData.py will automatically convert all the design
    files and then compress them to save space. You must have Matlab or
    Octave installed to perform this step.
 
@@ -35,14 +36,18 @@ namespace drwn {
 
    \section drwnProjRosetta3 Running Inference
 
-   The \p runRosettaExperiments.sh script runs different inference
+   The \p runRosettaExperiments.py Python script runs different inference
    algorithms. Calling the script with no arguments will run inference
    on each of the design files (and creates a separate log for each
    one). Alternatively, you can call the script with the basename of
    the design file that you want to run inference on, e.g.,
    
    \code
-   ./runRosettaExperiments.sh 1bx7
+   ./runRosettaExperiments.py 1bx7
+   \endcode
+   or
+   \code
+   python runRosettaExperiments.py 1bx7
    \endcode
 
    \warning Some inference routines take a very long time to complete.
