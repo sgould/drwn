@@ -24,10 +24,6 @@ set TEST_LIST = "msrcTestList.txt"
 
 mkdir -p $EXPR_DIR
 
-mkdir -p ${EXPR_DIR}/data
-mkdir -p ${EXPR_DIR}/data/images
-mkdir -p ${EXPR_DIR}/data/labels
-
 cp msrcConfig.xml ${EXPR_DIR}/msrcConfig.xml
 cp pixSegPipeline.sh ${EXPR_DIR}/pixSegPipeline.sh
 cp ${TRAIN_LIST} ${EXPR_DIR}/${TRAIN_LIST}
@@ -46,20 +42,13 @@ if (! -e ${URL_FILE}) then
     wget ${URL_BASE}${URL_FILE}
 endif
 
-# extract data and basenames
+# extract data
 unzip ${URL_FILE}
-ls MSRC_ObjCategImageDatabase_v2/Images/*.bmp | sed 's/.*\///' | sed 's/.bmp//' > $ALL_LIST
-
-# convert images
-foreach i (`cat $TRAIN_LIST $VAL_LIST $TEST_LIST`)
-    convert MSRC_ObjCategImageDatabase_v2/Images/${i}.bmp data/images/${i}.jpg
-    mv MSRC_ObjCategImageDatabase_v2/GroundTruth/${i}_GT.bmp data/labels/${i}.bmp
-end
 
 # convert labels
-${BIN_DIR}/convertPixelLabels -config $CONFIG -i .bmp -o .txt $TRAIN_LIST
-${BIN_DIR}/convertPixelLabels -config $CONFIG -i .bmp -o .txt $VAL_LIST
-${BIN_DIR}/convertPixelLabels -config $CONFIG -i .bmp -o .txt $TEST_LIST
+${BIN_DIR}/convertPixelLabels -config $CONFIG -i _GT.bmp -o .txt $TRAIN_LIST
+${BIN_DIR}/convertPixelLabels -config $CONFIG -i _GT.bmp -o .txt $VAL_LIST
+${BIN_DIR}/convertPixelLabels -config $CONFIG -i _GT.bmp -o .txt $TEST_LIST
 
 # pixel segmentation model -------------------------------------------
 

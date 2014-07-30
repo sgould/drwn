@@ -6,7 +6,7 @@
 # is enabled. Accuracy should be around 79.0% for the unary model
 # and 84.5% for the CRF model on the 256 images in the test set. The
 # script assumes that the data has been appropriately pre-processed
-# (see prepareMSRCDemo.sh).
+# (see prepareMSRCDemo.py).
 #
 
 import os
@@ -14,7 +14,7 @@ import sys
 
 # script configuration -----------------------------------------------
 
-BIN_DIR = "../../bin"
+BIN_DIR = "../../../bin"
 
 TRAIN_LIST = "msrcTrainList.txt"
 VAL_LIST = "msrcValList.txt"

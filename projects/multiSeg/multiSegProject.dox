@@ -42,9 +42,10 @@ namespace drwn {
      9_9_s
    \endcode
 
-   \note The script \p prepareMSRCDemo.sh in the project directory will
-   download and prepare the data for exprimenting with the 21-class
-   MSRC dataset. The script assumes that you have utilities \p wget,
+   \note The shell script \p prepareMSRCDemo.sh or Python script 
+   \p prepareMSRCDemo.py in the project directory will download and
+   prepare the data for exprimenting with the 21-class MSRC
+   dataset. The shell script assumes that you have utilities \p wget, 
    \p unzip, and \p convert installed on your system.
 
    \subsection drwnProjMultiSeg1a Converting Pixel Labels

@@ -2,13 +2,13 @@
   <drwnMultiSegConfig>
     <!-- data options -->
     <option name="baseDir" value="./" />
-    <option name="imgDir" value="data/images/" />
-    <option name="lblDir" value="data/labels/" />
+    <option name="imgDir" value="MSRC_ObjCategImageDatabase_v2/Images/" />
+    <option name="lblDir" value="MSRC_ObjCategImageDatabase_v2/GroundTruth/" />
     <option name="cacheDir" value="cached/" />
     <option name="modelsDir" value="models/" />
     <option name="outputDir" value="output/" />
 
-    <option name="imgExt" value=".jpg" />
+    <option name="imgExt" value=".bmp" />
     <option name="lblExt" value=".txt" />
 
     <option name="useCache" value="true" />
