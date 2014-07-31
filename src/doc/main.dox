@@ -143,7 +143,7 @@ and projects for common machine learning and computer vision
 problems. For example, one of the projects provides \ref
 drwnProjMatlab "mex interfaces" for accessing many components of the
 library from Matlab; other projects integrate various components of
-the library through small utility applications and shell scripts. See
+the library through small utility applications and Python scripts. See
 \ref drwnApplications for details.
 
 There is also a short \ref drwnTutorial "tutorial" that you should
@@ -191,6 +191,7 @@ and data) that will trigger the bug.
 \li OpenCV (http://code.opencv.org)
 \li RapidXML (http://rapidxml.sourceforge.net/)
 \li GitHub and source control (http://github.com)
+\li Python (http://www.python.org/)
 
 \section drwnLicense License
 

@@ -119,10 +119,14 @@ namespace drwn {
 /*!
    \page drwnAppGenSp generateSuperpixels
 
-   Implementation of a fast superpixel algorithm for generating an
-   over-segmentation of an image based on ideas from Zhang et al.,
-   ICCV 2011. Alternatively, can produce non-contiguous superpixels
-   using k-means clustering (see the \p -m option).
+   Implementation of various superpixel algorithms for generating
+   over-segmentations of an image. Algorithms include:
+   
+   \li SLIC superpixels from Achanta et al., PAMI 2012.
+   \li graph-cut superpixels from Zhang et al., ICCV 2011.
+
+   Alternatively, can produce non-contiguous superpixels using k-means
+   clustering (see the \p -m option).
 
    Example:
    \code
@@ -131,9 +135,17 @@ namespace drwn {
    \endcode
 
    Multitple over-segmentations can be written to the same file using
-   the \p -a option.
+   the \p -a option or multiple repeates of \p -g or \p -k. For example,
 
+   \code
+     bin/generateSuperpixels -m SUPERPIXEL -g 10 -g 100 -o <OUTPUT_SP_NAME> <IMAGE_FILENAME>
+     bin/generateSuperpixels -m SLIC -g 10 -g 100 -a <OUTPUT_SP_NAME> <IMAGE_FILENAME>
+     bin/visualizeSuperpixels -x -i <IMAGE_FILENAME> <INPUT_SP_NAME>
+   \endcode
+
+   \sa drwnSLICSuperpixels
    \sa drwnFastSuperpixels
+   \sa drwnKMeansSegments
 */
 
 // grabCut ---------------------------------------------------------------
