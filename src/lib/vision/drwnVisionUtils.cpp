@@ -400,7 +400,7 @@ cv::Mat drwnFastSuperpixels(const cv::Mat& img, unsigned gridSize)
         }
     }
 
-    DRWN_LOG_DEBUG("...generated " << ((int)renumbering.size() + 1) << " superpixels");
+    DRWN_LOG_VERBOSE("...generated " << (int)renumbering.size() << " superpixels");
     DRWN_FCN_TOC;
     return seg;
 }
