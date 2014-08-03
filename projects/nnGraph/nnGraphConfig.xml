@@ -1,0 +1,11 @@
+<drwn>
+  <drwnNNGraph>
+    <option name="K" value="5" />
+    <option name="propagateMove" value="true" />
+    <option name="searchMove" value="true" />
+    <option name="localMove" value="true" />
+    <option name="randProjMove" value="100" />
+    <option name="enrichmentMove" value="true" />
+    <option name="randExhaustive" value="1" />
+  </drwnNNGraph>
+</drwn>

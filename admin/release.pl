@@ -70,7 +70,7 @@ dircopy("../include", "${releaseName}/include") or die $!;
 dircopy("../src", "${releaseName}/src") or die $!;
 
 # copy projects
-my @PROJECTS = ('gui', 'matlab', 'multiSeg', 'patchMatch', 'photoMontage', 'rosetta', 'tutorial');
+my @PROJECTS = ('gui', 'nnGraph', 'matlab', 'multiSeg', 'patchMatch', 'photoMontage', 'rosetta', 'tutorial');
 for (my $i = 0; $i <= $#PROJECTS; $i++) {
     dircopy("../projects/$PROJECTS[$i]", "${releaseName}/projects/$PROJECTS[$i]") or die $!;
 }
