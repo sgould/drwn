@@ -1,7 +1,7 @@
 #!/bin/csh
 #
 # DARWIN INSTALLATION OF MAC OSX ESSENTIAL SOFTWARE
-# Copyright (c) 2007-2013, Stephen Gould
+# Copyright (c) 2007-2014, Stephen Gould
 #
 # FILENAME:    macosx.sh
 # AUTHOR(S):   Stephen Gould <stephen.gould@anu.edu.au>
@@ -17,7 +17,8 @@ endif
 if ( `/usr/bin/which -s brew || echo "1"` ) then
 #    curl -fsSL https://raw.github.com/gist/323731 | /usr/bin/ruby || exit 1
 #    curl -fksSL https://raw.github.com/mxcl/homebrew/master/Library/Contributions/install_homebrew.rb | /usr/bin/ruby || exit 1
-    curl -fsSL https://raw.github.com/mxcl/homebrew/go | /usr/bin/ruby || exit 1
+#    curl -fsSL https://raw.github.com/mxcl/homebrew/go | /usr/bin/ruby || exit 1
+    ruby -e "$(curl -fsSL https://raw.github.com/Homebrew/homebrew/go/install)" || exit 1
 endif
 
 # wget
