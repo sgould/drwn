@@ -40,9 +40,9 @@ endif
 
 # cmake
 if ( `/usr/bin/which -s cmake || echo "1"` ) then
-    curl -O http://www.cmake.org/files/v2.8/cmake-2.8.6.tar.gz
-    tar zxvf cmake-2.8.6.tar.gz
-    cd cmake-2.8.6
+    curl -O http://www.cmake.org/files/v3.0/cmake-3.0.0.tar.gz
+    tar zxvf cmake-3.0.0.tar.gz
+    cd cmake-3.0.0
     ./bootstrap
     make
     sudo make install
