@@ -62,9 +62,17 @@ if (! -e opencv && (("$1" == "OpenCV") || ("$1" == "opencv"))) then
         tar zxvf ${VERSION}.tar.gz
     endif
     cd opencv-${VERSION}
-    cmake -D CMAKE_BUILD_TYPE=RELEASE \
-          -D CMAKE_INSTALL_PREFIX=${CODEBASE}/external/opencv \
-          -D BUILD_NEW_PYTHON_SUPPORT=OFF .
+    if (`uname` == Darwin) then
+	cmake -D CMAKE_BUILD_TYPE=RELEASE \
+	      -D CMAKE_INSTALL_PREFIX=${CODEBASE}/external/opencv \
+	      -D CMAKE_CXX_FLAGS="-stdlib=libstdc++" \
+	      -D CMAKE_EXE_LINKER_FLAGS="-stdlib=libstdc++" \
+	      -D BUILD_NEW_PYTHON_SUPPORT=OFF .
+    else
+	cmake -D CMAKE_BUILD_TYPE=RELEASE \
+	      -D CMAKE_INSTALL_PREFIX=${CODEBASE}/external/opencv \
+	      -D BUILD_NEW_PYTHON_SUPPORT=OFF .
+    endif
     make
     make install
     cd ..

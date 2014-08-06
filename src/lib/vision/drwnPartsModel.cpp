@@ -1028,8 +1028,9 @@ cv::Mat drwnPartsModel::showMAPPartLocations(const cv::Mat& img,
     // show energy
     if (energy != DRWN_DBL_MAX) {
         int baseline;
-        cv::Size textSize = cv::getTextSize(toString(energy), CV_FONT_HERSHEY_SIMPLEX, 1.0, 1, &baseline);
-        cv::putText(canvas, toString(energy).c_str(), cv::Point(2, textSize.height + 2),
+	const string engStr = toString(energy);
+        cv::Size textSize = cv::getTextSize(engStr, CV_FONT_HERSHEY_SIMPLEX, 1.0, 1, &baseline);
+        cv::putText(canvas, engStr.c_str(), cv::Point(2, textSize.height + 2),
             CV_FONT_HERSHEY_SIMPLEX, 1.0, cv::Scalar(127, 127, 255), 1);
     }
 
