@@ -3,9 +3,6 @@ namespace drwn {
 /*!
 \mainpage Darwin Documentation
 
-\warning The \b Darwin source code repository has moved to GitHub. You can find the
-latest source at http://github.com/sgould/drwn/.
-
 \section Introduction
 
 This document describes the design and usage of the \b Darwin
@@ -154,8 +151,9 @@ read if you are new to the library.
 \b Darwin has minimal dependencies on external libraries. Small
 libraries such as \ref RapidXML are included in the distribution, but
 larger libraries, such as \ref Eigen and \ref OpenCV, need to be
-installed separately. The following links provide detailed download
-and install instructions for Windows, Linux and Mac OS X.
+installed separately. \b Darwin source code is hosted at
+http://github.com/sgould/drwn/. The following links provide detailed
+download and install instructions for Windows, Linux and Mac OS X.
 
 \li \ref linuxInstall
 \li \ref winInstall

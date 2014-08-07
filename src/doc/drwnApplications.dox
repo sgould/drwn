@@ -37,6 +37,7 @@ namespace drwn {
     \li \ref drwnProjPhotoMontage : interactive photo montage based on Agarwala et al., SIGGRAPH 2004.
     \li \ref drwnProjMultiSeg : multi-class image segmentation (pixel labeling).
     \li \ref drwnProjPatchMatch : scene understanding based on Gould and Zhang, ECCV 2012.
+    \li \ref drwnProjNNGraph "nnGraph Project" : superpixel graph label transfer with learned distance metric for scene understanding (Gould et al., ECCV 2014)
     \li \ref drwnProjMatlab : Matlab \p mex interfaces.
     \li \ref drwnProjGUI : Graphical user interface for data flow design.
 

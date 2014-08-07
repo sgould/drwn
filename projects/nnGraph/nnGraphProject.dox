@@ -1,0 +1,75 @@
+namespace drwn {
+/*@{*/
+
+/*!
+   \page drwnProjNNGraph Superpixel Graph Label Transfer (nnGraph) Project
+
+   This project provides a reference implementation for the Superpixel
+   Graph Label Transfer with Learned Distance Metric work of Gould et
+   al. (ECCV 2014). The project is part of the \b Darwin software
+   package. Installation instructions and addtional documentation can
+   be found at http://drwn.anu.edu.au.
+
+   \todo high-level description
+
+   \sa drwnNNGraphNode, drwnNNGraphImageData, drwnNNGraphImage, drwnNNGraph, drwnNNGraphNodeAnnotation
+
+   \section Preparing the Data
+
+   \todo
+
+   \section Configuration
+
+   \todo
+
+   \section Generating Superpixels/Regions
+
+   The first step is to create a set of overlapping superpixels (or
+   regions) for each image. These will be stored in a
+   drwnSuperpixelContainer object, one for each image. The object is
+   saved in the \p data/regions directory.
+
+   The following shell code snippet demonstrates how to generate
+   superpixels for each JPEG image in the \p data/images directory.
+   If file with the same basename already exists in \p data/regions
+   then superpixel generation is skipped for that image.
+
+   \code{.sh}
+   mkdir -p data/regions
+   foreach IMGFNAME ( data/images/*.jpg )
+       set SEGFNAME = data/regions/${IMGFNAME:r:t}.bin
+       if (! -e ${SEGFNAME}) then
+           ${BIN_DIR}/generateSuperpixels -verbose -m SUPERPIXEL \
+               -g 24 -g 17 -g 12 -g 8 -g 6 -g 4 -o ${SEGFNAME} ${IMGFNAME}
+       endif
+   end
+   \endcode
+  
+   \sa \ref generateSuperpixels
+
+   \section Initializing the Superpixel Graph
+
+   \todo
+
+   \section Learning the Distance Metric
+
+   \todo 
+
+   \section Optimizing the Superpixel Graph Edges
+
+   \todo
+
+   \section Performing Label Transfer
+
+   \todo
+
+   \section drwnProjNNGraphRef References
+
+   \li S. Gould, J. Zhao, X. He, and Y. Zhang, "Superpixel Graph Label
+   Transfer with Learned Distance Metric." In ECCV 2014.
+   
+*/
+
+/*@}*/
+
+}
