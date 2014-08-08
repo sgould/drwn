@@ -1,0 +1,62 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual C++ Express 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nnGraphInitialize", "nnGraphInitialize.vcxproj", "{2A04C403-8643-39EC-A37F-713A16A5DC48}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nnGraphAppendFeatures", "nnGraphAppendFeatures.vcxproj", "{EF81D1BE-73BB-CCAF-2E7A-08F43233DB23}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nnGraphApplyTransform", "nnGraphApplyTransform.vcxproj", "{7467E2C6-F233-732F-2EAB-C4DCAA952DED}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nnGraphFLANN", "nnGraphFLANN.vcxproj", "{BA2F07C8-FEA7-844E-F927-C535CBB230FB}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nnGraphLabelTransfer", "nnGraphLabelTransfer.vcxproj", "{FAAC9C79-E6B3-EA1E-B4BA-CBFCB67F35F4}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nnGraphOptimize", "nnGraphOptimize.vcxproj", "{D86C9D15-342F-F106-0FB7-9F02864F6640}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nnGraphRelabelNodes", "nnGraphRelabelNodes.vcxproj", "{AFF9AD9A-B5B0-CA20-2562-9BD11324E70E}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nnGraphLearnTransform", "nnGraphLearnTransform.vcxproj", "{BA074F6C-3A7B-5B01-5D2E-115A33D73DF9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2A04C403-8643-39EC-A37F-713A16A5DC48}.Debug|Win32.ActiveCfg = Debug|Win32
+		{2A04C403-8643-39EC-A37F-713A16A5DC48}.Debug|Win32.Build.0 = Debug|Win32
+		{2A04C403-8643-39EC-A37F-713A16A5DC48}.Release|Win32.ActiveCfg = Release|Win32
+		{2A04C403-8643-39EC-A37F-713A16A5DC48}.Release|Win32.Build.0 = Release|Win32
+		{EF81D1BE-73BB-CCAF-2E7A-08F43233DB23}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EF81D1BE-73BB-CCAF-2E7A-08F43233DB23}.Debug|Win32.Build.0 = Debug|Win32
+		{EF81D1BE-73BB-CCAF-2E7A-08F43233DB23}.Release|Win32.ActiveCfg = Release|Win32
+		{EF81D1BE-73BB-CCAF-2E7A-08F43233DB23}.Release|Win32.Build.0 = Release|Win32
+		{7467E2C6-F233-732F-2EAB-C4DCAA952DED}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7467E2C6-F233-732F-2EAB-C4DCAA952DED}.Debug|Win32.Build.0 = Debug|Win32
+		{7467E2C6-F233-732F-2EAB-C4DCAA952DED}.Release|Win32.ActiveCfg = Release|Win32
+		{7467E2C6-F233-732F-2EAB-C4DCAA952DED}.Release|Win32.Build.0 = Release|Win32
+		{BA2F07C8-FEA7-844E-F927-C535CBB230FB}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BA2F07C8-FEA7-844E-F927-C535CBB230FB}.Debug|Win32.Build.0 = Debug|Win32
+		{BA2F07C8-FEA7-844E-F927-C535CBB230FB}.Release|Win32.ActiveCfg = Release|Win32
+		{BA2F07C8-FEA7-844E-F927-C535CBB230FB}.Release|Win32.Build.0 = Release|Win32
+		{FAAC9C79-E6B3-EA1E-B4BA-CBFCB67F35F4}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FAAC9C79-E6B3-EA1E-B4BA-CBFCB67F35F4}.Debug|Win32.Build.0 = Debug|Win32
+		{FAAC9C79-E6B3-EA1E-B4BA-CBFCB67F35F4}.Release|Win32.ActiveCfg = Release|Win32
+		{FAAC9C79-E6B3-EA1E-B4BA-CBFCB67F35F4}.Release|Win32.Build.0 = Release|Win32
+		{D86C9D15-342F-F106-0FB7-9F02864F6640}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D86C9D15-342F-F106-0FB7-9F02864F6640}.Debug|Win32.Build.0 = Debug|Win32
+		{D86C9D15-342F-F106-0FB7-9F02864F6640}.Release|Win32.ActiveCfg = Release|Win32
+		{D86C9D15-342F-F106-0FB7-9F02864F6640}.Release|Win32.Build.0 = Release|Win32
+		{AFF9AD9A-B5B0-CA20-2562-9BD11324E70E}.Debug|Win32.ActiveCfg = Debug|Win32
+		{AFF9AD9A-B5B0-CA20-2562-9BD11324E70E}.Debug|Win32.Build.0 = Debug|Win32
+		{AFF9AD9A-B5B0-CA20-2562-9BD11324E70E}.Release|Win32.ActiveCfg = Release|Win32
+		{AFF9AD9A-B5B0-CA20-2562-9BD11324E70E}.Release|Win32.Build.0 = Release|Win32
+		{BA074F6C-3A7B-5B01-5D2E-115A33D73DF9}.Debug|Win32.ActiveCfg = Debug|Win32
+		{BA074F6C-3A7B-5B01-5D2E-115A33D73DF9}.Debug|Win32.Build.0 = Debug|Win32
+		{BA074F6C-3A7B-5B01-5D2E-115A33D73DF9}.Release|Win32.ActiveCfg = Release|Win32
+		{BA074F6C-3A7B-5B01-5D2E-115A33D73DF9}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

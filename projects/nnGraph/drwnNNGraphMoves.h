@@ -175,8 +175,10 @@ void drwnNNGraphMoves::initialize(drwnNNGraph& graph, unsigned imgIndx, const Di
     DRWN_LOG_DEBUG("...initializing " << graph[imgIndx].name());
 
     // random number generator state
+#if !(defined(_WIN32)||defined(WIN32)||defined(__WIN32__)||defined(__VISUALC__))
     unsigned short int xsubi[3] = {0, 0, 0};
     xsubi[0] = random();
+#endif
 
     // initialize image indexes for fast subsampling
     vector<unsigned> indexes;
@@ -199,6 +201,8 @@ void drwnNNGraphMoves::initialize(drwnNNGraph& graph, unsigned imgIndx, const Di
         const bool bHasExistingMatches = !graph[imgIndx][segId].edges.empty();
 
 #if 0
+        drwn::shuffle(indexes);
+#elif defined(_WIN32)||defined(WIN32)||defined(__WIN32__)||defined(__VISUALC__)
         drwn::shuffle(indexes);
 #else
         {
@@ -226,8 +230,12 @@ void drwnNNGraphMoves::initialize(drwnNNGraph& graph, unsigned imgIndx, const Di
 
             drwnNNGraphEdge e;
             e.targetNode.imgIndx = indexes[k];
+#if defined(_WIN32)||defined(WIN32)||defined(__WIN32__)||defined(__VISUALC__)
+            e.targetNode.segId = (uint16_t)segIndexes[drand48() * segIndexes.size()];
+#else
             e.targetNode.segId = (uint16_t)segIndexes[erand48(xsubi) * segIndexes.size()];
-            e.weight = M.score(graph[imgIndx][segId], graph[e.targetNode]);
+#endif
+			e.weight = M.score(graph[imgIndx][segId], graph[e.targetNode]);
             graph[imgIndx][segId].edges.push_back(e);
 
             // check if we've added the required number of matches
