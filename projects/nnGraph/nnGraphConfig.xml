@@ -7,5 +7,9 @@
     <option name="randProjMove" value="100" />
     <option name="enrichmentMove" value="true" />
     <option name="randExhaustive" value="1" />
+
+    <option name="imgDir" value="data/images/" />
+    <option name="lblDir" value="data/labels/" />
+    <option name="segDir" value="data/regions/" />
   </drwnNNGraph>
 </drwn>
