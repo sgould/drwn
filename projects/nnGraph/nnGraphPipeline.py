@@ -1,9 +1,17 @@
 #!/usr/bin/python
 # Stephen Gould <stephen.gould@anu.edu.au>
 #
+# Reference implementation of the semantic segmentation model
+# described in Gould et al., "Superpixel Graph Label Transfer with
+# Learned Distance Metric", ECCV 2014.
+#
+# Assumes that directories data/images and data/labels exists with
+# JPEG images and text label files, respectively.
+#
 
 import glob
 import os
+import shutil
 import sys
 
 # script configuration -----------------------------------------------
@@ -70,15 +78,24 @@ if not os.path.exists(DS_NAME + ".init_all.index"):
 
 # experiments subroutine ---------------------------------------------
 
-def run_experiment(k, tag):
+def run_experiment(k, tag, xform = None):
 
     EXPRTAG = tag + "_" + str(k)
     GRAPH = DS_NAME + "_" + EXPRTAG
     OPTIONS = STD_OPTIONS + " -config " + NN_CONFIG + " -set drwnNNGraph K " + str(k)
 
+    # learn and apply transform
+    if (not xform is None):
+        args = [xform, "-o", GRAPH + ".xform", DS_NAME + ".init_train"]
+        os.system(cmdline("nnGraphLearnTransform", args))
+        args = [OPTIONS, "-o", GRAPH, GRAPH + ".xform", DS_NAME + ".init_all"]
+        os.system(cmdline("nnGraphApplyTransform", args))
+    else:
+        shutil.copyfile(DS_NAME + ".init_all.data", GRAPH + ".data")
+        shutil.copyfile(DS_NAME + ".init_all.index", GRAPH + ".index")
+
     # build graph
-    args = [OPTIONS, "-m 50", "-i", DS_NAME + ".init_all",  "-o", GRAPH,
-            "-not", DS_TEST_LIST, DS_TRAIN_LIST]
+    args = [OPTIONS, "-m 50", "-i", GRAPH,  "-o", GRAPH, "-not", DS_TEST_LIST, DS_TRAIN_LIST]
     os.system(cmdline("nnGraphOptimize", args))
     args = [OPTIONS, "-m 50", "-i", GRAPH,  "-o", GRAPH, "-eqv", DS_TEST_LIST, DS_TEST_LIST]
     os.system(cmdline("nnGraphOptimize", args))
@@ -92,6 +109,14 @@ def run_experiment(k, tag):
 
 # experiments --------------------------------------------------------
 
+# euclidean distance
 for k in [1, 2, 5, 10, 15, 20]:
     run_experiment(k, "euclid")
 
+# diagonal mahalanobis distance
+for k in [1, 2, 5, 10, 15, 20]:
+    run_experiment(k, "white", "-t Whitener")
+
+# learned large margin nearest neighbour distance
+for k in [1, 2, 5, 10, 15, 20]:
+    run_experiment(k, "white", "-t LMNN -m 5")
