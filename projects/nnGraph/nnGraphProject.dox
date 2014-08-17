@@ -11,18 +11,95 @@ namespace drwn {
    be found at http://drwn.anu.edu.au.
 
    \todo high-level description
+   \todo Python script \a nnGraphPipeline.py
 
    \sa drwnNNGraphNode, drwnNNGraphImageData, drwnNNGraphImage, drwnNNGraph, drwnNNGraphNodeAnnotation
 
-   \section Preparing the Data
+   \section drwnProjNNGraphData Preparing the Data
+
+   This project requires training instance consisting of an image and
+   corresponding pixel annotations (for label transfer). The pixel
+   annotations can be in the form of an integer matrix (text file) the
+   same size as the image or a colour-coded image. The application \p
+   convertPixelLabels in the drwnProjMultiSeg project can be used to
+   generate the text file format from colour-coded images.
+
+   Images and label files should have the same basename (e.g., \p
+   img001.jpg and \p img001.txt) and may be stored in the same or
+   different directories. By default the code assumes that images are
+   stored in \p data/images and labels stored in \p data/labels with
+   file extensions \p ".jpg" and \p ".txt", respectively.
+
+   \section drwnProjNNGraphConfig Configuration
 
    \todo
 
-   \section Configuration
+   \code
+     <drwn>
+      <drwnNNGraph>
+        <option name="K" value="5" />
+        <option name="propagateMove" value="true" />
+        <option name="searchMove" value="true" />
+        <option name="localMove" value="true" />
+        <option name="randProjMove" value="100" />
+        <option name="enrichmentMove" value="true" />
+        <option name="randExhaustive" value="1" />
 
-   \todo
+        <option name="imgDir" value="data/images/" />
+        <option name="lblDir" value="data/labels/" />
+        <option name="segDir" value="data/regions/" />
+      </drwnNNGraph>
+     </drwn>
+   \endcode
 
-   \section Generating Superpixels/Regions
+   \todo label transfer colour definitions
+
+   \code
+     <drwn>
+      <drwnMultiSegConfig>
+        <!-- region definitions -->
+        <regionDefinitions>
+          <region id="-1" name="void" color="0 0 0"/>
+          <region id="0" name="building" color="128 0 0"/>
+          <region id="1" name="grass" color="0 128 0"/>
+          <region id="2" name="tree" color="128 128 0"/>
+          <region id="3" name="cow" color="0 0 128"/>
+          <region id="4" name="sheep" color="0 128 128"/>
+          <region id="5" name="sky" color="128 128 128"/>
+          <region id="6" name="airplane" color="192 0 0"/>
+          <region id="7" name="water" color="64 128 0"/>
+          <region id="8" name="face" color="192 128 0"/>
+          <region id="9" name="car" color="64 0 128"/>
+          <region id="10" name="bicycle" color="192 0 128"/>
+          <region id="11" name="flower" color="64 128 128"/>
+          <region id="12" name="sign" color="192 128 128"/>
+          <region id="13" name="bird" color="0 64 0"/>
+          <region id="14" name="book" color="128 64 0"/>
+          <region id="15" name="chair" color="0 192 0"/>
+          <region id="16" name="road" color="128 64 128"/>
+          <region id="17" name="cat" color="0 192 128"/>
+          <region id="18" name="dog" color="128 192 128"/>
+          <region id="19" name="body" color="64 64 0"/>
+          <region id="20" name="boat" color="192 64 0"/>
+        </regionDefinitions>
+      </drwnMultiSegConfig>
+     </drwn>
+   \endcode
+
+   \todo Standard \b Darwin configuration
+
+   \code
+     <drwn>
+      <drwnCodeProfiler enabled="true" />
+      <drwnLogger logLevel="VERBOSE"
+                  logFile="msrc.log" />
+      <drwnThreadPool threads="4" />
+     </drwn>
+   \endcode
+
+   \sa \ref drwnConfigManagerDoc
+
+   \section drwnProjNNGraphRegions Generating Superpixels/Regions
 
    The first step is to create a set of overlapping superpixels (or
    regions) for each image. These will be stored in a
@@ -45,21 +122,24 @@ namespace drwn {
    end
    \endcode
   
-   \sa \ref generateSuperpixels
+   The \p "-m SUPERPIXEL" flag can be changed to \p "-m SLIC" for SLIC
+   superpixels.
 
-   \section Initializing the Superpixel Graph
+   \sa \ref drwnAppGenSp
+
+   \section drwnProjNNGraphInit Initializing the Superpixel Graph
 
    \todo
 
-   \section Learning the Distance Metric
+   \section drwnProjNNGraphMetric Learning the Distance Metric
 
    \todo 
 
-   \section Optimizing the Superpixel Graph Edges
+   \section drwnProjNNGraphEdges Optimizing the Superpixel Graph Edges
 
    \todo
 
-   \section Performing Label Transfer
+   \section drwnProjNNGraphLabelXfer Performing Label Transfer
 
    \todo
 

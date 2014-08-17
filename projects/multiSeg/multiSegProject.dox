@@ -150,6 +150,8 @@ namespace drwn {
    then you can change the \p imgExt option from \p ".jpg" to \p
    ".bmp".
 
+   \sa \ref drwnConfigManagerDoc
+
    \section drwnProjMultiSeg3 Learning Unary Potentials
 
    The unary potentials encode a single pixel's preference for each
