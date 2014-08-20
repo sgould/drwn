@@ -235,7 +235,7 @@ void drwnNNGraphMoves::initialize(drwnNNGraph& graph, unsigned imgIndx, const Di
 #else
             e.targetNode.segId = (uint16_t)segIndexes[erand48(xsubi) * segIndexes.size()];
 #endif
-			e.weight = M.score(graph[imgIndx][segId], graph[e.targetNode]);
+            e.weight = M.score(graph[imgIndx][segId], graph[e.targetNode]);
             graph[imgIndx][segId].edges.push_back(e);
 
             // check if we've added the required number of matches

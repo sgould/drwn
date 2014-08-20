@@ -6,7 +6,9 @@
 # Learned Distance Metric", ECCV 2014.
 #
 # Assumes that directories data/images and data/labels exists with
-# JPEG images and text label files, respectively.
+# JPEG images and text label files, respectively. For each dataset
+# you should change the "DS_" variables in the dataset configuration
+# section below.
 #
 
 import glob
@@ -16,7 +18,7 @@ import sys
 
 # script configuration -----------------------------------------------
 
-DARWIN = os.path.join(os.getcwd(), "../..")
+DARWIN = os.path.join(os.getcwd(), "../../..")
 BIN_DIR = os.path.join(DARWIN, "bin")
 DATA_DIR = os.path.join(os.getcwd(), "data")
 
@@ -40,9 +42,13 @@ LOG_FILE = DS_NAME + ".log"
 
 STD_OPTIONS = " -verbose -profile -log " + DS_NAME + ".log -threads 8"
 
-# function to construct command line
-def cmdline(exe, args):
-    return os.path.join(BIN_DIR, exe) + " " + str(" ").join(args)
+# function to run a command with arguments ---------------------------
+
+def run_command(exe, args):
+    cmd = os.path.join(BIN_DIR, exe) + " " + str(" ").join(args)
+    result = os.system(cmd)
+    if (result != 0):
+        sys.exit(result)
 
 # create output directory --------------------------------------------
 
@@ -62,18 +68,20 @@ if True:
         if not os.path.exists(seg_file):
             args = ["-verbose -log", LOG_FILE, "-m SUPERPIXEL",
                  "-g 24 -g 17 -g 12 -g 8 -g 6 -g 4", "-o", seg_file, img_file]
-            os.system(cmdline("generateSuperpixels", args))
+            run_command("generateSuperpixels", args)
 
 # initialize graph with training images ------------------------------
 
 if not os.path.exists(DS_NAME + ".init_train.index"):
     args = [STD_OPTIONS, "-config", NN_CONFIG,
             " -o ", DS_NAME + ".init_train", DS_TRAIN_LIST]
-    os.system(cmdline("nnGraphInitialize", args))
+    run_command("nnGraphInitialize", args)
 
-if not os.path.exists(DS_NAME + ".init_all.index"):
-    args = [STD_OPTIONS, "-config", NN_CONFIG, "-i", DS_NAME + ".init_train", 
-            "-o", DS_NAME + ".init_all", DS_TEST_LIST]
+# and one with test images -------------------------------------------
+
+if not os.path.exists(DS_NAME + ".init_test.index"):
+    args = [STD_OPTIONS, "-config", NN_CONFIG,
+            " -o ", DS_NAME + ".init_test", DS_TEST_LIST]
     os.system(cmdline("nnGraphInitialize", args))
 
 # experiments subroutine ---------------------------------------------
@@ -87,25 +95,34 @@ def run_experiment(k, tag, xform = None):
     # learn and apply transform
     if (not xform is None):
         args = [xform, "-o", GRAPH + ".xform", DS_NAME + ".init_train"]
-        os.system(cmdline("nnGraphLearnTransform", args))
-        args = [OPTIONS, "-o", GRAPH, GRAPH + ".xform", DS_NAME + ".init_all"]
-        os.system(cmdline("nnGraphApplyTransform", args))
+        run_command("nnGraphLearnTransform", args)
+        args = [OPTIONS, "-o", GRAPH, GRAPH + ".xform", DS_NAME + ".init_train"]
+        run_command("nnGraphApplyTransform", args)
     else:
-        shutil.copyfile(DS_NAME + ".init_all.data", GRAPH + ".data")
-        shutil.copyfile(DS_NAME + ".init_all.index", GRAPH + ".index")
+        shutil.copyfile(DS_NAME + ".init_train.data", GRAPH + ".data")
+        shutil.copyfile(DS_NAME + ".init_train.index", GRAPH + ".index")
 
-    # build graph
-    args = [OPTIONS, "-m 50", "-i", GRAPH,  "-o", GRAPH, "-not", DS_TEST_LIST, DS_TRAIN_LIST]
-    os.system(cmdline("nnGraphOptimize", args))
+    # build graph over training images
+    args = [OPTIONS, "-m 50", "-i", GRAPH,  "-o", GRAPH, DS_TRAIN_LIST]
+    run_command("nnGraphOptimize", args)
+
+    # append the test images
+    if (not xform is None):
+        args = [OPTIONS, "-o", GRAPH, "-t", GRAPH + ".xform", GRAPH, DS_NAME + ".init_test"]
+        run_command("nnGraphMerge", args)
+    else:
+        args = [OPTIONS, "-o", GRAPH, GRAPH, DS_NAME + ".init_test"]
+        run_command("nnGraphMerge", args)
+
     args = [OPTIONS, "-m 50", "-i", GRAPH,  "-o", GRAPH, "-eqv", DS_TEST_LIST, DS_TEST_LIST]
-    os.system(cmdline("nnGraphOptimize", args))
+    run_command("nnGraphOptimize", args)
 
     # transfer labels and score
     args = ["-config", DS_CONFIG, OPTIONS, "-outImages",  "'" + EXPRTAG + ".png'",
             "-outLabels", "'" + EXPRTAG + ".txt'", GRAPH, DS_TEST_LIST]
-    os.system(cmdline("nnGraphLabelTransfer", args))
+    run_command("nnGraphLabelTransfer", args)
     args = ["-config", DS_CONFIG, STD_OPTIONS, "-inLabels", "'" + EXPRTAG + ".txt'", DS_TEST_LIST]
-    os.system(cmdline("scorePixelLabels", args))
+    run_command("scorePixelLabels", args)
 
 # experiments --------------------------------------------------------
 

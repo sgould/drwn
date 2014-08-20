@@ -239,7 +239,7 @@ int drwnCountFields(ifstream *ifs, char delimiter, bool bSkipRepeated)
 vector<string> drwnReadFile(const char *filename)
 {
     ifstream ifs(filename);
-    DRWN_ASSERT(!ifs.fail());
+    DRWN_ASSERT_MSG(!ifs.fail(), filename);
 
     vector<string> fileLines;
     while (!ifs.eof()) {
@@ -258,7 +258,7 @@ vector<string> drwnReadFile(const char *filename)
 vector<string> drwnReadLines(const char *filename)
 {
     ifstream ifs(filename);
-    DRWN_ASSERT(!ifs.fail());
+    DRWN_ASSERT_MSG(!ifs.fail(), filename);
 
     vector<string> fileLines;
     while (!ifs.eof()) {

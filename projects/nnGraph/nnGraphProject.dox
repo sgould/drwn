@@ -10,8 +10,11 @@ namespace drwn {
    package. Installation instructions and addtional documentation can
    be found at http://drwn.anu.edu.au.
 
-   \todo high-level description
-   \todo Python script \a nnGraphPipeline.py
+   \todo high-level description 
+
+   Below are step-by-step instructions for running the project
+   pipeline. The Python script \p nnGraphPipeline.py in the \p
+   projects/nnGraph/examples directory runs the entire pipeline.
 
    \sa drwnNNGraphNode, drwnNNGraphImageData, drwnNNGraphImage, drwnNNGraph, drwnNNGraphNodeAnnotation
 

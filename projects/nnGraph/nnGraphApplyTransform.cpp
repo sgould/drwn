@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
     const char *inXformFile = DRWN_CMDLINE_ARGV[0];
     const char *inGraphFile = DRWN_CMDLINE_ARGV[1];
 
-    // laod the transform
+    // load the transform
     drwnFeatureTransform *featureTransform =
         drwnFeatureTransformFactory::get().createFromFile(inXformFile);
     DRWN_ASSERT_MSG(featureTransform != NULL, inXformFile);
@@ -94,6 +94,7 @@ int main(int argc, char *argv[])
     }
 
     // clean up
+    delete featureTransform;
     drwnCodeProfiler::toc(hMain);
     drwnCodeProfiler::print();
     return 0;

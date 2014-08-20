@@ -19,7 +19,8 @@ PROJ_MINORVER = 0.0
 
 APP_SRC = nnGraphInitialize.cpp nnGraphOptimize.cpp nnGraphLabelTransfer.cpp \
 	nnGraphLearnTransform.cpp nnGraphApplyTransform.cpp nnGraphAppendFeatures.cpp \
-	nnGraphRelabelNodes.cpp nnGraphOnlineLabelTransfer.cpp nnGraphFLANN.cpp
+	nnGraphMerge.cpp nnGraphRelabelNodes.cpp nnGraphOnlineLabelTransfer.cpp \
+	nnGraphFLANN.cpp
 
 LIB_SRC = drwnNNGraph.cpp drwnNNGraphVis.cpp drwnNNGraphLearn.cpp
 
