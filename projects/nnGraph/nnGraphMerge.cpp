@@ -71,9 +71,11 @@ int main(int argc, char *argv[])
     const int hMain = drwnCodeProfiler::getHandle("main");
 
     // load the feature transform if provided
-    drwnFeatureTransform *featureTransform =
-        drwnFeatureTransformFactory::get().createFromFile(xformFile);
-    DRWN_ASSERT_MSG(featureTransform != NULL, xformFile);
+    drwnFeatureTransform *featureTransform = NULL;
+    if (xformFile != NULL) {
+        featureTransform = drwnFeatureTransformFactory::get().createFromFile(xformFile);
+        DRWN_ASSERT_MSG(featureTransform != NULL, xformFile);
+    }
 
     // load the first graph
     drwnNNGraph graph;

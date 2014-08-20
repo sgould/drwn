@@ -106,7 +106,7 @@ def run_experiment(k, tag, xform = None):
     args = [OPTIONS, "-m 50", "-i", GRAPH,  "-o", GRAPH, DS_TRAIN_LIST]
     run_command("nnGraphOptimize", args)
 
-    # append the test images
+    # append the test images (and apply transform if applicable)
     if (not xform is None):
         args = [OPTIONS, "-o", GRAPH, "-t", GRAPH + ".xform", GRAPH, DS_NAME + ".init_test"]
         run_command("nnGraphMerge", args)
