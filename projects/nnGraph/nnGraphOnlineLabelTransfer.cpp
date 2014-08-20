@@ -70,8 +70,10 @@ public:
 void usage()
 {
     cerr << DRWN_USAGE_HEADER << endl;
-    cerr << "USAGE: ./nnGraphOnlineLabelTransfer [OPTIONS] <graph> <imgFile>\n";
+    cerr << "USAGE: ./nnGraphOnlineLabelTransfer [OPTIONS] <graph> <imgFile> <segFile>\n";
     cerr << "OPTIONS:\n"
+         << "  -m <iterations>   :: maximum iterations\n"
+         << "  -t <xformFile>    :: apply transformation to features from <imgFile>\n"
          << "  -pairwise <p>     :: strength of pairwise smoothness prior (default: 0.0)\n"
          << "  -outLabel <file>  :: output label filename (default: none)\n"
          << "  -outImage <file>  :: output image filename (default: none)\n"
@@ -85,15 +87,18 @@ void usage()
 
 int main(int argc, char *argv[])
 {
+    int maxIterations = 100;
+    const char *xformFile = NULL;
     double pairwiseSmoothness = 0.0;
     const char *outLabel = NULL;
     const char *outImage = NULL;
     const char *labelCache = NULL;
-    int maxIterations = 100;
     bool bVisualize = false;
 
     // process commandline arguments
     DRWN_BEGIN_CMDLINE_PROCESSING(argc, argv)
+        DRWN_CMDLINE_INT_OPTION("-m", maxIterations)
+        DRWN_CMDLINE_STR_OPTION("-t", xformFile)
         DRWN_CMDLINE_REAL_OPTION("-pairwise", pairwiseSmoothness)
         DRWN_CMDLINE_STR_OPTION("-outLabel", outLabel)
         DRWN_CMDLINE_STR_OPTION("-outImage", outImage)
@@ -101,7 +106,7 @@ int main(int argc, char *argv[])
         DRWN_CMDLINE_BOOL_OPTION("-x", bVisualize)
     DRWN_END_CMDLINE_PROCESSING(usage());
 
-    if (DRWN_CMDLINE_ARGC != 2) {
+    if (DRWN_CMDLINE_ARGC != 3) {
         usage();
         return -1;
     }
@@ -111,6 +116,7 @@ int main(int argc, char *argv[])
 
     const char *graphFile = DRWN_CMDLINE_ARGV[0];
     const char *imageFile = DRWN_CMDLINE_ARGV[1];
+    const char *segFile = DRWN_CMDLINE_ARGV[2];
 
     // load graph
     DRWN_LOG_MESSAGE("Loading drwnNNGraph from " << graphFile << "...");
@@ -174,11 +180,16 @@ int main(int argc, char *argv[])
     drwnPixelSegModel model;
     model.learnPixelContrastWeight(pairwiseSmoothness);
 
-    // load image
+    // load image and segments
     cv::Mat img = cv::imread(imageFile, cv::IMREAD_COLOR);
     DRWN_ASSERT_MSG(img.data != NULL, imageFile);
-    DRWN_LOG_STATUS("processing " << toString(img) << "...");
-    drwnNNGraphImageData data(img);
+    drwnSuperpixelContainer segments;
+    ifstream ifs(segFile, ios::binary);
+    DRWN_ASSERT_MSG(!ifs.fail(), segFile);
+    segments.read(ifs);
+    ifs.close();
+
+    drwnNNGraphImageData data(img, segments);
 
     // add image to graph and set all other images to disabled
     for (unsigned i = 0; i < graph.numImages(); i++) {
@@ -188,11 +199,12 @@ int main(int argc, char *argv[])
     graph[imgIndx].bTargetMatchable = false;
 
     // apply feature transform
-    // TODO: command line parameter
-    drwnFeatureTransform *featureTransform =
-        drwnFeatureTransformFactory::get().createFromFile("msrc.xform");
-    if (featureTransform != NULL) {
+    if (xformFile != NULL) {
+        drwnFeatureTransform *featureTransform =
+            drwnFeatureTransformFactory::get().createFromFile(xformFile);
+        DRWN_ASSERT(featureTransform != NULL);
         graph[imgIndx].transformNodeFeatures(*featureTransform);
+        delete featureTransform;
     }
 
     // run some search moves

@@ -163,11 +163,18 @@ drwnNNGraphImageData::drwnNNGraphImageData(const string &name) : _name(name)
 	DRWN_ASSERT((_labels.rows() == _img.rows) && (_labels.cols() == _img.cols));
     }
 
-    // cache segment data
+    // load segments
+    filename = segDir + DRWN_DIRSEP + _name + segExt;
+    DRWN_ASSERT_MSG(drwnFileExists(filename.c_str()), filename << " does not exists");
+
+    ifstream ifs(filename.c_str(), ios::binary);
+    _segments.read(ifs);
+    ifs.close();
     cacheSegmentData();
 }
 
-drwnNNGraphImageData::drwnNNGraphImageData(const cv::Mat& img) : _name(""), _img(img)
+drwnNNGraphImageData::drwnNNGraphImageData(const cv::Mat& img,
+    const drwnSuperpixelContainer& segments) : _name(""), _img(img), _segments(segments)
 {
     DRWN_ASSERT((_img.data != NULL) && (_img.channels() == 3) && (_img.depth() == CV_8U));
     _labels = MatrixXi::Constant(_img.rows, _img.cols, -1);
@@ -218,14 +225,7 @@ vector<VectorXd> drwnNNGraphImageData::getSegmentLabelMarginals(int numLabels) c
 
 void drwnNNGraphImageData::cacheSegmentData()
 {
-    // cache segments
-    DRWN_ASSERT(!_name.empty());
-    const string segFile = segDir + DRWN_DIRSEP + _name + segExt;
-    DRWN_ASSERT_MSG(drwnFileExists(segFile.c_str()), segFile << " does not exists");
-    
-    ifstream ifs(segFile.c_str(), ios::binary);
-    _segments.read(ifs);
-    ifs.close();
+    DRWN_ASSERT((_segments.width() == _img.cols) && (_segments.height() == _img.rows));
 
     // cache segment colours
     _colours.resize(_segments.size());

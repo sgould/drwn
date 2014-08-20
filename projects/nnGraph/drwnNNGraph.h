@@ -180,7 +180,7 @@ class drwnNNGraphImageData {
     //! construct from basename
     drwnNNGraphImageData(const string &name);
     //! construct from image (no labels or name)
-    drwnNNGraphImageData(const cv::Mat& img);
+    drwnNNGraphImageData(const cv::Mat& img, const drwnSuperpixelContainer& segments);
 
     //! return the name of the image
     const string& name() const { return _name; }
