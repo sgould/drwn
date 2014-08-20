@@ -82,7 +82,7 @@ if not os.path.exists(DS_NAME + ".init_train.index"):
 if not os.path.exists(DS_NAME + ".init_test.index"):
     args = [STD_OPTIONS, "-config", NN_CONFIG,
             " -o ", DS_NAME + ".init_test", DS_TEST_LIST]
-    os.system(cmdline("nnGraphInitialize", args))
+    run_command("nnGraphInitialize", args)
 
 # experiments subroutine ---------------------------------------------
 
