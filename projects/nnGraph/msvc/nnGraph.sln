@@ -17,6 +17,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nnGraphRelabelNodes", "nnGr
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nnGraphLearnTransform", "nnGraphLearnTransform.vcxproj", "{BA074F6C-3A7B-5B01-5D2E-115A33D73DF9}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nnGraphMerge", "nnGraphMerge.vcxproj", "{30EEF43C-F168-B41F-67E0-6D745FEC876C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -55,6 +57,10 @@ Global
 		{BA074F6C-3A7B-5B01-5D2E-115A33D73DF9}.Debug|Win32.Build.0 = Debug|Win32
 		{BA074F6C-3A7B-5B01-5D2E-115A33D73DF9}.Release|Win32.ActiveCfg = Release|Win32
 		{BA074F6C-3A7B-5B01-5D2E-115A33D73DF9}.Release|Win32.Build.0 = Release|Win32
+		{30EEF43C-F168-B41F-67E0-6D745FEC876C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{30EEF43C-F168-B41F-67E0-6D745FEC876C}.Debug|Win32.Build.0 = Debug|Win32
+		{30EEF43C-F168-B41F-67E0-6D745FEC876C}.Release|Win32.ActiveCfg = Release|Win32
+		{30EEF43C-F168-B41F-67E0-6D745FEC876C}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
