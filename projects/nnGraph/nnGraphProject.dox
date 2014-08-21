@@ -4,17 +4,18 @@ namespace drwn {
 /*!
    \page drwnProjNNGraph Superpixel Graph Label Transfer (nnGraph) Project
 
-   This project provides a reference implementation for the Superpixel
-   Graph Label Transfer with Learned Distance Metric work of Gould et
+   This project provides a reference implementation for the "Superpixel
+   Graph Label Transfer with Learned Distance Metric" work of Gould et
    al. (ECCV 2014). The project is part of the \b Darwin software
    package. Installation instructions and addtional documentation can
    be found at http://drwn.anu.edu.au.
 
-   \todo high-level description 
-
-   Below are step-by-step instructions for running the project
-   pipeline. The Python script \p nnGraphPipeline.py in the \p
-   projects/nnGraph/examples directory runs the entire pipeline.
+   The project comprises a number of C/C++ applications for building
+   graphs over superpixels (or regions), learning distance metrics,
+   and performing label transform. Below are step-by-step instructions
+   for running the project pipeline and evaluating results. The Python
+   script \p nnGraphPipeline.py in the \p projects/nnGraph/examples
+   directory runs the entire pipeline.
 
    \sa drwnNNGraphNode, drwnNNGraphImageData, drwnNNGraphImage, drwnNNGraph, drwnNNGraphNodeAnnotation
 
@@ -35,7 +36,10 @@ namespace drwn {
 
    \section drwnProjNNGraphConfig Configuration
 
-   \todo
+   The following XML configuration can be used to change the behaviour
+   of the move-making graph optimization algorithm. You can also
+   change the default location of the images, labels, and regions as
+   well as their extensions by modifying the appropriate option.
 
    \code
      <drwn>
@@ -51,11 +55,16 @@ namespace drwn {
         <option name="imgDir" value="data/images/" />
         <option name="lblDir" value="data/labels/" />
         <option name="segDir" value="data/regions/" />
+        <option name="imgExt" value=".jpg" />
+        <option name="lblExt" value=".txt" />
+        <option name="segExt" value=".bin" />
       </drwnNNGraph>
      </drwn>
    \endcode
 
-   \todo label transfer colour definitions
+   The project uses colors to visualize semantic classes. These are
+   defined in the multi-class segmentation configuration. An example
+   for the 21-class MSRC dataset is shown below:
 
    \code
      <drwn>
@@ -89,13 +98,13 @@ namespace drwn {
      </drwn>
    \endcode
 
-   \todo Standard \b Darwin configuration
+   Other standard \b Darwin configuration settings can also be
+   controlled through the XML file.
 
    \code
      <drwn>
       <drwnCodeProfiler enabled="true" />
-      <drwnLogger logLevel="VERBOSE"
-                  logFile="msrc.log" />
+      <drwnLogger logLevel="VERBOSE" logFile="" />
       <drwnThreadPool threads="4" />
      </drwn>
    \endcode
@@ -125,26 +134,118 @@ namespace drwn {
    end
    \endcode
   
-   The \p "-m SUPERPIXEL" flag can be changed to \p "-m SLIC" for SLIC
-   superpixels.
+   Here \p ${BIN_DIR} should be set to the \b Darwin \p bin
+   directory. The \p "-g" flags specify the rough scale of the image
+   over-segmentation (from 24-by-24 down to 4-by-4). The \p "-m
+   SUPERPIXEL" flag can be changed to \p "-m SLIC" for SLIC
+   superpixels. The application \p visualizeSuperpixels can be used to
+   visualize the resulting set of superpixels.
 
    \sa \ref drwnAppGenSp
 
    \section drwnProjNNGraphInit Initializing the Superpixel Graph
 
-   \todo
+   After generating superpixels for each image in the training set we
+   initialize the superpixel graph by adding a node for every
+   superpixel. We also associate a feature vector (and class label)
+   with each node. The following code will read all images in the MSRC
+   training and validation sets (specified in \p msrcTrainValList.txt)
+   and add them to a graph. The graph is saved as \p
+   "nnMSRC.init_train".
+
+   \code
+   ${BIN_DIR}/nnGraphInitialize -verbose -profile -log nnMSRC.log -threads 8 \
+       -config nnGraphConfig.xml -o nnMSRC.init_train msrcTrainValList.txt
+   \endcode
+
+   We pre-process the test set in the same way for later evaluation.
+
+   \code
+   ${BIN_DIR}/nnGraphInitialize -verbose -profile -log nnMSRC.log -threads 8 \
+       -config nnGraphConfig.xml -o nnMSRC.init_test msrcTestList.txt
+   \endcode
 
    \section drwnProjNNGraphMetric Learning the Distance Metric
 
-   \todo 
+   We could build our nearest neighbour graph based on the raw
+   features (using Euclidean distance). However, better results are
+   possible if we learn a distance metric appropriate to the task. The
+   \p nnGraphLearnTransform application allows various distance
+   metrics to be learned. Note that once the distance metric is
+   learned we apply a transformation to the feature vectors so that
+   evaluating the Euclidean distance on the transformed features is
+   equivalent to evaluating the learned distance metric on the raw
+   features.
+
+   The following shell commands learn a distance metric based of the
+   Large-Margin Nearest Neighbor (LMNN) algorithm of Weinberger and
+   Saul (JMLR, 2006) and then transforms the training set features
+   ready for finding nearest neighbours.
+
+   \code
+   ${BIN_DIR}/nnGraphLearnTransform -verbose -profile -log nnMSRC.log -threads 8 \
+       -set drwnNNGraph K 5 -t LMNN -o nnMSRC_lmnn_5.xform nnMSRC.init_train
+
+   ${BIN_DIR}/nnGraphApplyTransform -verbose -profile -log nnMSRC.log -threads 8 \
+       -o nnMSRC_lmnn_5 nnMSRC_lmnn_5.xform nnMSRC_5.init_train
+   \endcode
 
    \section drwnProjNNGraphEdges Optimizing the Superpixel Graph Edges
 
-   \todo
+   We are now ready to add and optimize the edges in our graph so that
+   they reflect nearest neighbour matches over superpixels. The code
+   first adds edges randomly and then proceeds to find better matches
+   through a sequence of search moves. You can change which search
+   moves get run in the \p nnGraphConfig.xml file.
+
+   \code
+   ${BIN_DIR}/nnGraphOptimize -verbose -profile -log nnMSRC.log -threads 8 \
+       -config nnGraphConfig.xml -set drwnNNGraph K 5 -m 50 \
+       -i nnMSRC_lmnn_1 -o nnMSRC_lmnn_5 msrcTrainValList.txt
+   \endcode
 
    \section drwnProjNNGraphLabelXfer Performing Label Transfer on Test Set
 
-   \todo
+   We are now ready to evaluate performance on the test set. We first
+   add nodes corresponding to superpixels from image in the test set
+   to the graph (applying the appropriate feature transformation).
+
+   \code
+   ${BIN_DIR}/nnGraphMerge -verbose -profile -log nnMSRC.log -threads 8 \
+       -config nnGraphConfig.xml -o nnMSRC_lmnn_5 -t nnMSRC_lmnn_5.xform \
+       nnMSRC_lmnn_5 nnMSRC.init_test
+   \endcode
+
+   Next we add and optimize edges from images in the test set to those
+   in the training set. We do this on all test set images
+   simultaneously. The fact that we have already built a graph over
+   training set images helps the move making algorithm to find good
+   matches quickly.
+
+   \code
+   ${BIN_DIR}/nnGraphOptimize -verbose -profile -log nnMSRC.log -threads 8 \
+       -config nnGraphConfig.xml -set drwnNNGraph K 5 -m 50 \
+       -i nnMSRC_lmnn_5 -o nnMSRC_lmnn_5 -eqv msrcTestList.txt msrcTestList.txt
+   \endcode
+
+   \note The \p "-eqv msrcTestList.txt" option ensures that we do not
+   add edges between any two images coming from the test set.
+
+   We can now transfer labels from the training set images to the test
+   set images and evaluate accuracy.
+
+   \code
+   ${BIN_DIR}/nnGraphLabelTransfer -config msrcConfig.xml -verbose -profile -log nnMSRC.log -threads 8 \
+       -config nnGraphConfig.xml -set drwnNNGraph K 5 -outImages .lmnn_5.png -outLabels .lmnn_5.txt \
+       nnMSRC_lmnn_5 msrcTestList.txt
+
+   ${BIN_DIR}/scorePixelLabels -config msrcConfig.xml -verbose -profile -log nnMSRC.log -threads 8 \
+       -inLabels .lmnn_5.txt msrcTestList.txt   
+   \endcode
+
+   The code will print global and class-averaged accuracy. Annotated
+   images are also saved in the \p output directory (with extension \p
+   ".lmnn_5.png").
 
    \section drwnProjNNGraphLabelOnline Performing Label Transfer on Novel Image (Online Labelling)
 

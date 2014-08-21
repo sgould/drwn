@@ -65,6 +65,7 @@ downloaded from the following links:
 
 \subsection drwnChangeLog1_8 Release 1.8 (beta)
 
+\li Added \ref drwnProjNNGraph project
 \li Added Python scripts for automating some projects
 \li Added ability to pre-process features on-the-fly with one drwnFeatureTransform 
     when applying or learning another drwnFeatureTransform

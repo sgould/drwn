@@ -94,7 +94,7 @@ def run_experiment(k, tag, xform = None):
 
     # learn and apply transform
     if (not xform is None):
-        args = [xform, "-o", GRAPH + ".xform", DS_NAME + ".init_train"]
+        args = [OPTIONS, xform, "-o", GRAPH + ".xform", DS_NAME + ".init_train"]
         run_command("nnGraphLearnTransform", args)
         args = [OPTIONS, "-o", GRAPH, GRAPH + ".xform", DS_NAME + ".init_train"]
         run_command("nnGraphApplyTransform", args)
@@ -118,10 +118,10 @@ def run_experiment(k, tag, xform = None):
     run_command("nnGraphOptimize", args)
 
     # transfer labels and score
-    args = ["-config", DS_CONFIG, OPTIONS, "-outImages",  "'" + EXPRTAG + ".png'",
-            "-outLabels", "'" + EXPRTAG + ".txt'", GRAPH, DS_TEST_LIST]
+    args = ["-config", DS_CONFIG, OPTIONS, "-outImages",  "'." + EXPRTAG + ".png'",
+            "-outLabels", "'." + EXPRTAG + ".txt'", GRAPH, DS_TEST_LIST]
     run_command("nnGraphLabelTransfer", args)
-    args = ["-config", DS_CONFIG, STD_OPTIONS, "-inLabels", "'" + EXPRTAG + ".txt'", DS_TEST_LIST]
+    args = ["-config", DS_CONFIG, STD_OPTIONS, "-inLabels", "'." + EXPRTAG + ".txt'", DS_TEST_LIST]
     run_command("scorePixelLabels", args)
 
 # experiments --------------------------------------------------------
