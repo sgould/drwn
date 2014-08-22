@@ -14,7 +14,7 @@ import sys
 
 # script configuration -----------------------------------------------
 
-BIN_DIR = "../../../bin"
+BIN_DIR = os.path.join(os.getcwd(), "../../../bin")
 
 TRAIN_LIST = "msrcTrainList.txt"
 VAL_LIST = "msrcValList.txt"
