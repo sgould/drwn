@@ -136,4 +136,4 @@ for k in [1, 2, 5, 10, 15, 20]:
 
 # learned large margin nearest neighbour distance
 for k in [1, 2, 5, 10, 15, 20]:
-    run_experiment(k, "white", "-t LMNN -m 5")
+    run_experiment(k, "lmnn", "-t LMNN -m 5")
