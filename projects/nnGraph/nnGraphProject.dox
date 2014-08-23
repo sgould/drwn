@@ -235,6 +235,8 @@ namespace drwn {
    set images and evaluate accuracy.
 
    \code
+   mkdir -p output
+
    ${BIN_DIR}/nnGraphLabelTransfer -config msrcConfig.xml -verbose -profile -log nnMSRC.log -threads 8 \
        -config nnGraphConfig.xml -set drwnNNGraph K 5 -outImages .lmnn_5.png -outLabels .lmnn_5.txt \
        nnMSRC_lmnn_5 msrcTestList.txt
@@ -247,9 +249,10 @@ namespace drwn {
    images are also saved in the \p output directory (with extension \p
    ".lmnn_5.png").
 
-   \section drwnProjNNGraphLabelOnline Performing Label Transfer on Novel Image (Online Labelling)
+   \section drwnProjNNGraphLabelOnline Performing Label Transfer on a Novel Image (Online Labelling)
 
-   \todo
+   \todo generate superpixels
+   \todo give to nnGraphOnlineLabelTransfer application
 
    \section drwnProjNNGraphRef References
 
