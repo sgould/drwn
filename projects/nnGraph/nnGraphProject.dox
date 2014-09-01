@@ -251,8 +251,32 @@ namespace drwn {
 
    \section drwnProjNNGraphLabelOnline Performing Label Transfer on a Novel Image (Online Labelling)
 
-   \todo generate superpixels
-   \todo give to nnGraphOnlineLabelTransfer application
+   We can also process images one at a time. This is useful for
+   labeling novel images. The first step is to create and save
+   regions/superpixels for the novel image.
+
+   \code
+        ${BIN_DIR}/generateSuperpixels -verbose -m SUPERPIXEL \
+            -g 24 -g 17 -g 12 -g 8 -g 6 -g 4 -o <segFile> <imgFile>
+   \endcode
+
+   Next we can use the \p nnGraphOnlineLabelTransfer application to
+   connect the novel image to the nearest neighbour graph and perform
+   label transfer. The following command line shows how to use the
+   previously learned distance metric and graph to transfer labels
+   onto an unseen image.
+
+   \code
+        ${BIN_DIR}/nnGraphOnlineLabelTransfer -config msrcConfig.xml -verbose -profile \
+            -m 50 -t nnMSRC_lmnn_5.xform -outLabel <outLabelFile> -outImage <outImageFile> \
+            nnMSRC_lmnn_5 <imgFile> <segFile>
+   \endcode
+
+   \note The application need to load and process labels for all the
+   images in the graph before performing label transfer. This can be
+   slow. If the application is called multiple times the processing
+   can be sped up by caching the labels. See the \p -labelCache
+   option.
 
    \section drwnProjNNGraphRef References
 
