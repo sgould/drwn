@@ -63,14 +63,14 @@ downloaded from the following links:
 
 \section drwnChangeLog Change Log
 
-\subsection drwnChangeLog1_8 Release 1.8 (beta)
+\subsection drwnChangeLog1_8 Release 1.8
 
 \li Added \ref drwnProjNNGraph project
 \li Added Python scripts for automating some projects
 \li Added ability to pre-process features on-the-fly with one drwnFeatureTransform 
     when applying or learning another drwnFeatureTransform
 \li Fixed race condition in Windows threading (thanks to Edison Guo)
-\li switched Windows and Linux to build against OpenCV 2.4.9
+\li Switched Windows and Linux to build against OpenCV 2.4.9
 \li changed drwnMAPInference::inference to return upper and lower energy bounds
 \li Added pruneRounds function to drwnBoostedClassifier
 \li Added \ref drwnSLICSuperpixels function
