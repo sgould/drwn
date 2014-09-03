@@ -1,9 +1,0 @@
-POSSIBLE STUDENT PROJECTS
-
-1. design and implement a better properties system (to replace drwnProperties)
-2. port gui to Qt (and improve useability)
-3. build system (move to cmake)
-[DONE] 4. port OpenCV code to C++ interface
-5. GPU acceleration of various components
-6. regression test framework
-7. Hadoop acceleration of various components (from gui?)

@@ -14,10 +14,10 @@ if (defined($opts{h})) {
     print STDERR "  -v \"<version>\" :: update to version string\n\n";
     print STDERR "EXAMPLE:\n";
     print STDERR "  ./updateVersion.pl -v \"<x>.<y>\"\n";
-    print STDERR "  cd .. && make clean\n";
-    print STDERR "  cd .. && svn copy trunk release/<x>.<y>\n";
-    print STDERR "  svn ci -m \"updated version\"\n";
-    print STDERR "  cd trunk/admin\n";
+    print STDERR "  git commit -a \"updated version\"\n";
+    print STDERR "  git tag <x>.<y>\n";
+    print STDERR "  git push --tags\n";
+    print STDERR "  (create release in GitHub)\n";
     print STDERR "  ./updateVersion.pl -v \"<x>.<y+1> (beta)\"\n";
     print STDERR "\n";
     exit(0);
