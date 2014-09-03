@@ -7,6 +7,7 @@ namespace drwn {
 
 Archives of stable \b Darwin source code releases can be downloaded from the following links:
 
+\li release 1.8 [ <a href="https://github.com/sgould/drwn/releases/tag/v1.8.0">download</a> ]
 \li release 1.7 [ <a href="http://drwn.anu.edu.au/darwin.1.7.tar.gz">.tar.gz</a> ]
 \li release 1.6.1 [ <a href="http://drwn.anu.edu.au/darwin.1.6.1.tar.gz">.tar.gz</a> ],
 release 1.6 [ <a href="http://drwn.anu.edu.au/darwin.1.6.tar.gz">.tar.gz</a> ]

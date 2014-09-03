@@ -159,8 +159,8 @@ download and install instructions for Windows, Linux and Mac OS X.
 \li \ref winInstall
 \li \ref osxInstall
 
-The latest stable release can be downloaded from:
-\li release 1.7 [ <a href="http://drwn.anu.edu.au/darwin.1.7.tar.gz">.tar.gz</a> ]
+The latest stable release can be downloaded from this 
+<a href="https://github.com/sgould/drwn/releases/latest">link</a>.
 
 Previous stable releases, pre-compiled Windows and Matlab mex
 binaries, and change logs are also \ref drwnDownloadsDoc "available".
