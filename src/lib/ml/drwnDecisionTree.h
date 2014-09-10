@@ -124,6 +124,8 @@ class drwnDecisionTree : public drwnClassifier {
 
     // training
     static void computeSortedFeatureIndex(const vector<vector<double> >& x,
+        const drwnBitArray& sampleIndex, int featureIndx, vector<int>& featureSortIndex);
+    static void computeSortedFeatureIndex(const vector<vector<double> >& x,
         vector<vector<int> >& sortIndex);
     void learnDecisionTree(const vector<vector<double> >& x, const vector<int>& y,
         const vector<double>& w, const vector<vector<int> >& sortIndex,

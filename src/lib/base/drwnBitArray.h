@@ -55,6 +55,8 @@ class drwnBitArray {
     drwnBitArray(const drwnBitArray &m);
     virtual ~drwnBitArray();
 
+    //! returns true if the array is empty
+    inline bool empty() const { return (_sz == 0); }
     //! returns the number of bits in the array
     inline int size() const { return _sz; }
     //! counts the number of bits in the array that are \a set

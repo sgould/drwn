@@ -55,10 +55,16 @@ public:
 
         for (set<int>::const_iterator it = _featureSet.begin(); it != _featureSet.end(); ++it) {
             vector<int> indx;
-            indx.reserve(_sortIndex[*it].size());
-            for (vector<int>::const_iterator jt = _sortIndex[*it].begin(); jt != _sortIndex[*it].end(); ++jt) {
-                if (_sampleIndex[*jt]) {
-                    indx.push_back(*jt);
+
+            // check if sorted indexes have been pre-computed
+            if (_sortIndex.empty()) {
+                drwnDecisionTree::computeSortedFeatureIndex(_x, _sampleIndex, *it, indx);
+            } else {
+                indx.reserve(_sortIndex[*it].size());
+                for (vector<int>::const_iterator jt = _sortIndex[*it].begin(); jt != _sortIndex[*it].end(); ++jt) {
+                    if (_sampleIndex[*jt]) {
+                        indx.push_back(*jt);
+                    }
                 }
             }
 
@@ -343,6 +349,44 @@ int drwnDecisionTree::getClassification(const vector<double>& features) const
 
 // training
 void drwnDecisionTree::computeSortedFeatureIndex(const vector<vector<double> >& x,
+    const drwnBitArray& sampleIndex, int featureIndx, vector<int>& featureSortIndex)
+{
+    // determine number of samples and features
+    DRWN_ASSERT(sampleIndex.empty() || (sampleIndex.size() == (int)x.size()));
+    const int numSamples = sampleIndex.empty() ? (int)x.size() : sampleIndex.count();
+    if (numSamples == 0) {
+        featureSortIndex.clear();
+        return;
+    }
+
+    const int numFeatures = (int)x[0].size();
+    DRWN_ASSERT((featureIndx >= 0) && (featureIndx < numFeatures));
+
+    // sort feature values
+    vector<pair<double, int> > sortedFeatures(numSamples);
+    if (sampleIndex.empty()) {
+        for (int i = 0; i < (int)x.size(); i++) {
+            sortedFeatures[i].first = x[i][featureIndx];
+            sortedFeatures[i].second = i;
+        }
+    } else {
+        for (int i = 0, j = 0; i < (int)x.size(); i++) {
+            if (sampleIndex[i]) {
+                sortedFeatures[j].first = x[i][featureIndx];
+                sortedFeatures[j].second = i;
+                j += 1;
+            }
+        }
+    }
+    sort(sortedFeatures.begin(), sortedFeatures.end());
+
+    featureSortIndex.resize(numSamples);
+    for (int i = 0; i < numSamples; i++) {
+        featureSortIndex[i] = sortedFeatures[i].second;
+    }
+}
+
+void drwnDecisionTree::computeSortedFeatureIndex(const vector<vector<double> >& x,
     vector<vector<int> >& sortIndex)
 {
     DRWN_FCN_TIC;
@@ -360,6 +404,7 @@ void drwnDecisionTree::computeSortedFeatureIndex(const vector<vector<double> >& 
     // sort feature values
     sortIndex.resize(numFeatures);
     for (int i = 0; i < numFeatures; i++) {
+#if 0
         vector<pair<double, int> > sortedFeatures;
         sortedFeatures.reserve(numSamples);
         for (int j = 0; j < numSamples; j++) {
@@ -371,6 +416,9 @@ void drwnDecisionTree::computeSortedFeatureIndex(const vector<vector<double> >& 
         for (int j = 0; j < numSamples; j++) {
             sortIndex[i][j] = sortedFeatures[j].second;
         }
+#else
+        computeSortedFeatureIndex(x, drwnBitArray(), i, sortIndex[i]);
+#endif
     }
 
     DRWN_FCN_TOC;
@@ -386,7 +434,7 @@ void drwnDecisionTree::learnDecisionTree(const vector<vector<double> >& x,
 
     const int numSamples = (int)x.size();
 
-    DRWN_ASSERT(sortIndex.size() == (unsigned)_nFeatures);
+    DRWN_ASSERT(sortIndex.empty() || (sortIndex.size() == (unsigned)_nFeatures));
     DRWN_LOG_DEBUG("learning a " << _nClasses << "-class decision tree to depth "
         << _maxDepth << " with " << sampleIndex.count() << " samples (from "
         << numSamples << ") of length " << _nFeatures);
