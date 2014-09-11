@@ -468,7 +468,6 @@ void drwnDecisionTree::learnDecisionTree(const vector<vector<double> >& x,
         DRWN_LOG_WARNING_ONCE("only trying " << MAX_FEATURE_THRESHOLDS << " threshold values");
     }
 
-#if 1
     const unsigned nThreads = std::min((unsigned)_nFeatures,
         std::max((unsigned)1, drwnThreadPool::MAX_THREADS));
     // define feature sets
@@ -503,73 +502,6 @@ void drwnDecisionTree::learnDecisionTree(const vector<vector<double> >& x,
 
         delete decisionTreeJobs[i];
     }
-#else
-    // score best-split for each feature
-    int bestFeature = -1;
-    double bestScore = DRWN_EPSILON;
-    double bestSplit = 0.0;
-
-    for (int i = 0; i < _nFeatures; i++) {
-        //DRWN_LOG_DEBUG("scoring " << i << "-th feature");
-        const vector<int>& indx = sortIndex[i];
-        DRWN_ASSERT(indx.size() == (unsigned)numSamples);
-
-        vector<double> classCountsLeft(_nClasses, 0.0);
-        vector<double> classCountsRight(classCounts);
-
-        int t = 0;
-        while (t < numSamples - 1) {
-
-            // find next threshold
-            const int nextIndex = t + numSamples / MAX_FEATURE_THRESHOLDS + 1;
-            while ((t < nextIndex) || (x[indx[t]][i] == x[indx[t - 1]][i])) {
-                if (sampleIndex[indx[t]]) {
-                    classCountsLeft[y[indx[t]]] += w[indx[t]];
-                }
-                t += 1;
-                if (t == numSamples - 1) break;
-            }
-
-            // TODO: is this needed?
-            if (t == numSamples - 1) break;
-
-            double leftWeight = 0.0;
-            for (unsigned j = 0; j < classCountsLeft.size(); j++) {
-                classCountsRight[j] = classCounts[j] - classCountsLeft[j];
-                leftWeight += classCountsLeft[j];
-            }
-
-            // score threshold (information gain)
-            double score;
-            switch (SPLIT_CRITERION) {
-            case DRWN_DT_SPLIT_ENTROPY:
-                score = H - leftWeight * drwn::entropy(classCountsLeft) -
-                    (totalWeight - leftWeight) * drwn::entropy(classCountsRight);
-                break;
-            case DRWN_DT_SPLIT_MISCLASS:
-                score = H - (totalWeight -
-                    drwn::maxElem(classCountsLeft) - drwn::maxElem(classCountsRight));
-                break;
-            case DRWN_DT_SPLIT_GINI:
-                score = H - leftWeight * drwn::gini(classCountsLeft) -
-                    (totalWeight - leftWeight) * drwn::gini(classCountsRight);
-                break;
-            default:
-                score = 0.0;
-                DRWN_LOG_FATAL("unknown split criterion " << SPLIT_CRITERION);
-            }
-
-            if (score > bestScore) {
-                bestFeature = i;
-                bestScore = score;
-                bestSplit = 0.5 * (x[indx[t]][i] + x[indx[t - 1]][i]);
-
-                //DRWN_LOG_DEBUG("...found a better split: " << bestScore << " : "
-                //    << toString(classCountsLeft) << ", " << toString(classCountsRight));
-            }
-        }
-    }
-#endif
 
     // create tree node
     if (bestFeature == -1) {
