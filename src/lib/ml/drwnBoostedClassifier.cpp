@@ -120,7 +120,9 @@ double drwnBoostedClassifier::train(const drwnClassifierDataset& dataset)
 
     // pre-compute sorted feature index
     vector<vector<int> > sortIndex;
-    drwnDecisionTree::computeSortedFeatureIndex(dataset.features, sortIndex);
+    if (drwnDecisionTree::CACHE_SORTED_INDEXES) {
+        drwnDecisionTree::computeSortedFeatureIndex(dataset.features, sortIndex);
+    }
 
     // allocate weights
     vector<double> weights;

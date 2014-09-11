@@ -135,6 +135,7 @@ int drwnDecisionTree::MAX_FEATURE_THRESHOLDS = 1000;
 int drwnDecisionTree::MIN_SAMPLES = 0;
 double drwnDecisionTree::LEAKAGE = 0.0;
 drwnTreeSplitCriterion drwnDecisionTree::SPLIT_CRITERION = DRWN_DT_SPLIT_ENTROPY;
+bool drwnDecisionTree::CACHE_SORTED_INDEXES = true;
 
 // drwnDecisionTree ---------------------------------------------------------
 
@@ -273,7 +274,9 @@ double drwnDecisionTree::train(const vector<vector<double> >& features,
 {
     // sort feature values
     vector<vector<int> > sortIndex;
-    computeSortedFeatureIndex(features, sortIndex);
+    if (CACHE_SORTED_INDEXES) {
+        computeSortedFeatureIndex(features, sortIndex);
+    }
 
     // mark valid training samples
     drwnBitArray sampleIndex(features.size());
@@ -404,21 +407,7 @@ void drwnDecisionTree::computeSortedFeatureIndex(const vector<vector<double> >& 
     // sort feature values
     sortIndex.resize(numFeatures);
     for (int i = 0; i < numFeatures; i++) {
-#if 0
-        vector<pair<double, int> > sortedFeatures;
-        sortedFeatures.reserve(numSamples);
-        for (int j = 0; j < numSamples; j++) {
-            sortedFeatures.push_back(make_pair(x[j][i], j));
-        }
-        sort(sortedFeatures.begin(), sortedFeatures.end());
-
-        sortIndex[i].resize(numSamples);
-        for (int j = 0; j < numSamples; j++) {
-            sortIndex[i][j] = sortedFeatures[j].second;
-        }
-#else
         computeSortedFeatureIndex(x, drwnBitArray(), i, sortIndex[i]);
-#endif
     }
 
     DRWN_FCN_TOC;
@@ -641,6 +630,7 @@ void drwnDecisionTree::learnDecisionTree(const vector<vector<double> >& x,
 //! \b minSamples :: minimum number of samples after first split (default: 10)\n
 //! \b leakage :: probability that a training sample leaks to both sides of a split (default: 0.0)\n
 //! \b split :: split criterion for learning (ENTROPY (default), MISCLASS, GINI)\n
+//! \b cacheSortIndex :: pre-cache sorted feature indexes for faster learning (default: true)\n
 
 class drwnDecisionTreeConfig : public drwnConfigurableModule {
 public:
@@ -657,6 +647,8 @@ public:
         os << "      leakage       :: probability that a training sample leaks to both sides of a split (default: "
            << drwnDecisionTree::LEAKAGE << ")\n";
         os << "      split         :: split criterion for learning (ENTROPY (default), MISCLASS, GINI)\n";
+        os << "      cacheSortIndex:: pre-cache sorted feature indexes for faster learning (default: "
+           << (drwnDecisionTree::CACHE_SORTED_INDEXES ? "true" : "false") << ")\n";
     }
 
     void setConfiguration(const char *name, const char *value) {
@@ -679,6 +671,8 @@ public:
                 DRWN_LOG_FATAL("unrecognized configuration value " << value
                     << " for option " << name << " in " << this->name());
             }
+        } else if (!strcmp(name, "cacheSortIndex")) {
+            drwnDecisionTree::CACHE_SORTED_INDEXES = drwn::trueString(value);
         } else {
             DRWN_LOG_FATAL("unrecognized configuration option " << name << " for " << this->name());
         }

@@ -70,6 +70,7 @@ class drwnDecisionTree : public drwnClassifier {
     static int MIN_SAMPLES;       //!< minimum number of samples (after first split)
     static double LEAKAGE;        //!< probability that a training sample leaks to both splits
     static drwnTreeSplitCriterion SPLIT_CRITERION; //!< tree split criteria during learning
+    static bool CACHE_SORTED_INDEXES; //!< pre-cache indexes of sorted features
 
  protected:
     int _splitIndx;                //!< variable index on which to split

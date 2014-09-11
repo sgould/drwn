@@ -64,6 +64,10 @@ downloaded from the following links:
 
 \section drwnChangeLog Change Log
 
+\subsection drwnChangeLog1_9 Release 1.9 (beta)
+
+\li Added \p cacheSortIndex to drwnDecisionTree for trading-off speed versus memory usage
+
 \subsection drwnChangeLog1_8 Release 1.8
 
 \li Added \ref drwnProjNNGraph project
