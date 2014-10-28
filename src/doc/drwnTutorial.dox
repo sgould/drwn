@@ -90,6 +90,9 @@ clean:
         rm -f helloworld
 \endcode
 
+\note On Mac OS X systems you may need to add \p -stdlib=libstdc++ to
+the end of the \p g++ command.
+
 \subsection drwnTutorialHelloWorld4 Make and Test the Application
 
 The following shell commands will build the \p helloworld application

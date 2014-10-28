@@ -6,6 +6,10 @@ DARWIN = "../../../"
 INC_DIRS = -I${DARWIN}/include -I${DARWIN}/external
 LIBS = -L${DARWIN}/bin -ldrwnML -ldrwnPGM -ldrwnIO -ldrwnBase -lm -lpthread
 
+ifeq ($(shell uname), Darwin)
+    LIBS += -stdlib=libstdc++
+endif
+
 main: cmdline xmlio
 
 cmdline:
