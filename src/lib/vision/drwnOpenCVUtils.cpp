@@ -129,7 +129,7 @@ int drwnShowDebuggingImage(const cv::Mat& img, const std::string& name, bool bWa
     }
 
     // show the image
-    cv::namedWindow(name, 1);
+    cv::namedWindow(name, cv::WINDOW_AUTOSIZE);
     cv::imshow(name, img);
 
     int ch = -1;

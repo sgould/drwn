@@ -50,18 +50,23 @@ cv::Mat graphCut(const vector<cv::Mat>& photos, const cv::Mat& mask);
 
 // usage ---------------------------------------------------------------------
 
-void usage()
+void description()
 {
-    cerr << DRWN_USAGE_HEADER << endl;
-    cerr << "USAGE: ./photoMontage [OPTIONS]\n";
     cerr << "DESCRIPTION:  Creates a photo-montage from images captured from a\n"
          << "  webcam (press '1' to '4' to capture; press 'esc' or 'enter' to\n"
-         << "  continue) or loaded from disk.\n"
+         << "  continue) or loaded from disk.\n\n"
          << "  After images have been captured or loaded, mark regions you want\n"
          << "  in the montage using the mouse; press 'c' to clear current markings.\n"
          << "  Press 'enter' to create montage (can be done repeatedly); press 'v'\n"
          << "  to toggle montage view; press 's' to save montage; and press 'esc'\n"
-         << "  or 'q' to quit.\n";
+         << "  or 'q' to quit.\n\n";
+}
+
+void usage()
+{
+    cerr << DRWN_USAGE_HEADER << endl;
+    cerr << "USAGE: ./photoMontage [OPTIONS]\n\n";
+	description();
     cerr << "OPTIONS:\n"
          << "  -o <dir>          :: output directory for saving images\n"
          << "  -overlay          :: overlay previous image during capture\n"
@@ -96,6 +101,8 @@ int main(int argc, char *argv[])
     DRWN_ASSERT_MSG((outputDir == NULL) || (drwnDirExists(outputDir)),
         "directory " << outputDir << " does not exist");
 
+	description();
+
     // images to combine
     vector<cv::Mat> photos(4);
     for (unsigned i = 0; i < photos.size(); i++) {
@@ -120,7 +127,7 @@ int main(int argc, char *argv[])
     const string wndCollection("photo collection");
     const string wndOutput("montage");
 
-    cv::namedWindow(wndCollection, CV_WINDOW_AUTOSIZE);
+    cv::namedWindow(wndCollection, cv::WINDOW_AUTOSIZE);
     cv::Mat canvas = makePhotoCollection(photos, mask);
     cv::imshow(wndCollection, canvas);
 
