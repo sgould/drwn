@@ -26,8 +26,9 @@
 #
 # ----------------------------------------------------------------------------
 
-import sys, getopt, os, re
+import sys, getopt, os, re, tempfile
 import xml.etree.ElementTree as etree
+from subprocess import call
 
 # usage ----------------------------------------------------------------------
 
@@ -93,7 +94,9 @@ for t in testList:
             re.sub(binding, file[i], params)
 
     # construct the command line
-    cmdline = t.attrib['command'] + " " + params + " 1> " + t.attrib['name'] + ".stdout 2> " + t.attrib['name'] + ".stderr"
+    cmdline = t.attrib['command'] + " " + params + \
+        " 1> " + tempfile.gettempdir() + "/" + t.attrib['name'] + ".stdout" + \
+        " 2> " + tempfile.gettempdir() + "/" + t.attrib['name'] + ".stderr"
     print cmdline
 
     # check that output files don't already exist
@@ -109,7 +112,8 @@ for t in testList:
         continue
     
     # run the command
-    if ('-x', '') in opts:
+    if ('-x', '') not in opts:
+        call(cmdline, shell=True)
         # TODO
         testPassed = False
         pass
@@ -122,14 +126,11 @@ for t in testList:
 
     # remove log and output files
     if testPassed or (('-k', '') not in opts):
-        pass
-        # TODO
-	#unlink("${OUTDIR}$test->{name}.stdout");
-	#unlink("${OUTDIR}$test->{name}.stderr");
-	#for (my $j = 0; $j <= $#{$test->{file}}; $j++) {
-	#    unlink("${OUTDIR}$test->{file}->[$j]");
-	#}
-
+	os.remove(tempfile.gettempdir() + "/" + t.attrib['name'] + ".stdout");
+	os.remove(tempfile.gettempdir() + "/" + t.attrib['name'] + ".stderr");
+        if 'file' in t.attrib:
+            for f in t.attrib['file']:
+                os.remove(f)
 
 # print list of failed test
 print "----------------------------------------"
