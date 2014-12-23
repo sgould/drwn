@@ -206,12 +206,12 @@ manually. The following describes that process.
 
 \code
   cd external
-  wget http://bitbucket.org/eigen/eigen/get/3.1.2.tar.bz2 -O eigen-3.1.2.tar.bz2
-  bunzip2 eigen-3.1.2.tar.bz2
-  tar xvf eigen-3.1.2.tar
-  mv eigen-eigen-5097c01bcdc4 eigen-3.1.2
-  rm -f eigen-3.1.2.tar
-  ln -s eigen-3.1.2/Eigen Eigen
+  wget http://bitbucket.org/eigen/eigen/get/3.2.3.tar.bz2 -O eigen-3.2.3.tar.bz2
+  bunzip2 eigen-3.2.3.tar.bz2
+  tar xvf eigen-3.2.3.tar
+  mv eigen-eigen-36fd1ba04c12 eigen-3.2.3
+  rm -f eigen-3.2.3.tar
+  ln -s eigen-3.2.3/Eigen Eigen
   cd ..
 \endcode
 
