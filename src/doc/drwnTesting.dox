@@ -3,9 +3,9 @@ namespace drwn {
 /*!
 \page drwnTesting Regression Tests
 
-Regression tests are run using a perl script in the tests
-directory. Requires <tt>XML::Simple</tt> and <tt>Text::Diff</tt> to be
-installed.
+Regression tests are run using either a perl script or python script
+in the tests directory. The perl script requires <tt>XML::Simple</tt>
+and <tt>Text::Diff</tt> to be installed.
 
 \code
 sudo cpan
@@ -23,8 +23,8 @@ the \ref drwnML library, run
 perl runtests.pl drwnMLTests.xml
 \endcode
 
-Executing \p runtests.pl without any arguments will display additional
-usage information.
+Executing \p runtests.pl or \p runtests.py without any arguments will
+display additional usage information.
 
 */
 }

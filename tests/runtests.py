@@ -26,7 +26,7 @@
 #
 # ----------------------------------------------------------------------------
 
-import sys, getopt, os, re, tempfile
+import sys, getopt, os, re, tempfile, difflib
 import xml.etree.ElementTree as etree
 from subprocess import call
 
@@ -114,9 +114,42 @@ for t in testList:
     # run the command
     if ('-x', '') not in opts:
         call(cmdline, shell=True)
-        # TODO
-        testPassed = False
-        pass
+    	if ('-v', '') in opts:
+            print open(tempfile.gettempdir() + "/" + t.attrib['name'] + ".stdout", "rt").read()
+            print open(tempfile.gettempdir() + "/" + t.attrib['name'] + ".stderr", "rt").read()
+
+        if ('ignoreStdout' not in t.attrib) or (t.attrib['ignoreStdout'] != "true"):
+            try:
+                d = difflib.context_diff(open("output/" + t.attrib['name'] + ".stdout", "rt").readlines(),
+                                  open(tempfile.gettempdir() + "/" + t.attrib['name'] + ".stdout", "rt").readlines())
+                if list(d):
+                    print ''.join(list(d))
+                    testPassed = False
+            except:
+                print "MISSING GOLDSTANDARD RESULTS"
+                testPassed = False
+
+        if ('ignoreStderr' not in t.attrib) or (t.attrib['ignoreStderr'] != "true"):
+            try:
+                d = difflib.context_diff(open("output/" + t.attrib['name'] + ".stderr", "rt").readlines(),
+                                  open(tempfile.gettempdir() + "/" + t.attrib['name'] + ".stderr", "rt").readlines())
+                if list(d):
+                    print ''.join(list(d))
+                    testPassed = False
+            except:
+                print "MISSING GOLDSTANDARD RESULTS"
+                testPassed = False
+
+        if 'file' in t.attrib:
+            for f in t.attrib['file']:
+                try:
+                    d = difflib.context_diff(open("output/" + f, "rt").readlines(),
+                                             open(tempfile.gettempdir() + "/" + f, "rt").readlines())
+                    if list(d):
+                        print ''.join(list(d))
+                        testPassed = False
+                except:
+                    testPassed = False
 
     if testPassed:
         print "...test \"" + t.attrib['name'] + "\" PASSED"
@@ -126,11 +159,14 @@ for t in testList:
 
     # remove log and output files
     if testPassed or (('-k', '') not in opts):
-	os.remove(tempfile.gettempdir() + "/" + t.attrib['name'] + ".stdout");
-	os.remove(tempfile.gettempdir() + "/" + t.attrib['name'] + ".stderr");
-        if 'file' in t.attrib:
-            for f in t.attrib['file']:
-                os.remove(f)
+        try:
+            os.remove(tempfile.gettempdir() + "/" + t.attrib['name'] + ".stdout");
+            os.remove(tempfile.gettempdir() + "/" + t.attrib['name'] + ".stderr");
+            if 'file' in t.attrib:
+                for f in t.attrib['file']:
+                    os.remove(f)
+        except OSError:
+            pass
 
 # print list of failed test
 print "----------------------------------------"
