@@ -1,7 +1,7 @@
 /*****************************************************************************
 ** DARWIN: A FRAMEWORK FOR MACHINE LEARNING RESEARCH AND DEVELOPMENT
 ** Distributed under the terms of the BSD license (see the LICENSE file)
-** Copyright (c) 2007-2014, Stephen Gould
+** Copyright (c) 2007-2015, Stephen Gould
 ** All rights reserved.
 **
 ******************************************************************************
@@ -20,7 +20,7 @@
 
 #define DRWN_VERSION   "1.9 (beta)"
 #define DRWN_TITLE     "DARWIN: A Framework for Machine Learning R&D"
-#define DRWN_COPYRIGHT "Copyright (c) 2007-2014, Stephen Gould"
+#define DRWN_COPYRIGHT "Copyright (c) 2007-2015, Stephen Gould"
 
 #define DRWN_USAGE_HEADER (DRWN_TITLE " (Version: " DRWN_VERSION ")\n" DRWN_COPYRIGHT "\n")
 

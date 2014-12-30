@@ -1,7 +1,7 @@
 #!/bin/csh
 #
 # DARWIN INSTALLATION OF MAC OSX ESSENTIAL SOFTWARE
-# Copyright (c) 2007-2014, Stephen Gould
+# Copyright (c) 2007-2015, Stephen Gould
 #
 # FILENAME:    macosx.sh
 # AUTHOR(S):   Stephen Gould <stephen.gould@anu.edu.au>

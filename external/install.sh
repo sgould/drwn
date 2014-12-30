@@ -1,7 +1,7 @@
 #!/bin/csh
 #
 # DARWIN INSTALLATION OF EXTERNAL LIBRARIES
-# Copyright (c) 2007-2014, Stephen Gould
+# Copyright (c) 2007-2015, Stephen Gould
 #
 # FILENAME:    install.sh (wxWidgets | Eigen)
 # AUTHOR(S):   Stephen Gould <stephen.gould@anu.edu.au>
