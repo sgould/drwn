@@ -39,7 +39,7 @@
 //! \endcode
 //!
 
-class drwnColourHistogram {
+class drwnColourHistogram : public drwnStdObjIface {
  protected:
     unsigned _channelBits;        //!< number of bits for each colour channel
     unsigned char _mask;          //!< mask for channel bits
@@ -50,6 +50,8 @@ class drwnColourHistogram {
  public:
     //! constructor
     drwnColourHistogram(double pseudoCounts = 1.0, unsigned channelBits = 3);
+    //! copy constructor
+    drwnColourHistogram(const drwnColourHistogram& histogram);
     //! destructor
     ~drwnColourHistogram() { /* do nothing */ }
 
@@ -58,9 +60,14 @@ class drwnColourHistogram {
 
     //! clear the histogram counts
     void clear() { clear(_pseudoCounts); }
-
     //! clear the histogram and assign a new prior
     void clear(double pseudoCounts);
+
+    // i/o
+    const char *type() const { return "drwnColourHistogram"; }
+    drwnColourHistogram *clone() const { return new drwnColourHistogram(*this); }
+    bool save(drwnXMLNode& xml) const;
+    bool load(drwnXMLNode& xml);
 
     //! accumulate an RGB colour sample
     void accumulate(unsigned char red, unsigned char green, unsigned char blue);

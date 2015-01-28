@@ -7,6 +7,7 @@
 ******************************************************************************
 ** FILENAME:    drwnColourHistogram.cpp
 ** AUTHOR(S):   Stephen Gould <stephen.gould@anu.edu.au>
+**              Kevin Guo <kevin.guo@nicta.com.au>
 **
 *****************************************************************************/
 
@@ -32,13 +33,50 @@ drwnColourHistogram::drwnColourHistogram(double pseudoCounts, unsigned channelBi
     _histogram.resize(bins, 0.0);
 }
 
-void drwnColourHistogram::clear(double pseudoCounts) 
+drwnColourHistogram::drwnColourHistogram(const drwnColourHistogram& histogram) :
+    _channelBits(histogram._channelBits), _mask(histogram._mask),
+    _pseudoCounts(histogram._pseudoCounts), _histogram(histogram._histogram),
+    _totalCounts(histogram._totalCounts)
+{
+    // do nothing
+}
+
+void drwnColourHistogram::clear(double pseudoCounts)
 {
     DRWN_ASSERT(pseudoCounts >= 0.0);
     _pseudoCounts = pseudoCounts;
 
     std::fill(_histogram.begin(), _histogram.end(), 0.0);
     _totalCounts = 0.0;
+}
+
+
+bool drwnColourHistogram::save(drwnXMLNode& xml) const
+{
+    drwnAddXMLAttribute(xml, "channelBits", toString(_channelBits).c_str(), false);
+    drwnAddXMLAttribute(xml, "pseudoCounts", toString(_pseudoCounts).c_str(), false);
+    drwnAddXMLAttribute(xml, "totalCounts", toString(_totalCounts).c_str(), false);
+
+    drwnXMLNode *node = drwnAddXMLChildNode(xml, "histogram", NULL, false);
+    drwnXMLUtils::serialize(*node, (const char *)&_histogram[0], _histogram.size() * sizeof(double));
+
+    return true;
+}
+
+bool drwnColourHistogram::load(drwnXMLNode& xml)
+{
+    _channelBits = atoi(drwnGetXMLAttribute(xml, "channelBits"));
+    _pseudoCounts = atoi(drwnGetXMLAttribute(xml, "pseudoCounts"));
+    _totalCounts = atof(drwnGetXMLAttribute(xml, "totalCounts"));
+    _mask =  0xff ^ (0xff >> _channelBits);
+
+    const size_t bins = 0x00000001 << (3 * _channelBits);
+    _histogram.resize(bins);
+    drwnXMLNode *node = xml.first_node("histogram");
+    DRWN_ASSERT(node != NULL);
+    drwnXMLUtils::deserialize(*node, (char *)&_histogram[0], bins * sizeof(double));
+
+    return true;
 }
 
 void drwnColourHistogram::accumulate(unsigned char red, unsigned char green, unsigned char blue)
@@ -50,7 +88,7 @@ void drwnColourHistogram::accumulate(unsigned char red, unsigned char green, uns
     //const unsigned dist_r = red & !_mask;
     //const unsigned dist_g = green & !_mask;
     //const unsigned dist_b = blue & !_mask;
-    
+
     const unsigned indx = (indx_r << (2 * _channelBits)) | (indx_g << _channelBits) | indx_b;
     _histogram[indx] += 1.0;
     _totalCounts += 1.0;
@@ -83,7 +121,7 @@ cv::Mat drwnColourHistogram::visualize() const
         cv::line(canvas, cv::Point(0, indx), cv::Point(legendWidth, indx), CV_RGB(red, green, blue), 1);
 
         double v = (_histogram[indx] + _pseudoCounts) / maxCount;
-        cv::line(canvas, cv::Point(legendWidth + spaceWidth, indx), 
+        cv::line(canvas, cv::Point(legendWidth + spaceWidth, indx),
             cv::Point(legendWidth + spaceWidth + v * barWidth, indx), CV_RGB(0x7f, 0x7f, 0x7f), 1);
     }
 
