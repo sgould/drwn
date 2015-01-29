@@ -238,6 +238,10 @@ Make sure the file \p external/opencv/lib/pkgconfig/opencv.pc
 exists. If not you have probably installed OpenCV in the wrong
 location.
 
+If you experience linker problems (e.g., \p "/usr/bin/ld: error: cannot find -lcudart")
+then try compiling OpenCV without CUDA support by adding \p "-D WITH_CUDA=OFF" to the
+\p cmake command above.
+
 \subsection drwnMatlabLinux Matlab
 
 Building the Matlab project requires Matlab to be installed on the
