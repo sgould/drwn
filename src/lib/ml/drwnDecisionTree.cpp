@@ -70,6 +70,7 @@ public:
 
             const int numSamples = (int)indx.size();
             if (numSamples < drwnDecisionTree::MIN_SAMPLES) continue;
+            const double maxFeatureValue = _x[indx[numSamples - 1]][*it];
 
             vector<double> classCountsLeft(numClasses, 0.0);
             vector<double> classCountsRight(_classCounts);
@@ -80,18 +81,23 @@ public:
                 // find next threshold
                 const int nextIndex = std::min(numSamples - 1,
                     t + numSamples / drwnDecisionTree::MAX_FEATURE_THRESHOLDS + 1);
+
+                // check if threshold would include entire dataset
+                const double split = _x[indx[nextIndex - 1]][*it];
+                if (split == maxFeatureValue)
+                    break;
+
                 while (t != nextIndex) {
-                    classCountsLeft[_y[indx[t]]] += _w[indx[t]];
+                    const int ix = indx[t];
+                    classCountsLeft[_y[ix]] += _w[ix];
                     t += 1;
                 }
 
-                while ((t != numSamples - 1) && (_x[indx[t]][*it] == _x[indx[t - 1]][*it])) {
-                    classCountsLeft[_y[indx[t]]] += _w[indx[t]];
+                while (_x[indx[t]][*it] == split) {
+                    const int ix = indx[t];
+                    classCountsLeft[_y[ix]] += _w[ix];
                     t += 1;
                 }
-
-                // TODO: is this needed?
-                if (t == numSamples - 1) break;
 
                 const double leftWeight = Eigen::Map<VectorXd>(&classCountsLeft[0], numClasses).sum();
                 Eigen::Map<ArrayXd>(&classCountsRight[0], numClasses) =
