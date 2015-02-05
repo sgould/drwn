@@ -79,7 +79,7 @@ public:
             while (t < numSamples - 1) {
 
                 // find next threshold
-                const int nextIndex = std::min(numSamples - 1,
+                int nextIndex = std::min(numSamples - 1,
                     t + numSamples / drwnDecisionTree::MAX_FEATURE_THRESHOLDS + 1);
 
                 // check if threshold would include entire dataset
@@ -87,13 +87,11 @@ public:
                 if (split == maxFeatureValue)
                     break;
 
-                while (t != nextIndex) {
-                    const int ix = indx[t];
-                    classCountsLeft[_y[ix]] += _w[ix];
-                    t += 1;
+                while (_x[indx[nextIndex]][*it] == split) {
+                    nextIndex += 1;
                 }
 
-                while (_x[indx[t]][*it] == split) {
+                while (t != nextIndex) {
                     const int ix = indx[t];
                     classCountsLeft[_y[ix]] += _w[ix];
                     t += 1;

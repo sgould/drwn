@@ -172,7 +172,7 @@ double drwnBoostedClassifier::train(const drwnClassifierDataset& dataset)
 
         if (epsilon >= 1.0 - 1.0 / _nClasses) {
             DRWN_LOG_WARNING("boosting terminated at round "
-                << (i + 1) << " of " << _numRounds);
+                << (i + 1) << " of " << _numRounds << " (epsilon too large)");
             delete tree;
             break;
         }
