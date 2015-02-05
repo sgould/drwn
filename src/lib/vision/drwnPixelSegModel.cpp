@@ -507,9 +507,9 @@ double drwnPixelSegModel::energy(drwnSegImageInstance *instance) const
 // pixel features
 void drwnPixelSegModel::computeBoostedResponses(const vector<double>& x, vector<double>& y) const
 {
+    vector<double> f(2);
     y.resize(_pixelClassModels.size());
 
-    vector<double> f(2);
     for (unsigned i = 0; i < _pixelClassModels.size(); i++) {
         _pixelClassModels[i]->getClassScores(x, f);
         y[i] = f[0] - f[1];
@@ -587,14 +587,26 @@ void drwnPixelSegModel::cacheBoostedPixelResponses(drwnSegImageInstance &instanc
     // need to clone feature generator for thread safety
     drwnSegImagePixelFeatures *featureGenerator(_featureGenerator->clone());
     featureGenerator->cacheInstanceData(instance);
+    vector<double> v;
+#if 0
     for (int y = 0; y < instance.height(); y++) {
         for (int x = 0; x < instance.width(); x++) {
             instance.unaries.push_back(vector<double>());
-            vector<double> v;
+            v.clear();
             featureGenerator->appendPixelFeatures(x, y, v);
             computeBoostedResponses(v, instance.unaries.back());
         }
     }
+#else
+    instance.unaries.resize(instance.size(), vector<double>(_pixelClassModels.size()));
+    for (int y = 0; y < instance.height(); y++) {
+        for (int x = 0; x < instance.width(); x++) {
+            v.clear();
+            featureGenerator->appendPixelFeatures(x, y, v);
+            computeBoostedResponses(v, instance.unaries[y * instance.width() + x]);
+        }
+    }
+#endif
     delete featureGenerator;
     drwnCodeProfiler::toc(drwnCodeProfiler::getHandle("computePixelFeatures"));
 
