@@ -30,7 +30,7 @@ Darwin libraries, applications and projects.
  - for each project, open associated solution file and build
 
 Required (Eigen):
-1. Download Eigen headers and unzip into external/eigen2
+1. Download Eigen headers and unzip into external/eigen3
 
 Optional (zlib):
 1. Create a directory external/zlib
