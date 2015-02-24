@@ -66,6 +66,8 @@ downloaded from the following links:
 
 \subsection drwnChangeLog1_9 Release 1.9 (beta)
 
+\li Added Python scripts for running experiments and regression tests
+\li Refactored drwnGrabCutInstance class to support both GMM and colour histogram model
 \li Added \p cacheSortIndex to drwnDecisionTree for trading-off speed versus memory usage
 
 \subsection drwnChangeLog1_8 Release 1.8

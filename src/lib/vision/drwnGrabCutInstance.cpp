@@ -7,6 +7,7 @@
 ******************************************************************************
 ** FILENAME:    drwnGrabCutInstance.cpp
 ** AUTHOR(S):   Stephen Gould <stephen.gould@anu.edu.au>
+**		Kevin Guo <Kevin.Guo@nicta.com.au>
 **
 *****************************************************************************/
 
@@ -53,23 +54,19 @@ const unsigned char drwnGrabCutInstance::MASK_C_NONE;
 #endif
 
 bool drwnGrabCutInstance::bVisualize = false;
-size_t drwnGrabCutInstance::maxSamples = 5000;
-int drwnGrabCutInstance::numMixtures = 5;
 int drwnGrabCutInstance::maxIterations = 10;
 
 // drwnGrabCutInstance ------------------------------------------------------
 
 drwnGrabCutInstance::drwnGrabCutInstance() :
-    _numUnknown(0), _fgColourModel(3, numMixtures), _bgColourModel(3, numMixtures),
-    _pairwise(NULL), _unaryWeight(1.0), _pottsWeight(0.0), _pairwiseWeight(0.0)
+    _numUnknown(0), _pairwise(NULL), _unaryWeight(1.0), _pottsWeight(0.0), _pairwiseWeight(0.0)
 {
     // do nothing
 }
 
 drwnGrabCutInstance::drwnGrabCutInstance(const drwnGrabCutInstance& instance) :
     _img(instance._img.clone()), _trueMask(instance._trueMask.clone()), _mask(instance._mask.clone()),
-    _numUnknown(instance._numUnknown), _fgColourModel(instance._fgColourModel), _bgColourModel(instance._bgColourModel),
-    _unary(instance._unary.clone()), _pairwise(NULL),
+    _numUnknown(instance._numUnknown), _unary(instance._unary.clone()), _pairwise(NULL),
     _unaryWeight(instance._unaryWeight), _pottsWeight(instance._pottsWeight), _pairwiseWeight(instance._pairwiseWeight)
 {
     if (instance._pairwise != NULL) _pairwise = new drwnPixelNeighbourContrasts(*instance._pairwise);
@@ -185,8 +182,8 @@ void drwnGrabCutInstance::initialize(const cv::Mat& img, const cv::Mat& inferMas
 
     // learn or load colour models
     if (colorModelFile == NULL) {
-        learnColourModel(foregroundColourMask(), _fgColourModel);
-        learnColourModel(backgroundColourMask(), _bgColourModel);
+        learnColourModel(foregroundColourMask(), true);
+        learnColourModel(backgroundColourMask(), false);
         updateUnaryPotentials();
     } else {
         DRWN_LOG_VERBOSE("loading colour models from " << colorModelFile);
@@ -197,46 +194,7 @@ void drwnGrabCutInstance::initialize(const cv::Mat& img, const cv::Mat& inferMas
     _pairwise = new drwnPixelNeighbourContrasts(_img);
 }
 
-// load colour models
-void drwnGrabCutInstance::loadColourModels(const char *filename)
-{
-    DRWN_ASSERT(filename != NULL);
-
-    drwnXMLDoc xml;
-    drwnXMLNode *node = drwnParseXMLFile(xml, filename, "drwnGrabCutInstance");
-
-    drwnXMLNode *subnode = node->first_node("foreground");
-    DRWN_ASSERT(subnode != NULL);
-    _fgColourModel.load(*subnode);
-    subnode = node->first_node("background");
-    DRWN_ASSERT(subnode != NULL);
-    _bgColourModel.load(*subnode);
-
-    updateUnaryPotentials();
-}
-
-// save colour models
-void drwnGrabCutInstance::saveColourModels(const char *filename) const
-{
-    DRWN_ASSERT(filename != NULL);
-
-    drwnXMLDoc xml;
-    drwnXMLNode *node = drwnAddXMLChildNode(xml, "drwnGrabCutInstance", NULL, false);
-    drwnAddXMLAttribute(*node, "drwnVersion", DRWN_VERSION, false);
-
-    drwnXMLNode *child = drwnAddXMLChildNode(*node, "foreground", NULL, false);
-    _fgColourModel.save(*child);
-
-    child = drwnAddXMLChildNode(*node, "background", NULL, false);
-    _bgColourModel.save(*child);
-
-    ofstream ofs(filename);
-    ofs << xml << endl;
-    DRWN_ASSERT(!ofs.fail());
-    ofs.close();
-}
-
-void drwnGrabCutInstance::setBaseModelWeights(double u, double p, double c) 
+void drwnGrabCutInstance::setBaseModelWeights(double u, double p, double c)
 {
     DRWN_ASSERT_MSG(p >= 0.0, "potts term must be non-negative to remain submodular");
     DRWN_ASSERT_MSG(c >= 0.0, "contrast-sensitive pairwise term must be non-negative to remain submodular");
@@ -419,7 +377,7 @@ cv::Mat drwnGrabCutInstance::inference()
                 DRWN_LOG_WARNING("segmentation is all background");
                 break;
             }
-            learnColourModel(mask, _fgColourModel);
+            learnColourModel(mask, true);
 
             cv::compare(lastSeg, cv::Scalar(MASK_BG), mask, CV_CMP_EQ);
             count = cv::countNonZero(mask);
@@ -427,7 +385,7 @@ cv::Mat drwnGrabCutInstance::inference()
                 DRWN_LOG_WARNING("segmentation is all foreground");
                 break;
             }
-            learnColourModel(mask, _bgColourModel);
+            learnColourModel(mask, false);
 
             updateUnaryPotentials();
         }
@@ -514,85 +472,6 @@ vector<double> drwnGrabCutInstance::pixelColour(int y, int x) const
     colour[1] = (double)p[1] / 255.0;
     colour[0] = (double)p[2] / 255.0;
     return colour;
-}
-
-void drwnGrabCutInstance::learnColourModel(const cv::Mat& mask, drwnGaussianMixture &model)
-{
-    DRWN_ASSERT((mask.rows == _img.rows) && (mask.cols == _img.cols));
-    if (maxSamples == 0) {
-        DRWN_LOG_WARNING("skipping colour model learning (maxSamples is zero)");
-        return;
-    }
-
-    DRWN_FCN_TIC;
-
-    // extract colour samples for pixels in mask
-    vector<vector<double> > data;
-    for (int y = 0; y < _img.rows; y++) {
-        for (int x = 0; x < _img.cols; x++) {
-            if (mask.at<unsigned char>(y, x) != 0x00) {
-                data.push_back(pixelColour(y, x));
-            }
-        }
-    }
-
-    // subsample if too many
-    data = drwn::subSample(data, maxSamples);
-    DRWN_LOG_VERBOSE("learning " << numMixtures << "-component model using "
-        << data.size() << " pixels...");
-
-    // check variance of data
-    drwnSuffStats stats(3, DRWN_PSS_FULL);
-    stats.accumulate(data);
-    VectorXd mu = stats.firstMoments() / stats.count();
-    MatrixXd sigma = stats.secondMoments() / stats.count() - mu * mu.transpose();
-    double det = sigma.determinant();
-    if (det <= 0.0) {
-        DRWN_LOG_WARNING("no colour variation in data; adding noise (|Sigma| = " << det << ")");
-        for (unsigned i = 0; i < data.size(); i++) {
-            data[i][0] += 0.01 * (drand48() - 0.5);
-            data[i][1] += 0.01 * (drand48() - 0.5);
-            data[i][2] += 0.01 * (drand48() - 0.5);
-        }
-    }
-
-    // learn model
-    DRWN_ASSERT(data.size() > 1);
-    model.initialize(3, std::min(numMixtures, (int)data.size() - 1));
-    model.train(data);
-
-    DRWN_FCN_TOC;
-}
-
-void drwnGrabCutInstance::updateUnaryPotentials()
-{
-    DRWN_ASSERT(_img.data != NULL);
-
-    DRWN_FCN_TIC;
-    DRWN_LOG_VERBOSE("updating unary potentials for " << toString(_img) << "...");
-    if ((_unary.data == NULL) || (_unary.rows != _img.rows) || (_unary.cols != _img.cols)) {
-        _unary = cv::Mat(_img.rows, _img.cols, CV_32FC1);
-    }
-
-    for (int y = 0; y < _img.rows; y++) {
-        for (int x = 0; x < _img.cols; x++) {
-            // skip "known" pixels
-            if (!isUnknownPixel(x, y)) {
-                _unary.at<float>(y, x) = 0.0f;
-                continue;
-            }
-
-            // evaluate difference in log-likelihood
-            vector<double> colour(pixelColour(y, x));
-
-            double p_fg = _fgColourModel.evaluateSingle(colour);
-            double p_bg = _bgColourModel.evaluateSingle(colour);
-            DRWN_ASSERT(isfinite(p_fg) && isfinite(p_bg));
-            _unary.at<float>(y, x) = (float)(p_fg - p_bg);
-        }
-    }
-
-    DRWN_FCN_TOC;
 }
 
 cv::Mat drwnGrabCutInstance::graphCut(const cv::Mat& unary) const
@@ -738,14 +617,262 @@ cv::Mat drwnGrabCutInstance::graphCut(const cv::Mat& unary) const
     return mapAssignment;
 }
 
+// drwnGrabCutInstanceGMM ---------------------------------------------------
+
+size_t drwnGrabCutInstanceGMM::maxSamples = 5000;
+int drwnGrabCutInstanceGMM::numMixtures = 5;
+
+drwnGrabCutInstanceGMM::drwnGrabCutInstanceGMM() : drwnGrabCutInstance(),
+     _fgColourModel(3, numMixtures), _bgColourModel(3, numMixtures)
+{
+    // do nothing
+}
+
+drwnGrabCutInstanceGMM::~drwnGrabCutInstanceGMM()
+{
+    // do nothing
+}
+
+// load colour models
+void drwnGrabCutInstanceGMM::loadColourModels(const char *filename)
+{
+    DRWN_ASSERT(filename != NULL);
+
+    drwnXMLDoc xml;
+    drwnXMLNode *node = drwnParseXMLFile(xml, filename, "drwnGrabCutInstanceGMM");
+
+    drwnXMLNode *subnode = node->first_node("foreground");
+    DRWN_ASSERT(subnode != NULL);
+    _fgColourModel.load(*subnode);
+    subnode = node->first_node("background");
+    DRWN_ASSERT(subnode != NULL);
+    _bgColourModel.load(*subnode);
+
+    updateUnaryPotentials();
+}
+
+// save colour models
+void drwnGrabCutInstanceGMM::saveColourModels(const char *filename) const
+{
+    DRWN_ASSERT(filename != NULL);
+
+    drwnXMLDoc xml;
+    drwnXMLNode *node = drwnAddXMLChildNode(xml, "drwnGrabCutInstanceGMM", NULL, false);
+    drwnAddXMLAttribute(*node, "drwnVersion", DRWN_VERSION, false);
+
+    drwnXMLNode *child = drwnAddXMLChildNode(*node, "foreground", NULL, false);
+    _fgColourModel.save(*child);
+
+    child = drwnAddXMLChildNode(*node, "background", NULL, false);
+    _bgColourModel.save(*child);
+
+    ofstream ofs(filename);
+    ofs << xml << endl;
+    DRWN_ASSERT(!ofs.fail());
+    ofs.close();
+}
+
+void drwnGrabCutInstanceGMM::learnColourModel(const cv::Mat& mask, bool bForeground)
+{
+    DRWN_ASSERT((mask.rows == _img.rows) && (mask.cols == _img.cols));
+    if (maxSamples == 0) {
+        DRWN_LOG_WARNING("skipping colour model learning (maxSamples is zero)");
+        return;
+    }
+
+    DRWN_FCN_TIC;
+
+    // extract colour samples for pixels in mask
+    vector<vector<double> > data;
+    for (int y = 0; y < _img.rows; y++) {
+        for (int x = 0; x < _img.cols; x++) {
+            if (mask.at<unsigned char>(y, x) != 0x00) {
+                data.push_back(pixelColour(y, x));
+            }
+        }
+    }
+
+    // subsample if too many
+    data = drwn::subSample(data, maxSamples);
+    DRWN_LOG_VERBOSE("learning " << numMixtures << "-component model using "
+        << data.size() << " pixels...");
+
+    // check variance of data
+    drwnSuffStats stats(3, DRWN_PSS_FULL);
+    stats.accumulate(data);
+    VectorXd mu = stats.firstMoments() / stats.count();
+    MatrixXd sigma = stats.secondMoments() / stats.count() - mu * mu.transpose();
+    double det = sigma.determinant();
+    if (det <= 0.0) {
+        DRWN_LOG_WARNING("no colour variation in data; adding noise (|Sigma| = " << det << ")");
+        for (unsigned i = 0; i < data.size(); i++) {
+            data[i][0] += 0.01 * (drand48() - 0.5);
+            data[i][1] += 0.01 * (drand48() - 0.5);
+            data[i][2] += 0.01 * (drand48() - 0.5);
+        }
+    }
+
+    // learn model
+    DRWN_ASSERT(data.size() > 1);
+    if (bForeground) {
+        _fgColourModel.initialize(3, std::min(numMixtures, (int)data.size() - 1));
+        _fgColourModel.train(data);
+    } else {
+        _bgColourModel.initialize(3, std::min(numMixtures, (int)data.size() - 1));
+        _bgColourModel.train(data);
+    }
+
+    DRWN_FCN_TOC;
+}
+
+void drwnGrabCutInstanceGMM::updateUnaryPotentials()
+{
+    DRWN_ASSERT(_img.data != NULL);
+
+    DRWN_FCN_TIC;
+    DRWN_LOG_VERBOSE("updating unary potentials for " << toString(_img) << "...");
+    if ((_unary.data == NULL) || (_unary.rows != _img.rows) || (_unary.cols != _img.cols)) {
+        _unary = cv::Mat(_img.rows, _img.cols, CV_32FC1);
+    }
+
+    for (int y = 0; y < _img.rows; y++) {
+        for (int x = 0; x < _img.cols; x++) {
+            // skip "known" pixels
+            if (!isUnknownPixel(x, y)) {
+                _unary.at<float>(y, x) = 0.0f;
+                continue;
+            }
+
+            // evaluate difference in log-likelihood
+            vector<double> colour(pixelColour(y, x));
+
+            double p_fg = _fgColourModel.evaluateSingle(colour);
+            double p_bg = _bgColourModel.evaluateSingle(colour);
+            DRWN_ASSERT(isfinite(p_fg) && isfinite(p_bg));
+            _unary.at<float>(y, x) = (float)(p_fg - p_bg);
+        }
+    }
+
+    DRWN_FCN_TOC;
+}
+
+// drwnGrabCutInstanceHistogram ---------------------------------------------
+
+double drwnGrabCutInstanceHistogram::pseudoCounts = 1.0;
+unsigned drwnGrabCutInstanceHistogram::channelBits = 3;
+
+drwnGrabCutInstanceHistogram::drwnGrabCutInstanceHistogram() : drwnGrabCutInstance(),
+    _fgColourModel(pseudoCounts, channelBits), _bgColourModel(pseudoCounts, channelBits)
+{
+    // do nothing
+}
+
+drwnGrabCutInstanceHistogram::~drwnGrabCutInstanceHistogram()
+{
+    // do nothing
+}
+
+// load colour models
+void drwnGrabCutInstanceHistogram::loadColourModels(const char *filename)
+{
+    DRWN_ASSERT(filename != NULL);
+
+    drwnXMLDoc xml;
+    drwnXMLNode *node = drwnParseXMLFile(xml, filename, "drwnGrabCutInstanceHistogram");
+
+    drwnXMLNode *subnode = node->first_node("foreground");
+    DRWN_ASSERT(subnode != NULL);
+    _fgColourModel.load(*subnode);
+    subnode = node->first_node("background");
+    DRWN_ASSERT(subnode != NULL);
+    _bgColourModel.load(*subnode);
+
+    updateUnaryPotentials();
+}
+
+// save colour models
+void drwnGrabCutInstanceHistogram::saveColourModels(const char *filename) const
+{
+    DRWN_ASSERT(filename != NULL);
+    drwnXMLDoc xml;
+    drwnXMLNode *node = drwnAddXMLChildNode(xml, "drwnGrabCutInstanceHistogram", NULL, false);
+    drwnAddXMLAttribute(*node, "drwnVersion", DRWN_VERSION, false);
+
+    drwnXMLNode *child = drwnAddXMLChildNode(*node, "foreground", NULL, false);
+    _fgColourModel.save(*child);
+    child = drwnAddXMLChildNode(*node, "background", NULL, false);
+    _bgColourModel.save(*child);
+
+    ofstream ofs(filename);
+    ofs << xml << endl;
+    DRWN_ASSERT(!ofs.fail());
+    ofs.close();
+}
+
+void drwnGrabCutInstanceHistogram::learnColourModel(const cv::Mat& mask, bool bForeground)
+{
+    DRWN_ASSERT((mask.rows == _img.rows) && (mask.cols == _img.cols));
+    DRWN_FCN_TIC;
+
+    drwnColourHistogram *model = (bForeground ? &_fgColourModel: &_bgColourModel);
+    model->clear();
+
+    // extract colour samples for pixels in mask
+    for (int y = 0; y < _img.rows; y++) {
+        for (int x = 0; x < _img.cols; x++) {
+            if (mask.at<unsigned char>(y, x) != 0x00) {
+                const unsigned char *p = _img.ptr<const unsigned char>(y) + 3 * x;
+                model->accumulate(p[2], p[1], p[0]);
+            }
+
+        }
+    }
+
+    DRWN_FCN_TOC;
+}
+
+void drwnGrabCutInstanceHistogram::updateUnaryPotentials()
+{
+    DRWN_ASSERT(_img.data != NULL);
+
+    DRWN_FCN_TIC;
+    DRWN_LOG_VERBOSE("updating unary potentials for " << toString(_img) << "...");
+    if ((_unary.data == NULL) || (_unary.rows != _img.rows) || (_unary.cols != _img.cols)) {
+        _unary = cv::Mat(_img.rows, _img.cols, CV_32FC1);
+    }
+
+    for (int y = 0; y < _img.rows; y++) {
+        for (int x = 0; x < _img.cols; x++) {
+            // skip "known" pixels
+            if (!isUnknownPixel(x, y)) {
+                _unary.at<float>(y, x) = 0.0f;
+                continue;
+            }
+
+            // evaluate difference in log-likelihood
+            const unsigned char *p = _img.ptr<const unsigned char>(y) + 3 * x;
+            double p_fg = _fgColourModel.probability(p[2], p[1], p[0]);
+            double p_bg = _bgColourModel.probability(p[2], p[1], p[0]);
+
+            //assert probabilities are between 0 and 1
+            DRWN_ASSERT((p_fg > 0.0) && (p_fg <= 1.0) && (p_bg > 0.0) && (p_bg <= 1.0));
+            _unary.at<float>(y, x) = (float)(log(p_fg) - log(p_bg));
+        }
+    }
+
+    DRWN_FCN_TOC;
+}
+
 // drwnGrabCutConfig --------------------------------------------------------
 
 //! \addtogroup drwnConfigSettings
 //! \section drwnGrabCut
 //! \b visualize :: visualization (default: false)\n
-//! \b maxSamples :: maximum samples for learning colour models (default: 5000)\n
-//! \b numMixtures :: number of mixture components in colour models (default: 5)\n
-//! \b maxIterations :: maximum segmentation iterations (default: 10)
+//! \b maxIterations :: maximum segmentation iterations (default: 10)\n
+//! \b maxSamples :: maximum samples for learning GMM colour models (default: 5000)\n
+//! \b numMixtures :: number of mixture components in GMM colour models (default: 5)\n
+//! \b pseudoCounts :: pseudo-counts for colour histogram models (default: 1.0)\n
+//! \b channelBits :: number of bits per RGB colour channel in histogram colour models (default: 3)
 
 class drwnGrabCutConfig : public drwnConfigurableModule {
 public:
@@ -754,23 +881,31 @@ public:
 
     void usage(ostream &os) const {
         os << "      visualize       :: visualization\n";
-        os << "      maxSamples      :: maximum samples for learning colour models (default: "
-           << drwnGrabCutInstance::maxSamples << ")\n";
-        os << "      numMixtures     :: number of mixture components in colour models (default: "
-           << drwnGrabCutInstance::numMixtures << ")\n";
         os << "      maxIterations   :: maximum segmentation iterations (default: "
            << drwnGrabCutInstance::maxIterations << ")\n";
+        os << "      maxSamples      :: maximum samples for learning GMM colour models (default: "
+           << drwnGrabCutInstanceGMM::maxSamples << ")\n";
+        os << "      numMixtures     :: number of mixture components in GMM colour models (default: "
+           << drwnGrabCutInstanceGMM::numMixtures << ")\n";
+        os << "      pseudoCounts    :: pseudo-counts for colour histogram models (default: "
+           << drwnGrabCutInstanceHistogram::pseudoCounts << ")\n";
+        os << "      channelBits     ::  number of bits per RGB colour channel in histogram colour models (default: "
+           << drwnGrabCutInstanceHistogram::channelBits << ")\n";
     }
 
     void setConfiguration(const char *name, const char *value) {
         if (!strcmp(name, "visualize")) {
             drwnGrabCutInstance::bVisualize = drwn::trueString(string(value));
-        } else if (!strcmp(name, "maxSamples")) {
-            drwnGrabCutInstance::maxSamples = std::max(1, atoi(value));
-        } else if (!strcmp(name, "numMixtures")) {
-            drwnGrabCutInstance::numMixtures = std::max(1, atoi(value));
         } else if (!strcmp(name, "maxIterations")) {
             drwnGrabCutInstance::maxIterations = std::max(0, atoi(value));
+        } else if (!strcmp(name, "maxSamples")) {
+            drwnGrabCutInstanceGMM::maxSamples = std::max(1, atoi(value));
+        } else if (!strcmp(name, "numMixtures")) {
+            drwnGrabCutInstanceGMM::numMixtures = std::max(1, atoi(value));
+        } else if (!strcmp(name, "pseudoCounts")) {
+            drwnGrabCutInstanceHistogram::pseudoCounts = std::max(0.0, atof(value));
+        } else if (!strcmp(name, "channelBits")) {
+            drwnGrabCutInstanceHistogram::channelBits = std::min(std::max(1, atoi(value)), 8);
         } else {
             DRWN_LOG_FATAL("unrecognized configuration option " << name << " for " << this->name());
         }

@@ -7,6 +7,7 @@
 ******************************************************************************
 ** FILENAME:    grabCut.cpp
 ** AUTHOR(S):   Stephen Gould <stephen.gould@anu.edu.au>
+**		Kevin Guo <Kevin.Guo@nicta.com.au>
 ** DESCRIPTION:
 **  Implementation of the grabCut algorithm by Rother et al., 2004.
 **
@@ -42,6 +43,7 @@ void usage()
          << "  -m <samples>      :: max samples to use when learning colour models\n"
          << "  -o <dir>          :: set output directory for segmentation masks and images\n"
          << "  -s <scale>        :: rescale input\n"
+         << "  -t <type>         :: colour model type (\"GMM\" (default) or \"Histogram\")\n"
          << "  -w <weight>       :: use pairwise weight provided (otherwise tries many)\n"
          << "  -x                :: visualize\n"
          << "  -scm <file>       :: save final colour models to <file>\n"
@@ -53,6 +55,7 @@ void usage()
 int main(int argc, char *argv[])
 {
     // default parameters
+    const char *colourModelType = "GMM";
     const char *outDir = NULL;
     double scale = 1.0;
     double weight = -1.0;
@@ -62,10 +65,11 @@ int main(int argc, char *argv[])
 
     // process commandline arguments
     DRWN_BEGIN_CMDLINE_PROCESSING(argc, argv)
-        DRWN_CMDLINE_INT_OPTION("-k", drwnGrabCutInstance::numMixtures)
-        DRWN_CMDLINE_INT_OPTION("-m", drwnGrabCutInstance::maxSamples)
+        DRWN_CMDLINE_INT_OPTION("-k", drwnGrabCutInstanceGMM::numMixtures)
+        DRWN_CMDLINE_INT_OPTION("-m", drwnGrabCutInstanceGMM::maxSamples)
         DRWN_CMDLINE_STR_OPTION("-o", outDir)
         DRWN_CMDLINE_REAL_OPTION("-s", scale)
+        DRWN_CMDLINE_STR_OPTION("-t", colourModelType)
         DRWN_CMDLINE_REAL_OPTION("-w", weight)
         DRWN_CMDLINE_BOOL_OPTION("-x", bVisualize)
         DRWN_CMDLINE_STR_OPTION("-scm", finalColourModelFile)
@@ -90,7 +94,7 @@ int main(int argc, char *argv[])
         cv::Rect bb = drwnInputBoundingBox(string("annotate"), img);
         DRWN_ASSERT((bb.width > 0) && (bb.height > 0));
         mask.setTo(cv::Scalar(drwnGrabCutInstance::MASK_BG));
-        mask(bb) = cvScalar(drwnGrabCutInstance::MASK_C_FG); 
+        mask(bb) = cvScalar(drwnGrabCutInstance::MASK_C_FG);
     } else {
         mask = cv::imread(string(maskFilename), CV_LOAD_IMAGE_GRAYSCALE);
     }
@@ -111,13 +115,21 @@ int main(int argc, char *argv[])
     // run grabCut with different weights
     const double minWeight = (weight < 0.0) ? 1.0 : weight;
     const double maxWeight = (weight < 0.0) ? 256.0 : weight;
-    drwnGrabCutInstance model;
-    model.name = drwn::strBaseName(imgFilename);
+
+    drwnGrabCutInstance *model = NULL;
+    if (!strcmp(colourModelType, "GMM")) {
+        model = new drwnGrabCutInstanceGMM();
+    } else if (!strcmp(colourModelType, "Histogram")) {
+        model = new drwnGrabCutInstanceHistogram();
+    }
+    DRWN_ASSERT_MSG(model != NULL, "unknown model type \"" << colourModelType << "\"");
+
+    model->name = drwn::strBaseName(imgFilename);
     for (double w = minWeight; w <= maxWeight; ) {
         // initialize model
-        model.initialize(img, mask, initialColourModelFile);
-        model.setBaseModelWeights(1.0, 0.0, w);
-        cv::Mat seg = model.inference();
+        model->initialize(img, mask, initialColourModelFile);
+        model->setBaseModelWeights(1.0, 0.0, w);
+        cv::Mat seg = model->inference();
 
         // save segmentation mask
         if (outDir != NULL) {
@@ -143,7 +155,7 @@ int main(int argc, char *argv[])
     // save final colour model file
     if (finalColourModelFile != NULL) {
         DRWN_LOG_VERBOSE("writing colour models to " << finalColourModelFile << "...");
-        model.saveColourModels(finalColourModelFile);
+        model->saveColourModels(finalColourModelFile);
     }
 
     if (bVisualize && (weight >= 0.0)) {
@@ -155,4 +167,3 @@ int main(int argc, char *argv[])
     drwnCodeProfiler::print();
     return 0;
 }
-

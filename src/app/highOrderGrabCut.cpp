@@ -43,6 +43,7 @@ void usage()
          << "  -k <k>            :: number of clusters for k-means segmentation (default: 10)\n"
          << "  -c <components>   :: number of mixture components (default: 5)\n"
          << "  -m <samples>      :: max samples to use when learning colour models\n"
+         << "  -t <type>         :: colour model type (\"GMM\" (default) or \"Histogram\")\n"
          << "  -outMask <name>   :: filename for saving mask (default: none)\n"
          << "  -outLabels <name> :: filename for label output (default: none)\n"
          << "  -outImage <name>  :: filename for image output (default: none)\n"
@@ -62,6 +63,7 @@ int main(int argc, char *argv[])
     drwnOpenCVUtils::SHOW_IMAGE_MAX_HEIGHT = 1024;
 
     int numClusters = 10;
+    const char *colourModelType = "GMM";
     const char *outLabelName = NULL;
     const char *outMaskName = NULL;
     const char *outImageName = NULL;
@@ -72,8 +74,9 @@ int main(int argc, char *argv[])
     // process commandline arguments
     DRWN_BEGIN_CMDLINE_PROCESSING(argc, argv)
         DRWN_CMDLINE_INT_OPTION("-k", numClusters)
-        DRWN_CMDLINE_INT_OPTION("-c", drwnGrabCutInstance::numMixtures)
-        DRWN_CMDLINE_INT_OPTION("-m", drwnGrabCutInstance::maxSamples)
+        DRWN_CMDLINE_INT_OPTION("-c", drwnGrabCutInstanceGMM::numMixtures)
+        DRWN_CMDLINE_INT_OPTION("-m", drwnGrabCutInstanceGMM::maxSamples)
+        DRWN_CMDLINE_STR_OPTION("-t", colourModelType)
         DRWN_CMDLINE_STR_OPTION("-outMask", outMaskName)
         DRWN_CMDLINE_STR_OPTION("-outLabels", outLabelName)
         DRWN_CMDLINE_STR_OPTION("-outImage", outImageName)
@@ -120,16 +123,23 @@ int main(int argc, char *argv[])
     }
 
     // learn foreground and background colour models
-    drwnGrabCutInstance model;
-    model.name = drwn::strBaseName(imgFilename);
-    model.initialize(img, mask);
+    drwnGrabCutInstance *model = NULL;
+    if (!strcmp(colourModelType, "GMM")) {
+        model = new drwnGrabCutInstanceGMM();
+    } else if (!strcmp(colourModelType, "Histogram")) {
+        model = new drwnGrabCutInstanceHistogram();
+    }
+    DRWN_ASSERT_MSG(model != NULL, "unknown model type \"" << colourModelType << "\"");
+
+    model->name = drwn::strBaseName(imgFilename);
+    model->initialize(img, mask);
 
     // create instance
-    drwnSegImageInstance instance(img, model.name.c_str());
+    drwnSegImageInstance instance(img, model->name.c_str());
     instance.unaries.resize(instance.size(), vector<double>(2, 0.0));
-    const cv::Mat unary = model.unaryPotentials();
-    const cv::Mat bg = model.knownBackground();
-    const cv::Mat fg = model.knownForeground();
+    const cv::Mat unary = model->unaryPotentials();
+    const cv::Mat bg = model->knownBackground();
+    const cv::Mat fg = model->knownForeground();
     for (int y = 0; y < instance.height(); y++) {
         const float *p = unary.ptr<const float>(y);
         for (int x = 0; x < instance.width(); x++) {
