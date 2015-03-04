@@ -231,6 +231,9 @@ namespace drwn {
    </center>
    (Note that these differ slightly from Gould and Zhang (ECCV 2012)).
 
+   The \p labelTransferPipeline.py script runs through the above
+   procedure using the Stanford background dataset.
+
    \section drwnProjPatchMatchRef References
 
    \li Barnes, C., Shechtman, E., Finkelstein, A., Goldman, D.B.,

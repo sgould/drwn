@@ -16,8 +16,8 @@
   <drwnMultiSegConfig>
     <!-- data options -->
     <option name="baseDir" value="./" />
-    <option name="imgDir" value="data/images/" />
-    <option name="lblDir" value="data/labels/" />
+    <option name="imgDir" value="iccv09Data/images/" />
+    <option name="lblDir" value="iccv09Data/labels/" />
     <option name="cacheDir" value="cached/" />
     <option name="modelsDir" value="models/" />
     <option name="outputDir" value="output/" />
@@ -55,7 +55,7 @@
   <drwnCodeProfiler enabled="true" />
   <drwnLogger logLevel="VERBOSE"
               logFile="stanfordBG.log" />
-  <drwnThreadPool threads="4" />
+  <drwnThreadPool threads="8" />
   <drwnConfusionMatrix colSep=" || " rowBegin="    || " rowEnd=" \" />
   <drwnHOGFeatures blockSize="1" normClippingLB="0.1" normClippingUB="0.5" />
 </drwn>

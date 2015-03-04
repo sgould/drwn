@@ -24,6 +24,48 @@
 
 using namespace std;
 
+// drwnPatchMatchThreadedInitialize ---------------------------------------------
+
+class drwnPatchMatchThreadedInitialize : public drwnThreadJob {
+protected:
+    set<unsigned> _imgIndxes;         //!< indexes of images for this job
+    drwnPatchMatchGraphLearner & _g;  //!< graph for updating
+
+public:
+    drwnPatchMatchThreadedInitialize(const set<unsigned>& imgIndxes, drwnPatchMatchGraphLearner& g) :
+        _imgIndxes(imgIndxes), _g(g) { /* do nothing */ }
+    drwnPatchMatchThreadedInitialize(unsigned imgIndx, drwnPatchMatchGraphLearner& g) :
+        _g(g) { _imgIndxes.insert(imgIndx); }
+    ~drwnPatchMatchThreadedInitialize() { /* do nothing */ }
+
+    void operator()() {
+        for (set<unsigned>::const_iterator it = _imgIndxes.begin(); it != _imgIndxes.end(); ++it) {
+            _g.initialize(*it);
+        }
+    }
+};
+
+// drwnPatchMatchThreadedUpdate ------------------------------------------------
+
+class drwnPatchMatchThreadedUpdate : public drwnThreadJob {
+protected:
+    set<unsigned> _imgIndxes;         //!< indexes of images for this job
+    drwnPatchMatchGraphLearner & _g;  //!< graph for updating
+
+public:
+    drwnPatchMatchThreadedUpdate(const set<unsigned>& imgIndxes, drwnPatchMatchGraphLearner& g) :
+        _imgIndxes(imgIndxes), _g(g) { /* do nothing */ }
+    drwnPatchMatchThreadedUpdate(unsigned imgIndx, drwnPatchMatchGraphLearner& g) :
+        _g(g) { _imgIndxes.insert(imgIndx); }
+    ~drwnPatchMatchThreadedUpdate() { /* do nothing */ }
+
+    void operator()() {
+        for (set<unsigned>::const_iterator it = _imgIndxes.begin(); it != _imgIndxes.end(); ++it) {
+            _g.update(*it);
+        }
+    }
+};
+
 // drwnPatchMatchEdge --------------------------------------------------------
 
 size_t drwnPatchMatchEdge::numBytesOnDisk() const
@@ -520,6 +562,7 @@ void drwnPatchMatchGraphLearner::initialize()
     //! \todo cache image features here instead of in constructor?
 
     // initialize matches
+#if 0
     for (unsigned imgIndx = 0; imgIndx < _graph.size(); imgIndx++) {
         if (!_graph[imgIndx].bActive) {
             DRWN_LOG_DEBUG("...skipping initialization of " << _graph[imgIndx].name());
@@ -529,6 +572,34 @@ void drwnPatchMatchGraphLearner::initialize()
         // initialize the image
         initialize(imgIndx);
     }
+#else
+    // prepare thread data
+    const unsigned nJobs = std::min((unsigned)_graph.size(),
+        std::max((unsigned)1, drwnThreadPool::MAX_THREADS));
+    vector<set<unsigned> > imgIndxes(nJobs);
+    for (unsigned imgIndx = 0; imgIndx < _graph.size(); imgIndx++) {
+        if (!_graph[imgIndx].bActive) {
+            DRWN_LOG_DEBUG("...skipping initialization of " << _graph[imgIndx].name());
+            continue;
+        }
+        imgIndxes[imgIndx % nJobs].insert(imgIndx);
+    }
+
+    // start threads
+    drwnThreadPool threadPool(nJobs);
+    threadPool.start();
+    vector<drwnPatchMatchThreadedInitialize *> jobs(nJobs);
+    for (unsigned i = 0; i < nJobs; i++) {
+        jobs[i] = new drwnPatchMatchThreadedInitialize(imgIndxes[i], *this);
+        threadPool.addJob(jobs[i]);
+    }
+    threadPool.finish();
+
+    for (unsigned i = 0; i < jobs.size(); i++) {
+        delete jobs[i];
+    }
+    jobs.clear();
+#endif
 }
 
 void drwnPatchMatchGraphLearner::initialize(unsigned imgIndx)
@@ -666,6 +737,7 @@ void drwnPatchMatchGraphLearner::update()
     }
 
     // progagation and decaying search
+#if 0
     for (unsigned imgIndx = 0; imgIndx < _graph.size(); imgIndx++) {
         // check if image is in active set
         if (!_graph[imgIndx].bActive) {
@@ -674,9 +746,38 @@ void drwnPatchMatchGraphLearner::update()
         }
 
         // perform update
-        //! \todo this can be parallelized
         update(imgIndx);
     }
+#else
+    // prepare thread data
+    const unsigned nJobs = std::min((unsigned)_graph.size(),
+        std::max((unsigned)1, drwnThreadPool::MAX_THREADS));
+    vector<set<unsigned> > imgIndxes(nJobs);
+    for (unsigned imgIndx = 0; imgIndx < _graph.size(); imgIndx++) {
+        // check if image is in active set
+        if (!_graph[imgIndx].bActive) {
+            DRWN_LOG_DEBUG("...skipping " << _graph[imgIndx].name());
+            continue;
+        }
+
+        imgIndxes[imgIndx % nJobs].insert(imgIndx);
+    }
+
+    // start threads
+    drwnThreadPool threadPool(nJobs);
+    threadPool.start();
+    vector<drwnPatchMatchThreadedUpdate *> jobs(nJobs);
+    for (unsigned i = 0; i < nJobs; i++) {
+        jobs[i] = new drwnPatchMatchThreadedUpdate(imgIndxes[i], *this);
+        threadPool.addJob(jobs[i]);
+    }
+    threadPool.finish();
+
+    for (unsigned i = 0; i < jobs.size(); i++) {
+        delete jobs[i];
+    }
+    jobs.clear();
+#endif
 
     // enrichment (forward and inverse)
     enrichment();
@@ -1281,17 +1382,17 @@ float drwnPatchMatchGraphLearner::scoreMatch(const drwnPatchMatchNode& u,
     for (int y = 0; y < nHeight; y++) {
         for (int x = 0; x < nWidth; x++) {
             for (int c = 0; c < nFeatures; c++) {
-                const float f_u = _features[u.imgIndx][u.imgScale].at<unsigned char>(u.yPosition + y, 
+                const float f_u = _features[u.imgIndx][u.imgScale].at<unsigned char>(u.yPosition + y,
                     (u.xPosition + x) * nFeatures + c);
-                const int x_v = (xform & DRWN_PM_TRANSFORM_HFLIP) == 0x00 ? 
+                const int x_v = (xform & DRWN_PM_TRANSFORM_HFLIP) == 0x00 ?
                     v.xPosition + x : v.xPosition + nWidth - x - 1;
-                const int y_v = (xform & DRWN_PM_TRANSFORM_VFLIP) == 0x00 ? 
+                const int y_v = (xform & DRWN_PM_TRANSFORM_VFLIP) == 0x00 ?
                     v.yPosition + y : v.yPosition + nHeight - y - 1;
                 const float f_v = _features[v.imgIndx][v.imgScale].at<unsigned char>(y_v, x_v * nFeatures + c);
-                DRWN_ASSERT_MSG(isfinite(f_u) && isfinite(f_v), f_u << " " << f_v 
+                DRWN_ASSERT_MSG(isfinite(f_u) && isfinite(f_v), f_u << " " << f_v
                     << " (" << x << ", " << y << ", " << c << ")"
                     << " (" << (u.xPosition + x) << ", " << (u.yPosition + y) << ", " << c << ")"
-                    << " (" << x_v << ", " << y_v << ", " << c << ")"); 
+                    << " (" << x_v << ", " << y_v << ", " << c << ")");
                 score += DISTANCE_METRIC(f_u - f_v);
             }
         }

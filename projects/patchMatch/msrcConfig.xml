@@ -69,7 +69,7 @@
   <drwnCodeProfiler enabled="true" />
   <drwnLogger logLevel="VERBOSE"
               logFile="msrc.log" />
-  <drwnThreadPool threads="4" />
+  <drwnThreadPool threads="8" />
   <drwnConfusionMatrix colSep=" || " rowBegin="    || " rowEnd=" \" />
   <drwnHOGFeatures blockSize="1" normClippingLB="0.1" normClippingUB="0.5" />
 </drwn>

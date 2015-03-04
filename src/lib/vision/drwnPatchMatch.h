@@ -146,6 +146,7 @@ string toString(const drwnPatchMatchEdge& e);
 //! Record of matches for each pixel maintained as a sorted list.
 //! \todo this data-structure uses a lot of memory, can we change to another
 //! datatype (like a singly-linked list?)
+//! A deque is faster than list on some benchmarks.
 
 typedef list<drwnPatchMatchEdge> drwnPatchMatchEdgeList;
 
