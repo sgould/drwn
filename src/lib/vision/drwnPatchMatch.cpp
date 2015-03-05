@@ -135,9 +135,14 @@ bool drwnPatchMatchImageRecord::update(int indx, const drwnPatchMatchEdge& match
     for (drwnPatchMatchEdgeList::iterator it = _matches[indx].begin(); it != _matches[indx].end(); ++it) {
         if (it->targetNode.imgIndx == match.targetNode.imgIndx) {
             if (it->matchScore > match.matchScore) {
+#ifdef DRWN_PM_VECTOR_EDGE_LIST
+                *it = match;
+                std::sort(_matches[indx].begin(), it + 1, drwnPatchMatchSortByScore);
+#else
                 _matches[indx].erase(it);
                 drwnPatchMatchEdgeList tmp(1, match);
                 _matches[indx].merge(tmp, drwnPatchMatchSortByScore);
+#endif
                 return true;
             } else {
                 return false;
@@ -146,9 +151,14 @@ bool drwnPatchMatchImageRecord::update(int indx, const drwnPatchMatchEdge& match
     }
 
     // otherwise remove the previous worst match and add this one
+#ifdef DRWN_PM_VECTOR_EDGE_LIST
+    _matches[indx].back() = match;
+    std::sort(_matches[indx].begin(), _matches[indx].end(), drwnPatchMatchSortByScore);
+#else
     _matches[indx].pop_back();
     drwnPatchMatchEdgeList tmp(1, match);
     _matches[indx].merge(tmp, drwnPatchMatchSortByScore);
+#endif
 
     return true;
 }
@@ -666,7 +676,11 @@ void drwnPatchMatchGraphLearner::initialize(unsigned imgIndx)
             // remove excess matches if existing
             if (bHasExistingMatches) {
                 // remove duplicate target images
+#ifdef DRWN_PM_VECTOR_EDGE_LIST
+                std::sort(e.begin(), e.end(), drwnPatchMatchSortByImage);
+#else
                 e.sort(drwnPatchMatchSortByImage);
+#endif
                 drwnPatchMatchEdgeList::iterator kt = e.begin();
                 drwnPatchMatchEdgeList::iterator jt = kt++;
                 while (kt != e.end()) {
@@ -679,7 +693,11 @@ void drwnPatchMatchGraphLearner::initialize(unsigned imgIndx)
             }
 
             // sort matches from best to worst
+#ifdef DRWN_PM_VECTOR_EDGE_LIST
+            std::sort(e.begin(), e.end(), drwnPatchMatchSortByScore);
+#else
             e.sort(drwnPatchMatchSortByScore);
+#endif
 
             // resize to correct number of matches per pixel
             if (bHasExistingMatches) {
@@ -708,7 +726,11 @@ void drwnPatchMatchGraphLearner::rescore()
                 }
 
                 // sort matches from best to worst
+#ifdef DRWN_PM_VECTOR_EDGE_LIST
+                std::sort(e.begin(), e.end(), drwnPatchMatchSortByScore);
+#else
                 e.sort(drwnPatchMatchSortByScore);
+#endif
             }
         }
     }
@@ -1015,7 +1037,11 @@ bool drwnPatchMatchGraphLearner::search(const drwnPatchMatchNode& u)
 
     // sort matches from best to worst
     if (bChanged) {
+#ifdef DRWN_PM_VECTOR_EDGE_LIST
+        std::sort(e.begin(), e.end(), drwnPatchMatchSortByScore);
+#else
         e.sort(drwnPatchMatchSortByScore);
+#endif
     }
 
     return bChanged;
@@ -1116,7 +1142,11 @@ bool drwnPatchMatchGraphLearner::local(const drwnPatchMatchNode& u)
 
     // sort matches from best to worst
     if (bChanged) {
+#ifdef DRWN_PM_VECTOR_EDGE_LIST
+        std::sort(e.begin(), e.end(), drwnPatchMatchSortByScore);
+#else
         e.sort(drwnPatchMatchSortByScore);
+#endif
     }
 
     return bChanged;

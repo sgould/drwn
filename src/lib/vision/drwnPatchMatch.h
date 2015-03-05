@@ -27,6 +27,8 @@
 
 using namespace std;
 
+#define DRWN_PM_VECTOR_EDGE_LIST
+
 // drwnPatchMatchStatus ------------------------------------------------------
 //! Status of a drwnPatchMatchEdge object indicating whether the edge is new
 //! or has been processed by a propagation move.
@@ -146,9 +148,13 @@ string toString(const drwnPatchMatchEdge& e);
 //! Record of matches for each pixel maintained as a sorted list.
 //! \todo this data-structure uses a lot of memory, can we change to another
 //! datatype (like a singly-linked list?)
-//! A deque is faster than list on some benchmarks.
+//! A deque is faster than list on some benchmarks. Vector may be faster still.
 
+#ifdef DRWN_PM_VECTOR_EDGE_LIST
+typedef vector<drwnPatchMatchEdge> drwnPatchMatchEdgeList;
+#else
 typedef list<drwnPatchMatchEdge> drwnPatchMatchEdgeList;
+#endif
 
 // drwnPatchMatchImageRecord ------------------------------------------------
 //! Records matches for one level in an image pyramid.
