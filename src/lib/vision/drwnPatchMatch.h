@@ -231,7 +231,7 @@ class drwnPatchMatchImagePyramid : public drwnPersistentRecord {
     //! are not updated.
     bool bActive;
 
-    //! Equivalence class for this image. If negative (which is the default) the image 
+    //! Equivalence class for this image. If negative (which is the default) the image
     //! is considered to be in its own equivalence class. Images in the same equivalence
     //! class will not be matched when learning the PatchMatchGraph.
     int eqvClass;
@@ -344,7 +344,7 @@ class drwnPatchMatchGraph {
     unsigned int patchHeight() const { return _patchHeight; }
 
     //! returns the index for an image or -1 if not in graph
-    int findImage(const string& baseName) const;    
+    int findImage(const string& baseName) const;
     //! add a single image (do not use while the graph is being learned)
     void appendImage(const string& baseName);
     //! add a single image of known size
@@ -352,7 +352,7 @@ class drwnPatchMatchGraph {
     //! add a set of images
     void appendImages(const vector<string>& baseNames);
     //! delete an image from the graph (do not use while the graph is being learned)
-    //! and returns the number of edges removed which terminated at patches within the 
+    //! and returns the number of edges removed which terminated at patches within the
     //! deleted image
     int removeImage(unsigned imgIndx);
 
@@ -426,10 +426,10 @@ class drwnPatchMatchGraphLearner {
     //! rescore matches if scoring function or features have changed (e.g., greyscale to rgb)
     void rescore();
 
-    //! perform one update iteration (including enrichment and exhuastive)
+    //! perform one edge update iteration (including enrichment and exhuastive)
     //! on all active images
-    virtual void update();
-    //! perform one update iteration (excluding enrichment) on a single image
+    void update();
+    //! perform one edge update iteration (excluding enrichment) on a single image
     virtual void update(unsigned imgIndx);
 
  protected:
@@ -446,6 +446,7 @@ class drwnPatchMatchGraphLearner {
     int appendCIELabFeatures(const cv::Mat& img, cv::Mat& features, int nChannel = 0) const;
     int appendVerticalFeatures(const cv::Mat& img, cv::Mat& features, int nChannel = 0) const;
     int appendEdgeFeatures(const cv::Mat& img, cv::Mat& features, int nChannel = 0) const;
+    int appendTextonFilterFeatures(const cv::Mat& img, cv::Mat& features, int nChannel = 0) const;
 
     // --- move-making steps ---
 

@@ -1124,15 +1124,13 @@ bool drwnPatchMatchGraphLearner::local(const drwnPatchMatchNode& u)
 
 bool drwnPatchMatchGraphLearner::enrichment()
 {
+    const int hEnrichment = drwnCodeProfiler::getHandle("drwnPatchMatchGraphLearner::enrichment");
+    drwnCodeProfiler::tic(hEnrichment);
     bool bChanged = false;
 
-    const int hEnrichment = drwnCodeProfiler::getHandle("drwnPatchMatchGraphLearner::enrichment");
-    for (unsigned imgIndx = 0; imgIndx < _graph.size(); imgIndx++) {
-        DRWN_LOG_DEBUG("...enrichment step for " << _graph[imgIndx].name());
-        drwnCodeProfiler::tic(hEnrichment);
-
-        // inverse enrichment
-        if (DO_INVERSE_ENRICHMENT) {
+    // inverse enrichment
+    if (DO_INVERSE_ENRICHMENT) {
+        for (unsigned imgIndx = 0; imgIndx < _graph.size(); imgIndx++) {
             for (unsigned imgScale = 0; imgScale < _graph[imgIndx].levels(); imgScale++) {
                 for (unsigned pixIndx = 0; pixIndx < _graph[imgIndx][imgScale].size(); pixIndx++) {
                     // node matching to
@@ -1155,10 +1153,14 @@ bool drwnPatchMatchGraphLearner::enrichment()
                     }
                 }
             }
-        } // end: inverse enrichment
+        }
+    }  // end: inverse enrichment
 
-        // forward enrichment
-        if ((FORWARD_ENRICHMENT_K > 0) && _graph[imgIndx].bActive) {
+    // forward enrichment
+    if (FORWARD_ENRICHMENT_K > 0) {
+        for (unsigned imgIndx = 0; imgIndx < _graph.size(); imgIndx++) {
+            if (!_graph[imgIndx].bActive)
+                continue;
 
             for (unsigned imgScale = 0; imgScale < _graph[imgIndx].levels(); imgScale++) {
                 for (unsigned pixIndx = 0; pixIndx < _graph[imgIndx][imgScale].size(); pixIndx++) {
@@ -1202,11 +1204,10 @@ bool drwnPatchMatchGraphLearner::enrichment()
                     }
                 }
             }
-        } // end: forward enrichment
+        }
+    } // end: forward enrichment
 
-        drwnCodeProfiler::toc(hEnrichment);
-    }
-
+    drwnCodeProfiler::toc(hEnrichment);
     return bChanged;
 }
 
@@ -1297,10 +1298,16 @@ void drwnPatchMatchGraphLearner::cacheImageFeatures(unsigned imgIndx)
         drwnResizeInPlace(img, _graph[imgIndx][lvlIndx].height(), _graph[imgIndx][lvlIndx].width());
 
         // create feature image
+#if 1
         _features[imgIndx][lvlIndx] = cv::Mat(img.rows, img.cols, CV_8UC(5));
         int nChannel = appendCIELabFeatures(img, _features[imgIndx][lvlIndx], 0);
         nChannel = appendEdgeFeatures(img, _features[imgIndx][lvlIndx], nChannel);
         nChannel = appendVerticalFeatures(img, _features[imgIndx][lvlIndx], nChannel);
+#else
+        //! \todo configuration option for features
+        _features[imgIndx][lvlIndx] = cv::Mat(img.rows, img.cols, CV_8UC(17));
+        int nChannel = appendTextonFilterFeatures(img, _features[imgIndx][lvlIndx], 0);
+#endif
         DRWN_ASSERT(nChannel == _features[imgIndx][lvlIndx].channels());
     }
 
@@ -1351,6 +1358,32 @@ int drwnPatchMatchGraphLearner::appendEdgeFeatures(const cv::Mat& img, cv::Mat& 
 
     nChannel += 1;
     return nChannel;
+}
+
+int drwnPatchMatchGraphLearner::appendTextonFilterFeatures(const cv::Mat& img, cv::Mat& features, int nChannel) const
+{
+    DRWN_ASSERT(nChannel + drwnTextonFilterBank::NUM_FILTERS <= features.channels());
+    const double ALPHA[] = {255.0, 317.6, 294.7, 255.0, 319.2, 295.9, 255.0, 322.1,
+                            305.1, 226.2, 218.2, 286.0, 286.1,  51.8, 82.6,  178.7,
+                            487.3};
+    const double BETA[] =  {  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
+                              0.0, 125.7, 127.3, 122.7, 135.9, 128.8, 123.3, 125.7,
+                            118.3};
+
+    drwnTextonFilterBank filterBank;
+    vector<cv::Mat> responses;
+    filterBank.filter(img, responses);
+
+    cv::Mat responseU8(img.rows, img.cols, CV_8UC1);
+    int from_to[] = {0, 0};
+    for (int c = 0; c < drwnTextonFilterBank::NUM_FILTERS; c++) {
+        from_to[0] = 0;
+        from_to[1] = nChannel + c;
+        responses[c].convertTo(responseU8, CV_8U, ALPHA[c], BETA[c]);
+        cv::mixChannels(&responseU8, 1, &features, 1, from_to, 1);
+    }
+
+    return nChannel + drwnTextonFilterBank::NUM_FILTERS;
 }
 
 #define DISTANCE_METRIC(X) abs(X)
@@ -1501,6 +1534,7 @@ float drwnPatchMatchGraphLearner::scoreMatch(const drwnPatchMatchNode& u,
         break;
 
     default:
+#if 0
         for (int y = 0; y < nHeight; y++) {
 
             unsigned iSum = 0;
@@ -1516,6 +1550,26 @@ float drwnPatchMatchGraphLearner::scoreMatch(const drwnPatchMatchNode& u,
             p += pRowStep;
             q += qRowStep;
         }
+#else
+        for (int y = 0; y < nHeight; y++) {
+
+            unsigned iSum = 0;
+            for (int x = 0; x < nWidth; ++x, p += nFeatures, q += qColStep) {
+                for (int c = 0; c < nFeatures - 1; c += 2) {
+                    iSum += DISTANCE_METRIC(p[c] - q[c]) + DISTANCE_METRIC(p[c + 1] - q[c + 1]);
+                }
+                if (nFeatures % 2 == 1) {
+                    iSum += DISTANCE_METRIC(p[nFeatures - 1] - q[nFeatures - 1]);
+                }
+            }
+
+            score += (float)iSum;
+            if (score > maxValue) break;
+
+            p += pRowStep;
+            q += qRowStep;
+        }
+#endif
     }
 
     return score;

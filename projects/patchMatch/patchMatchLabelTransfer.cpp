@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
             DRWN_LOG_ERROR("could not find image " << baseNames[i] << " in the graph");
             continue;
         }
-        DRWN_LOG_VERBOSE("processing " << graph[imgIndx].width() << "-by-"
+        DRWN_LOG_STATUS("processing " << graph[imgIndx].width() << "-by-"
             << graph[imgIndx].height() << " image " << baseNames[i] << "...");
 
         // create marginals for labels
