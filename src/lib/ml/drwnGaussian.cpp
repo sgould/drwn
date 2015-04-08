@@ -104,8 +104,8 @@ void drwnGaussian::initialize(const VectorXd& mu, double sigma2)
     _invSigma = new MatrixXd(MatrixXd::Identity(_n, _n) / sigma2);
     _logZ = -0.5 * (double)_n * log(2.0 * M_PI * sigma2);
 
-    DRWN_ASSERT(!isnan(_logZ));
-    DRWN_ASSERT(!isinf(_logZ));
+    DRWN_ASSERT(!::isnan(_logZ));
+    DRWN_ASSERT(!::isinf(_logZ));
 }
 
 void drwnGaussian::initialize(const VectorXd &mu, const MatrixXd &sigma2)

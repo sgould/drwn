@@ -46,7 +46,7 @@ bool drwn::containsInvalidEntries(const vector<double> & v)
     DRWN_ASSERT(v.size() > 0);
 
     for (unsigned i = 0; i < v.size(); i++) {
-        if (isnan(v[i]) || isinf(v[i]))
+        if (::isnan(v[i]) || ::isinf(v[i]))
             return true;
     }
 

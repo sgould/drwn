@@ -39,4 +39,6 @@ if (exist('../../external/opencv', 'dir')),
     
     eval(['mex ', mexVisionBuildOptions, ' mexImageCRF.cpp']);
     eval(['mex ', mexVisionBuildOptions, ' mexLoadSuperpixels.cpp']);
+    eval(['mex ', mexVisionBuildOptions, ' mexSaveSuperpixels.cpp']);
+    eval(['mex ', mexVisionBuildOptions, ' mexLoadPatchMatchGraph.cpp']);
 end

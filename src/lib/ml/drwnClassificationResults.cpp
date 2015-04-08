@@ -215,7 +215,7 @@ vector<pair<double, double> > drwnPRCurve::getCurve() const
         negSum += it->second.second;
         double recall = (double)posSum / (double)_numPositiveSamples;
         double precision = _posWeight * posSum / (_posWeight * posSum + negSum);
-	if (!isnan(recall) && !isnan(precision)) {
+	if (!::isnan(recall) && !::isnan(precision)) {
             curve.push_back(make_pair(recall, precision));
         }
     }

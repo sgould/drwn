@@ -20,6 +20,7 @@ namespace drwn {
    \li \p mexMaxFlow : find the maximum flow through a weighted directed graph
    \li \p mexQPSolver : solve a quadratic program using \b Darwin's QP solver
    \li \p mexSaveSuperpixels : saves superpixels to a drwnSuperpixelContainer object
+   \li \p mexLoadPatchMatchGraph : load a drwnPatchMatchGraph object (see \ref drwnProjPatchMatch)
 
    \li \p drwnCombineImages : combines multiple images into a single big image
    \li \p drwnLoadDataset : loads a drwnDataset object
@@ -37,7 +38,7 @@ namespace drwn {
    \li build the \b Darwin libraries (\ref linuxCodeBuild)
    \li create a symbolic link to matlab in the \p external directory, e.g.,
    \code
-     ln -s /usr/local/MATLAB/R2010b/ external/matlab
+     ln -s /usr/local/MATLAB/R2012b/ external/matlab
    \endcode
    \li type \p "make drwnprojs"
    \li alternatively, start Matlab, change to the \p projects/matlab directory and execute \p buildLinux
@@ -53,7 +54,13 @@ namespace drwn {
      ln -s /usr/lib/i386-linux-gnu/libstdc++.so.6
      ln -s /usr/lib/i386-linux-gnu/libgcc_s.so.1
    \endcode
-   You may need to execute these commands with superuser privileges.
+   You may need to execute these commands with superuser (\p sudo) privileges.
+
+   \warning If you are having problems running Matlab with OpenCV, try starting
+   Matlab with
+   \code
+   LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libfreetype.so.6 matlab &
+   \endcode
 
    \subsection drwnProjMatlabInstallWindows Windows
 

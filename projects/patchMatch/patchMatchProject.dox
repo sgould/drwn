@@ -125,6 +125,9 @@ namespace drwn {
    with additional \p -eqv flags, e.g., \p -eqv \p ${EVAL_LIST} \p
    -eqv -p ${TRAIN_LIST}.
 
+   For loading a saved PatchMatchGraph into Matlab see the
+   mexLoadPatchMatchGraph application in \ref drwnProjMatlab.
+
    \section drwnProjPatchMatchLabelTransfer Using a PatchMatchGraph for Label Transfer
 
    The PatchMatchGraph constructed above can be used for semantic

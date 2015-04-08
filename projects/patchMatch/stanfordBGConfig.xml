@@ -4,7 +4,7 @@
     <option name="maxPyramidLevels" value="8" />
     <option name="patchWidth" value="8" />
     <option name="patchHeight" value="8" />
-    <option name="K" value="5" />
+    <option name="K" value="10" />
     <option name="decayRate" value="0.0" />
     <option name="fwdEnrichment" value="3" />
     <option name="allowHFlips" value="true" />

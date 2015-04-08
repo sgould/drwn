@@ -69,6 +69,7 @@ downloaded from the following links:
 \li Added Python scripts for running experiments and regression tests
 \li Refactored drwnGrabCutInstance class to support both GMM and colour histogram model
 \li Added \p cacheSortIndex to drwnDecisionTree for trading-off speed versus memory usage
+\li Added mexLoadPatchMatchGraph for loading drwnPatchMatchGraph objects into Matlab
 
 \subsection drwnChangeLog1_8 Release 1.8
 

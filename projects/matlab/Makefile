@@ -40,7 +40,8 @@ APP_SRC = mexAnalyseClassifier.cpp mexDarwinTest.cpp mexEvalClassifier.cpp \
 	mexMaxFlow.cpp mexQPSolver.cpp
 
 ifeq ($(DRWN_BUILD_VISION_LIB), 1)
-  APP_SRC += mexImageCRF.cpp mexLoadSuperpixels.cpp mexSaveSuperpixels.cpp
+  APP_SRC += mexImageCRF.cpp mexLoadSuperpixels.cpp mexSaveSuperpixels.cpp \
+	mexLoadPatchMatchGraph.cpp
 endif
 
 LIB_SRC =
