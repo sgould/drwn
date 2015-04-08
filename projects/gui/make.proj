@@ -11,7 +11,8 @@ WXDIR := $(EXT_PATH)/wx
 WX_CFLAGS = `$(WXDIR)/build/wx-config --cxxflags`
 WX_LFLAGS = `$(WXDIR)/build/wx-config --libs base,core,gl` 
 
-EXTRA_CFLAGS += $(WX_CFLAGS) -Wno-write-strings -fno-strict-aliasing
+EXTRA_CFLAGS += $(WX_CFLAGS) -Wno-write-strings -fno-strict-aliasing \
+  -DHAVE_TYPE_TRAITS -D_WCHAR_H_CPLUSPLUS_98_CONFORMANCE_
 EXTRA_LFLAGS += $(WX_LFLAGS)
 
 # WORKAROUND: this makes sure that plugins link against static

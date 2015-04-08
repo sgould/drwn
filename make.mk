@@ -127,9 +127,12 @@ endif
 
 # mac os x flags
 ifeq ($(OS), Darwin)
+  CCC=clang++
   ifeq ($(strip $(DRWN_FORCE_32BIT)), 0)
-    PLAT_CFLAGS += -arch x86_64 -stdlib=libstdc++
-    PLAT_LFLAGS += -arch x86_64 -stdlib=libstdc++
+#    PLAT_CFLAGS += -arch x86_64 -stdlib=libstdc++
+#    PLAT_LFLAGS += -arch x86_64 -lstdc++
+    PLAT_CFLAGS += -arch x86_64 -stdlib=libc++
+    PLAT_LFLAGS += -arch x86_64 -lc++
   else
     PLAT_CFLAGS += -arch i386 -stdlib=libstdc++
     PLAT_LFLAGS += -arch i386 -stdlib=libstdc++

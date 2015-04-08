@@ -71,10 +71,10 @@ $(BIN_PATH)/libdrwnNodes.so.${DRWNLIBVER}: $(NODES_LIB_OBJ)
 
 # shared libraries (Mac OS X)
 $(BIN_PATH)/libdrwnEngine.${DRWNLIBVER}.dylib: $(ENGINE_LIB_OBJ)
-	libtool -dynamic -o $@ -current_version ${DRWNLIBVER} -L/usr/lib -lm -lpthread -lstdc++ ${SHAREDDRWN} $(WX_LFLAGS) - $(ENGINE_LIB_OBJ)
+	libtool -dynamic -o $@ -current_version ${DRWNLIBVER} -L/usr/lib -lm -lpthread -lc++ ${SHAREDDRWN} $(WX_LFLAGS) - $(ENGINE_LIB_OBJ)
 
 $(BIN_PATH)/libdrwnNodes.${DRWNLIBVER}.dylib: $(NODES_LIB_OBJ)
-	libtool -dynamic -o $@ -current_version ${DRWNLIBVER} -L/usr/lib -lm -lpthread -lstdc++ ${SHAREDDRWN} $(WX_LFLAGS) $(BIN_PATH)/libdrwnEngine.${DRWNLIBVER}.dylib - $(NODES_LIB_OBJ)
+	libtool -dynamic -o $@ -current_version ${DRWNLIBVER} -L/usr/lib -lm -lpthread -lc++ ${SHAREDDRWN} $(WX_LFLAGS) $(BIN_PATH)/libdrwnEngine.${DRWNLIBVER}.dylib - $(NODES_LIB_OBJ)
 
 # dependencies and object files
 ${TEMP_DIR}/%.o : %.cpp

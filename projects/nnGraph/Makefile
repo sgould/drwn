@@ -84,7 +84,7 @@ $(BIN_PATH)/lib${PROJ_NAME}.so.${LIB_VER}: $(LIB_OBJ)
 
 # shared libraries (mac os x)
 $(BIN_PATH)/lib${PROJ_NAME}.${LIB_VER}.dylib: $(LIB_OBJ)
-	libtool -dynamic -o $@ -current_version ${LIB_VER} -L/usr/lib -lm -lpthread -lstdc++ \
+	libtool -dynamic -o $@ -current_version ${LIB_VER} -L/usr/lib -lm -lpthread -lc++ \
 	`pkg-config --libs ${EXT_PATH}/opencv/lib/pkgconfig/opencv.pc` ${SHAREDDRWN} - $(LIB_OBJ)
 
 # darwin libraries

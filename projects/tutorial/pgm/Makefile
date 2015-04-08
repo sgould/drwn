@@ -7,7 +7,7 @@ INC_DIRS = -I${DARWIN}/include -I${DARWIN}/external
 LIBS = -L${DARWIN}/bin -ldrwnML -ldrwnPGM -ldrwnIO -ldrwnBase -lm -lpthread
 
 ifeq ($(shell uname), Darwin)
-    LIBS += -stdlib=libstdc++
+    LIBS += -stdlib=libc++
 endif
 
 main: viterbi factors crf3d

@@ -114,19 +114,19 @@ $(BIN_PATH)/libdrwnVision.so.${DRWNLIBVER}: $(VISION_LIB_OBJ)
 
 # shared libraries (Mac OS X)
 $(BIN_PATH)/libdrwnBase.${DRWNLIBVER}.dylib: $(BASE_LIB_OBJ)
-	libtool -dynamic -o $@ -current_version ${DRWNLIBVER} -L/usr/lib -lm -lpthread -lstdc++ - $(BASE_LIB_OBJ)
+	libtool -dynamic -o $@ -current_version ${DRWNLIBVER} -L/usr/lib -lm -lpthread -lc++ - $(BASE_LIB_OBJ)
 
 $(BIN_PATH)/libdrwnIO.${DRWNLIBVER}.dylib: $(IO_LIB_OBJ)
-	libtool -dynamic -o $@ -current_version ${DRWNLIBVER} -L/usr/lib -lm -lpthread -lstdc++ $(EXTRA_IO_LIBS) $(BIN_PATH)/libdrwnBase.${DRWNLIBVER}.dylib - $(IO_LIB_OBJ)
+	libtool -dynamic -o $@ -current_version ${DRWNLIBVER} -L/usr/lib -lm -lpthread -lc++ $(EXTRA_IO_LIBS) $(BIN_PATH)/libdrwnBase.${DRWNLIBVER}.dylib - $(IO_LIB_OBJ)
 
 $(BIN_PATH)/libdrwnML.${DRWNLIBVER}.dylib: $(ML_LIB_OBJ)
-	libtool -dynamic -o $@ -current_version ${DRWNLIBVER} -L/usr/lib -lm -lpthread -lstdc++ $(BIN_PATH)/libdrwnBase.${DRWNLIBVER}.dylib $(BIN_PATH)/libdrwnIO.${DRWNLIBVER}.dylib - $(ML_LIB_OBJ)
+	libtool -dynamic -o $@ -current_version ${DRWNLIBVER} -L/usr/lib -lm -lpthread -lc++ $(BIN_PATH)/libdrwnBase.${DRWNLIBVER}.dylib $(BIN_PATH)/libdrwnIO.${DRWNLIBVER}.dylib - $(ML_LIB_OBJ)
 
 $(BIN_PATH)/libdrwnPGM.${DRWNLIBVER}.dylib: $(PGM_LIB_OBJ)
-	libtool -dynamic -o $@ -current_version ${DRWNLIBVER} -L/usr/lib -lm -lpthread -lstdc++ $(BIN_PATH)/libdrwnBase.${DRWNLIBVER}.dylib $(BIN_PATH)/libdrwnIO.${DRWNLIBVER}.dylib - $(PGM_LIB_OBJ)
+	libtool -dynamic -o $@ -current_version ${DRWNLIBVER} -L/usr/lib -lm -lpthread -lc++ $(BIN_PATH)/libdrwnBase.${DRWNLIBVER}.dylib $(BIN_PATH)/libdrwnIO.${DRWNLIBVER}.dylib - $(PGM_LIB_OBJ)
 
 $(BIN_PATH)/libdrwnVision.${DRWNLIBVER}.dylib: $(VISION_LIB_OBJ)
-	libtool -dynamic -o $@ -current_version ${DRWNLIBVER} -L/usr/lib -lm -lpthread -lstdc++ $(BIN_PATH)/libdrwnBase.${DRWNLIBVER}.dylib $(BIN_PATH)/libdrwnIO.${DRWNLIBVER}.dylib $(BIN_PATH)/libdrwnML.${DRWNLIBVER}.dylib $(BIN_PATH)/libdrwnPGM.${DRWNLIBVER}.dylib `pkg-config --libs ${EXT_PATH}/opencv/lib/pkgconfig/opencv.pc` - $(VISION_LIB_OBJ)
+	libtool -dynamic -o $@ -current_version ${DRWNLIBVER} -L/usr/lib -lm -lpthread -lc++ $(BIN_PATH)/libdrwnBase.${DRWNLIBVER}.dylib $(BIN_PATH)/libdrwnIO.${DRWNLIBVER}.dylib $(BIN_PATH)/libdrwnML.${DRWNLIBVER}.dylib $(BIN_PATH)/libdrwnPGM.${DRWNLIBVER}.dylib `pkg-config --libs ${EXT_PATH}/opencv/lib/pkgconfig/opencv.pc` - $(VISION_LIB_OBJ)
 
 # dependencies and object files
 ${TEMP_DIR}/%.o : %.cpp

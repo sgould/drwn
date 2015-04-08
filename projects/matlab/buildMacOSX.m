@@ -8,7 +8,7 @@ if (~exist('../../bin/libdrwnBase.a') || ~exist('../../bin/libdrwnIO.a') || ...
 end;
 
 % setup build string
-mexBuildOptions = '-D__LINUX__ -D__APPLE__ -I../../external -I../../include -L../../bin -ldrwnPGM -ldrwnML -ldrwnIO -ldrwnBase -outdir ../../bin';
+mexBuildOptions = '-D__LINUX__ -D__APPLE__ CXXFLAGS="$CXXFLAGS -arch x86_64 -stdlib=libc++" CXXLIBS="$CXXLIBS -lc++" -I../../external -I../../include -L../../bin -ldrwnPGM -ldrwnML -ldrwnIO -ldrwnBase -outdir ../../bin';
 
 % compile test application
 eval(['mex ', mexBuildOptions, ' mexDarwinTest.cpp']);

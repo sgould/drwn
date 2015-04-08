@@ -125,6 +125,24 @@ system and a symbolic link setup in the external directory, e.g.,
   ln -s /Applications/MATLAB_R2014a.app/ external/matlab
 \endcode
 
+The default compiler on Mac OS X is \p clang++. The compiler can link
+against two different C++ libraries. To control which one use either:
+
+\code
+CXXFLAGS="$CXXFLAGS -stdlib=libc++"
+CXXLIBS="$CXXLIBS -lc++"
+\endcode
+
+or
+
+\code
+CXXFLAGS="$CXXFLAGS -stdlib=libstdc++"
+CXXLIBS="$CXXLIBS -lstdc++"
+\endcode
+
+This is usually only an issue when linking against other libraries,
+such as OpenCV.
+
 \sa \ref drwnProjMatlabInstall
 
 */

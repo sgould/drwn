@@ -549,6 +549,9 @@ void testSparseVector()
             "(" << errors << " == 0) && (" << zeros << " + " << xs.nnz() << " == " << VEC_SIZE << ")");
     }
 
+#if 0
+    //!\todo does sorting a sparse vector even make sense?
+
     // sort
     DRWN_LOG_MESSAGE("testing sort on drwnSparseVector class...");
     for (unsigned t = 0; t < NUM_TESTS; t++) {
@@ -574,7 +577,7 @@ void testSparseVector()
         DRWN_ASSERT_MSG((errors == 0) && (zeros + xs.nnz() == VEC_SIZE),
             "(" << errors << " == 0) && (" << zeros << " + " << xs.nnz() << " == " << VEC_SIZE << ")");
     }
-
+#endif
 
     DRWN_FCN_TOC;
 }

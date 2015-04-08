@@ -110,7 +110,7 @@ class drwnSparseVec {
         inline bool operator>(const iterator& it) const;
         inline bool operator<=(const iterator& it) const;
         inline bool operator>=(const iterator& it) const;
-        //inline const T& operator*() const;
+        inline const_reference operator*() const;
         inline reference operator*();
         //inline pointer operator->();
         inline iterator& operator++();
@@ -137,6 +137,7 @@ class drwnSparseVec {
 
     /*
     class const_iterator;
+    friend class const_iterator;
     */
 
  public:
@@ -600,14 +601,12 @@ bool drwnSparseVec<T>::iterator::operator>=(const iterator& it) const
     return (_indx >= it._indx);
 }
 
-/*
 template<typename T>
-const T& drwnSparseVec<T>::iterator::operator*() const
+typename drwnSparseVec<T>::const_reference drwnSparseVec<T>::iterator::operator*() const
 {
     DRWN_ASSERT(_p != NULL);
     return (*_p)[_indx];
 }
-*/
 
 template<typename T>
 typename drwnSparseVec<T>::reference drwnSparseVec<T>::iterator::operator*()

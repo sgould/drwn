@@ -13,12 +13,14 @@ set CODEBASE = `pwd`/..
 # wxWidgets
 if (! -e wx && (("$1" == "wxWidgets") || ("$1" == "wx"))) then
     set WXBUILD = "wxWidgets"
-    set VERSION = "2.9.4"
+    set VERSION = "3.0.2"
     if (! -e ${WXBUILD}-${VERSION}) then
-        if (! -e ${WXBUILD}-${VERSION}.tar.bz2) then
-            wget http://prdownloads.sourceforge.net/wxwindows/${WXBUILD}-${VERSION}.tar.bz2 || exit 1
-        endif
-        bunzip2 ${WXBUILD}-${VERSION}.tar.bz2 || exit 1
+        if (! -e ${WXBUILD}-${VERSION}.tar) then
+	    if (! -e ${WXBUILD}-${VERSION}.tar.bz2) then
+		wget http://prdownloads.sourceforge.net/wxwindows/${WXBUILD}-${VERSION}.tar.bz2 || exit 1
+	    endif
+	    bunzip2 ${WXBUILD}-${VERSION}.tar.bz2 || exit 1
+	endif
         tar xvf ${WXBUILD}-${VERSION}.tar || exit 1
         rm -f ${WXBUILD}-${VERSION}.tar.bz2
     endif
@@ -26,7 +28,8 @@ if (! -e wx && (("$1" == "wxWidgets") || ("$1" == "wx"))) then
     mkdir -p build
     cd build || exit 1
     if ("$OS" == "Darwin") then
-	../configure --with-opengl --enable-monolithic --with-osx_cocoa
+	../configure --with-opengl --enable-monolithic --with-osx_cocoa --with-macosx-version-min=10.7 \
+	    --disable-webkit --disable-webviewwebkit --enable-maxosx_arch=x86_64 CC=clang CXX=clang++
 	make || exit 1
     else
 	../configure --disable-shared --with-opengl --enable-monolithic
@@ -65,8 +68,8 @@ if (! -e opencv && (("$1" == "OpenCV") || ("$1" == "opencv"))) then
     if (`uname` == Darwin) then
 	cmake -D CMAKE_BUILD_TYPE=RELEASE \
 	      -D CMAKE_INSTALL_PREFIX=${CODEBASE}/external/opencv \
-	      -D CMAKE_CXX_FLAGS="-stdlib=libstdc++" \
-	      -D CMAKE_EXE_LINKER_FLAGS="-stdlib=libstdc++" \
+	      -D CMAKE_CXX_FLAGS="-stdlib=libc++" \
+	      -D CMAKE_EXE_LINKER_FLAGS="-stdlib=libc++ -lc++" \
 	      -D BUILD_NEW_PYTHON_SUPPORT=OFF .
     else
 	cmake -D CMAKE_BUILD_TYPE=RELEASE \
