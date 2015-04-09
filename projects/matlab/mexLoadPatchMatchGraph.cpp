@@ -68,7 +68,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     drwnMatlabUtils::processStandardOptions(options);
     drwnCodeProfiler::tic(drwnCodeProfiler::getHandle("mex"));
 
-    const char *filebase = mxArrayToString(prhs[0]);
+    char *filebase = mxArrayToString(prhs[0]);
 
     // load PatchMatchGraph
     drwnPatchMatchGraph graph;
@@ -76,9 +76,11 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     graph.read(filebase);
     DRWN_LOG_MESSAGE("...graph has " << graph.size() << " images");
 
+    mxFree(filebase);
+
     // convert to Matlab data structure
     if (nlhs == 1) {
-        const char *fnames[] = {"dir", "ext", "width", "height", "images", "matches"};
+        const char *fnames[] = {"dir", "ext", "patchWidth", "patchHeight", "imageNames", "imageSizes", "matches"};
         plhs[0] = mxCreateStructMatrix(1, 1, 6, fnames);
 
         // meta-data
@@ -94,6 +96,15 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         }
         mxSetFieldByNumber(plhs[0], 0, 4, imageNames);
 
+        // image sizes
+        mxArray *imageSizes = mxCreateDoubleMatrix(graph.size(), 2, mxREAL);
+        double *px = mxGetPr(imageSizes);
+        for (unsigned i = 0; i < graph.size(); i++) {
+            px[i] = (double)graph[i][0].width();
+            px[i + graph.size()] = (double)graph[i][0].height();
+        }
+        mxSetFieldByNumber(plhs[0], 0, 5, imageSizes);        
+
         // matches
         size_t numMatches = 0;
         for (unsigned i = 0; i < graph.size(); i++) {
@@ -105,7 +116,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         }
 
         mxArray *matches = mxCreateDoubleMatrix(numMatches, 11, mxREAL);
-        double *px = mxGetPr(matches);
+        px = mxGetPr(matches);
         for (unsigned i = 0; i < graph.size(); i++) {
             for (unsigned j = 0; j < graph[i].levels(); j++) {
                 for (unsigned k = 0; k < graph[i][j].size(); k++) {
@@ -142,7 +153,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
         }
 
         // src_img, src_patch (4), dst_img, dst_patch (4), score
-        mxSetFieldByNumber(plhs[0], 0, 5, matches);
+        mxSetFieldByNumber(plhs[0], 0, 6, matches);
     }
 
     // print profile information

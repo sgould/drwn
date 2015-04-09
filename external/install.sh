@@ -103,7 +103,7 @@ if (! -e zlib && "$1" == "zlib") then
     ln -s zlib-${VERSION} ${CODEBASE}/external/zlib
     cd zlib
     setenv CC gcc
-    ./configure -t
+    ./configure -t --shared
     make
     cd ..
 endif

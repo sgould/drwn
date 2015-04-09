@@ -56,7 +56,7 @@ namespace drwn {
    \endcode
    You may need to execute these commands with superuser (\p sudo) privileges.
 
-   \warning If you are having problems running Matlab with OpenCV, try starting
+   \note If you are having problems running Matlab with OpenCV, try starting
    Matlab with
    \code
    LD_PRELOAD=/usr/lib/x86_64-linux-gnu/libfreetype.so.6 matlab &

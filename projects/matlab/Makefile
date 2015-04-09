@@ -14,9 +14,9 @@ PROJ_MINORVER = 0.0
 
 -include $(DRWN_PATH)/make.mk
 
-#ifeq ($(DRWN_BUILD_WITH_ZLIB), 1)
-#  EXTLIB := ${EXTLIB} $(EXT_PATH)/zlib/libz.a
-#endif
+ifeq ($(DRWN_BUILD_WITH_ZLIB), 1)
+  EXTLIB := ${EXTLIB} $(EXT_PATH)/zlib/libz.so
+endif
 
 # matlab
 ifeq ($(wildcard $(EXT_PATH)/matlab), $(EXT_PATH)/matlab)
