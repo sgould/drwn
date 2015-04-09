@@ -81,7 +81,7 @@ void mexFunction(int nlhs, mxArray *plhs[], int nrhs, const mxArray *prhs[])
     // convert to Matlab data structure
     if (nlhs == 1) {
         const char *fnames[] = {"dir", "ext", "patchWidth", "patchHeight", "imageNames", "imageSizes", "matches"};
-        plhs[0] = mxCreateStructMatrix(1, 1, 6, fnames);
+        plhs[0] = mxCreateStructMatrix(1, 1, 7, fnames);
 
         // meta-data
         mxSetFieldByNumber(plhs[0], 0, 0, mxCreateString(graph.imageDirectory.c_str()));
