@@ -9,6 +9,9 @@ end;
 
 % setup build string
 mexBuildOptions = '-D__LINUX__ -I../../external -I../../include -L../../bin -ldrwnPGM -ldrwnML -ldrwnIO -ldrwnBase -outdir ../../bin';
+if (exist('../../external/zlib', 'dir')),
+    mexBuildOptions = [mexBuildOptions, ' ../../external/zlib/libz.so'];
+end;
 
 % compile test application
 eval(['mex ', mexBuildOptions, ' mexDarwinTest.cpp']);
@@ -32,7 +35,11 @@ if (exist('../../external/opencv', 'dir')),
         strtrim(mexOpenCVOptions), ' ', ...
         ' -ldrwnVision -ldrwnPGM -ldrwnML -ldrwnIO -ldrwnBase -outdir ../../bin', ...
         ' ', strtrim(mexOpenCVOptions)];
-    
+
+    if (exist('../../external/zlib', 'dir')),
+        mexVisionBuildOptions = [mexVisionBuildOptions, ' ../../external/zlib/libz.so'];
+    end;
+
     eval(['mex ', mexVisionBuildOptions, ' mexImageCRF.cpp']);
     eval(['mex ', mexVisionBuildOptions, ' mexLoadSuperpixels.cpp']);
     eval(['mex ', mexVisionBuildOptions, ' mexSaveSuperpixels.cpp']);

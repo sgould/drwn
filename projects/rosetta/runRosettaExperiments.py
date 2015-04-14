@@ -16,7 +16,8 @@ else:
     files = sys.argv[1:]
 
 for i in files:
-    baseName = i[:-13]
+    baseName = i.split('.')[0]
+
     print("uncompressing " + baseName + "...")
     with gzip.open(baseName + '.graph.xml.gz', 'rb') as f_in:
         with open(baseName + '.graph.xml', 'wb') as f_out:
