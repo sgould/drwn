@@ -59,9 +59,11 @@ endif
 
 # opencv
 if (! -e opencv && (("$1" == "OpenCV") || ("$1" == "opencv"))) then
-    set VERSION = "2.4.9"
+    set VERSION = "2.4.10"
     if (! -e opencv-${VERSION}) then
-        wget -c https://github.com/Itseez/opencv/archive/${VERSION}.tar.gz
+        if (! -e opencv-${VERSION}.tar.gz) then
+            wget -c https://github.com/Itseez/opencv/archive/${VERSION}.tar.gz
+        endif
         tar zxvf ${VERSION}.tar.gz
     endif
     cd opencv-${VERSION}
@@ -110,7 +112,7 @@ endif
 
 # lua
 if (! -e lua && "$1" == "lua") then
-    set VERSION = "5.2.2"
+    set VERSION = "5.2.4"
     wget -c http://www.lua.org/ftp/lua-${VERSION}.tar.gz || exit 1
     tar xzvf lua-${VERSION}.tar.gz
     cd lua-${VERSION}
