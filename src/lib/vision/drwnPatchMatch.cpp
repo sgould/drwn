@@ -664,7 +664,7 @@ void drwnPatchMatchGraphLearner::initialize(unsigned imgIndx)
                 }
 
                 const float score = scoreMatch(u, v, patchXform);
-                DRWN_ASSERT(score != DRWN_FLT_MAX);
+                //DRWN_ASSERT(score != DRWN_FLT_MAX);
                 e.push_back(drwnPatchMatchEdge(score, v, patchXform));
             }
 
