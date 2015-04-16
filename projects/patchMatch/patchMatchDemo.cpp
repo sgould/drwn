@@ -97,7 +97,7 @@ int main(int argc, char *argv[])
             views.push_back(imgB);
             views.push_back(drwnPatchMatchVis::visualizeMatchQuality(graph, 1));
             views.push_back(retarget.retarget(1));
-            drwnShowDebuggingImage(views, string("patchMatchDemo"), false);
+            drwnShowDebuggingImage(views, string("patchMatchDemo"), false, 2);
         }
 
         // check energy

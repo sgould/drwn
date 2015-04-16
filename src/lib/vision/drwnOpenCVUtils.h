@@ -62,7 +62,7 @@ int drwnCmpCount(const cv::Mat& s, const cv::Mat& t, int cmpOp = CV_CMP_EQ);
 //! show an image (scale if not CV_8U) and wait (returns result from cv::waitKey)
 int drwnShowDebuggingImage(const cv::Mat& img, const std::string& name, bool bWait);
 //! show an array of images and wait (returns result from cv::waitKey)
-int drwnShowDebuggingImage(const vector<cv::Mat>& views, const std::string& name, bool bWait);
+int drwnShowDebuggingImage(const vector<cv::Mat>& views, const std::string& name, bool bWait, int rows = -1);
 
 //! finds the smallest bounding box around these rectangles
 cv::Rect drwnFitBoundingBox(const vector<cv::Rect> &rects);

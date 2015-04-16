@@ -1333,6 +1333,10 @@ void drwnPatchMatchGraphLearner::cacheImageFeatures(unsigned imgIndx)
         int nChannel = appendCIELabFeatures(img, _features[imgIndx][lvlIndx], 0);
         nChannel = appendEdgeFeatures(img, _features[imgIndx][lvlIndx], nChannel);
         nChannel = appendVerticalFeatures(img, _features[imgIndx][lvlIndx], nChannel);
+#elif 1
+        _features[imgIndx][lvlIndx] = cv::Mat(img.rows, img.cols, CV_8UC(4));
+        int nChannel = appendCIELabFeatures(img, _features[imgIndx][lvlIndx], 0);
+        nChannel = appendEdgeFeatures(img, _features[imgIndx][lvlIndx], nChannel);
 #else
         //! \todo configuration option for features
         _features[imgIndx][lvlIndx] = cv::Mat(img.rows, img.cols, CV_8UC(17));
@@ -1677,7 +1681,16 @@ cv::Mat drwnPatchMatchGraphRetarget::retarget(unsigned imgIndx) const
                 const cv::Rect srcRect((int)(srcXScale * r.xPosition), (int)(srcYScale * r.yPosition),
                     (int)(srcXScale * _graph.patchWidth()), (int)(srcYScale * _graph.patchHeight()));
 
+                // resize patch
                 cv::resize(_labels[r.imgIndx](srcRect), patch, cv::Size(nHeight, nWidth), CV_INTER_LINEAR);
+
+                // transform patch
+                if ((e.front().xform & DRWN_PM_TRANSFORM_HFLIP) != 0x00) {
+                    cv::flip(patch, patch, 1);
+                }
+                if ((e.front().xform & DRWN_PM_TRANSFORM_VFLIP) != 0x00) {
+                    cv::flip(patch, patch, 0);
+                }
 
                 for (int v = 0; v < dstRect.height; v++) {
                     for (int u = 0; u < dstRect.width; u++) {

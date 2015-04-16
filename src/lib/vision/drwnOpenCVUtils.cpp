@@ -147,9 +147,9 @@ int drwnShowDebuggingImage(const cv::Mat& img, const std::string& name, bool bWa
     return ch;
 }
 
-int drwnShowDebuggingImage(const vector<cv::Mat>& views, const std::string& name, bool bWait)
+int drwnShowDebuggingImage(const vector<cv::Mat>& views, const std::string& name, bool bWait, int rows)
 {
-    cv::Mat canvas = drwnCombineImages(views);
+    cv::Mat canvas = drwnCombineImages(views, rows);
     return drwnShowDebuggingImage(canvas, name, bWait);
 }
 
