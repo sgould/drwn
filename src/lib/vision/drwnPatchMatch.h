@@ -451,7 +451,9 @@ class drwnPatchMatchGraphLearner {
     //! caches features for all image pyramids
     void cacheImageFeatures();
     //! caches features for given image pyramid
-    virtual void cacheImageFeatures(unsigned imgIndx);
+    void cacheImageFeatures(unsigned imgIndx);
+    //! caches features for given image pyramid using given base image
+    virtual void cacheImageFeatures(unsigned imgIndx, const cv::Mat& baseImg);
 
     //! helper functions for feature computation
     //! \todo move these elsewhere

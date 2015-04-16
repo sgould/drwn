@@ -1289,18 +1289,24 @@ void drwnPatchMatchGraphLearner::cacheImageFeatures()
 
 void drwnPatchMatchGraphLearner::cacheImageFeatures(unsigned imgIndx)
 {
-    DRWN_FCN_TIC;
-
     // load image
     cv::Mat img = cv::imread(_graph.imageFilename(imgIndx), CV_LOAD_IMAGE_COLOR);
     DRWN_ASSERT_MSG(img.data != NULL, _graph.imageFilename(imgIndx) << " [" << imgIndx << "]");
+
+    cacheImageFeatures(imgIndx, img);
+}
+
+void drwnPatchMatchGraphLearner::cacheImageFeatures(unsigned imgIndx, const cv::Mat& baseImg)
+{
+    DRWN_FCN_TIC;
 
     // compute features for each pyramid level
     _features[imgIndx].resize(_graph[imgIndx].levels());
     for (unsigned lvlIndx = 0; lvlIndx < _graph[imgIndx].levels(); lvlIndx++) {
 
         // resize image for this pyramid level
-        drwnResizeInPlace(img, _graph[imgIndx][lvlIndx].height(), _graph[imgIndx][lvlIndx].width());
+        cv::Mat img(_graph[imgIndx][lvlIndx].height(), _graph[imgIndx][lvlIndx].width(), CV_8UC3);
+        cv::resize(baseImg, img, img.size(), cv::INTER_LINEAR);
 
         // create feature image
 #if 1
