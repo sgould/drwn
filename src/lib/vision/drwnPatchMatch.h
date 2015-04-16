@@ -27,8 +27,6 @@
 
 using namespace std;
 
-#define DRWN_PM_VECTOR_EDGE_LIST
-
 // drwnPatchMatchStatus ------------------------------------------------------
 //! Status of a drwnPatchMatchEdge object indicating whether the edge is new
 //! or has been processed by a propagation move.
@@ -41,7 +39,7 @@ typedef enum { DRWN_PM_DIRTY, //!< the match is new
 // drwnPatchMatchTransform ---------------------------------------------------
 //! Patch transformations. Currently only supports horizontal and vertical
 //! flipping.
-//! \todo: make into class to support future expansion and arbitrary transforms
+//! \todo: extend to support 90 degree rotations
 
 typedef unsigned char drwnPatchMatchTransform;
 
@@ -90,6 +88,15 @@ class drwnPatchMatchNode {
         if (yPosition < node.yPosition) return true;
         if (yPosition > node.yPosition) return false;
         return (xPosition < node.xPosition);
+    }
+
+    //! equality operator
+    bool operator==(const drwnPatchMatchNode& node) const {
+        if (imgIndx != node.imgIndx) return false;
+        if (imgScale != node.imgScale) return false;
+        if (yPosition != node.yPosition) return false;
+        if (xPosition != node.xPosition) return false;
+        return true;
     }
 };
 
@@ -145,21 +152,18 @@ inline bool drwnPatchMatchSortByImage(const drwnPatchMatchEdge& a, const drwnPat
 string toString(const drwnPatchMatchEdge& e);
 
 // drwnPatchMatchEdgeList ----------------------------------------------------
-//! Record of matches for each pixel maintained as a sorted list.
-//! \todo this data-structure uses a lot of memory, can we change to another
-//! datatype (like a singly-linked list?)
-//! A deque is faster than list on some benchmarks. Vector may be faster still.
+//! Record of matches for each pixel maintained as a sorted list. Stored as
+//! an STL vector, which is faster and smaller than an STL list.
 
-#ifdef DRWN_PM_VECTOR_EDGE_LIST
 typedef vector<drwnPatchMatchEdge> drwnPatchMatchEdgeList;
-#else
-typedef list<drwnPatchMatchEdge> drwnPatchMatchEdgeList;
-#endif
 
 // drwnPatchMatchImageRecord ------------------------------------------------
 //! Records matches for one level in an image pyramid.
 
 class drwnPatchMatchImageRecord {
+ public:
+    static bool ALLOW_MULTIPLE;        //!< allow multiple matches within a single image
+
  protected:
     uint16_t  _width;      //!< width of the image at this pyramid level
     uint16_t  _height;     //!< height of the image at this pyrmaid level
@@ -307,7 +311,9 @@ class drwnPatchMatchImagePyramid : public drwnPersistentRecord {
 
 // drwnPatchMatchGraph -------------------------------------------------------
 //! Each image maintains a W-by-H-by-K array of match records referencing the
-//! (approximate) best K matches to other images.
+//! (approximate) best K matches to other images. Image filename rather than
+//! the images themselves are stored. Duplicate filenames (images) are not
+//! allowed.
 //!
 //! That is, stores a PatchMatchGraph as described in Gould and Zhang,
 //! ECCV 2012.
@@ -518,10 +524,10 @@ namespace drwnPatchMatchVis {
 
     //! visualize match quality for a given image
     cv::Mat visualizeMatchQuality(const drwnPatchMatchGraph &graph,
-        int imgIndx, float maxScore = 0.0);
+        int imgIndx, float maxScore = 0.0, unsigned kthBest = 0);
 
     //! visualize match quality over all active images
-    cv::Mat visualizeMatchQuality(const drwnPatchMatchGraph &graph);
+    cv::Mat visualizeMatchQuality(const drwnPatchMatchGraph &graph, unsigned kthBest = 0);
 
     //! visualize best match transformations for a given image
     cv::Mat visualizeMatchTransforms(const drwnPatchMatchGraph &graph,

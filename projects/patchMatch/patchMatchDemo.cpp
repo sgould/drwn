@@ -69,7 +69,12 @@ int main(int argc, char *argv[])
     // construct patch match graph
     drwnPatchMatchImagePyramid::MAX_LEVELS = 1;
     drwnPatchMatchImagePyramid::MAX_SIZE = 320;
+#if 1
     drwnPatchMatchGraph::K = 1;
+#else
+    drwnPatchMatchImageRecord::ALLOW_MULTIPLE = true;
+    drwnPatchMatchGraph::K = 2;
+#endif
     drwnPatchMatchGraph graph;
     graph.appendImage(nameA);
     graph.appendImage(nameB);
@@ -89,13 +94,20 @@ int main(int argc, char *argv[])
         // perform update
         learner.update();
 
+        // show image, best match quality, worst match quality, retargetted image
         if (bVisualize) {
             vector<cv::Mat> views;
             views.push_back(imgA);
             views.push_back(drwnPatchMatchVis::visualizeMatchQuality(graph, 0));
+            if (drwnPatchMatchGraph::K > 1) {
+                views.push_back(drwnPatchMatchVis::visualizeMatchQuality(graph, 0, 0.0, drwnPatchMatchGraph::K - 1));
+            }
             views.push_back(retarget.retarget(0));
             views.push_back(imgB);
             views.push_back(drwnPatchMatchVis::visualizeMatchQuality(graph, 1));
+            if (drwnPatchMatchGraph::K > 1) {
+                views.push_back(drwnPatchMatchVis::visualizeMatchQuality(graph, 1, 0.0, drwnPatchMatchGraph::K - 1));
+            }
             views.push_back(retarget.retarget(1));
             drwnShowDebuggingImage(views, string("patchMatchDemo"), false, 2);
         }

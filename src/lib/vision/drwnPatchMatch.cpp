@@ -119,6 +119,8 @@ string toString(const drwnPatchMatchEdge& e)
 
 // drwnPatchMatchImageRecord -------------------------------------------------
 
+bool drwnPatchMatchImageRecord::ALLOW_MULTIPLE = false;
+
 void drwnPatchMatchImageRecord::clear()
 {
     _matches.clear();
@@ -133,16 +135,11 @@ bool drwnPatchMatchImageRecord::update(int indx, const drwnPatchMatchEdge& match
 
     // search for existing match to the same target image id
     for (drwnPatchMatchEdgeList::iterator it = _matches[indx].begin(); it != _matches[indx].end(); ++it) {
-        if (it->targetNode.imgIndx == match.targetNode.imgIndx) {
+        if ((it->targetNode.imgIndx == match.targetNode.imgIndx) &&
+            (!ALLOW_MULTIPLE || (it->targetNode == match.targetNode))) {
             if (it->matchScore > match.matchScore) {
-#ifdef DRWN_PM_VECTOR_EDGE_LIST
                 *it = match;
                 std::sort(_matches[indx].begin(), it + 1, drwnPatchMatchSortByScore);
-#else
-                _matches[indx].erase(it);
-                drwnPatchMatchEdgeList tmp(1, match);
-                _matches[indx].merge(tmp, drwnPatchMatchSortByScore);
-#endif
                 return true;
             } else {
                 return false;
@@ -151,14 +148,8 @@ bool drwnPatchMatchImageRecord::update(int indx, const drwnPatchMatchEdge& match
     }
 
     // otherwise remove the previous worst match and add this one
-#ifdef DRWN_PM_VECTOR_EDGE_LIST
     _matches[indx].back() = match;
     std::sort(_matches[indx].begin(), _matches[indx].end(), drwnPatchMatchSortByScore);
-#else
-    _matches[indx].pop_back();
-    drwnPatchMatchEdgeList tmp(1, match);
-    _matches[indx].merge(tmp, drwnPatchMatchSortByScore);
-#endif
 
     return true;
 }
@@ -566,8 +557,9 @@ drwnPatchMatchGraphLearner::~drwnPatchMatchGraphLearner()
 
 void drwnPatchMatchGraphLearner::initialize()
 {
-    DRWN_ASSERT_MSG(_graph.size() > drwnPatchMatchGraph::K,
-        "must have more images than matched per pixel");
+    DRWN_ASSERT_MSG(drwnPatchMatchImageRecord::ALLOW_MULTIPLE ||
+        (_graph.size() > drwnPatchMatchGraph::K),
+        "must have more images than matches per pixel (K) or allow multiple matches");
 
     //! \todo cache image features here instead of in constructor?
 
@@ -626,7 +618,7 @@ void drwnPatchMatchGraphLearner::initialize(unsigned imgIndx)
             continue;
         indexes.push_back(i);
     }
-    if (indexes.size() < drwnPatchMatchGraph::K) {
+    if (!drwnPatchMatchImageRecord::ALLOW_MULTIPLE && (indexes.size() < drwnPatchMatchGraph::K)) {
         DRWN_LOG_WARNING(_graph[imgIndx].name() << " has less than " <<
             drwnPatchMatchGraph::K << " images to match against");
     }
@@ -644,8 +636,10 @@ void drwnPatchMatchGraphLearner::initialize(unsigned imgIndx)
 
         for (unsigned p = 0; p < pixels.size(); p++) {
             // determine number of matches to add
-            const unsigned kPixel = std::min((unsigned)indexes.size(), (pixels.size() < 1024) ||
-                (p < TOP_VAR_PATCHES * pixels.size()) ? drwnPatchMatchGraph::K : 1);
+            unsigned kPixel = ((pixels.size() < 1024) || (p < TOP_VAR_PATCHES * pixels.size()) ? drwnPatchMatchGraph::K : 1);
+            if (!drwnPatchMatchImageRecord::ALLOW_MULTIPLE) {
+                kPixel = std::min((unsigned)indexes.size(), kPixel);
+            }
 
             const drwnPatchMatchNode u(imgIndx, lvlIndx, pixels[p].x, pixels[p].y);
             drwnPatchMatchEdgeList& e = _graph.edges(u);
@@ -655,10 +649,11 @@ void drwnPatchMatchGraphLearner::initialize(unsigned imgIndx)
             vector<unsigned> indxB = drwn::subSample(indexes, kPixel);
             for (unsigned k = 0; k < kPixel; k++) {
 
-                const uint8_t lvlB = (uint8_t)(drand48() * _graph[indxB[k]].levels());
-                const cv::Point topLeftB(int(drand48() * (_graph[indxB[k]][lvlB].width() - _graph.patchWidth())),
-                    int(drand48() * (_graph[indxB[k]][lvlB].height() - _graph.patchHeight())));
-                const drwnPatchMatchNode v(indxB[k], lvlB, topLeftB);
+                const unsigned imgBIndx = indxB[k % indxB.size()];
+                const uint8_t lvlB = (uint8_t)(drand48() * _graph[imgBIndx].levels());
+                const cv::Point topLeftB(int(drand48() * (_graph[imgBIndx][lvlB].width() - _graph.patchWidth())),
+                    int(drand48() * (_graph[imgBIndx][lvlB].height() - _graph.patchHeight())));
+                const drwnPatchMatchNode v(imgBIndx, lvlB, topLeftB);
 
                 drwnPatchMatchTransform patchXform = DRWN_PM_TRANSFORM_NONE;
                 if ((ALLOWED_TRANSFORMATIONS & DRWN_PM_TRANSFORM_HFLIP) != 0x00) {
@@ -674,13 +669,9 @@ void drwnPatchMatchGraphLearner::initialize(unsigned imgIndx)
             }
 
             // remove excess matches if existing
-            if (bHasExistingMatches) {
+            if (bHasExistingMatches && !drwnPatchMatchImageRecord::ALLOW_MULTIPLE) {
                 // remove duplicate target images
-#ifdef DRWN_PM_VECTOR_EDGE_LIST
                 std::sort(e.begin(), e.end(), drwnPatchMatchSortByImage);
-#else
-                e.sort(drwnPatchMatchSortByImage);
-#endif
                 drwnPatchMatchEdgeList::iterator kt = e.begin();
                 drwnPatchMatchEdgeList::iterator jt = kt++;
                 while (kt != e.end()) {
@@ -693,11 +684,7 @@ void drwnPatchMatchGraphLearner::initialize(unsigned imgIndx)
             }
 
             // sort matches from best to worst
-#ifdef DRWN_PM_VECTOR_EDGE_LIST
             std::sort(e.begin(), e.end(), drwnPatchMatchSortByScore);
-#else
-            e.sort(drwnPatchMatchSortByScore);
-#endif
 
             // resize to correct number of matches per pixel
             if (bHasExistingMatches) {
@@ -726,11 +713,7 @@ void drwnPatchMatchGraphLearner::rescore()
                 }
 
                 // sort matches from best to worst
-#ifdef DRWN_PM_VECTOR_EDGE_LIST
                 std::sort(e.begin(), e.end(), drwnPatchMatchSortByScore);
-#else
-                e.sort(drwnPatchMatchSortByScore);
-#endif
             }
         }
     }
@@ -1037,11 +1020,7 @@ bool drwnPatchMatchGraphLearner::search(const drwnPatchMatchNode& u)
 
     // sort matches from best to worst
     if (bChanged) {
-#ifdef DRWN_PM_VECTOR_EDGE_LIST
         std::sort(e.begin(), e.end(), drwnPatchMatchSortByScore);
-#else
-        e.sort(drwnPatchMatchSortByScore);
-#endif
     }
 
     return bChanged;
@@ -1142,11 +1121,7 @@ bool drwnPatchMatchGraphLearner::local(const drwnPatchMatchNode& u)
 
     // sort matches from best to worst
     if (bChanged) {
-#ifdef DRWN_PM_VECTOR_EDGE_LIST
         std::sort(e.begin(), e.end(), drwnPatchMatchSortByScore);
-#else
-        e.sort(drwnPatchMatchSortByScore);
-#endif
     }
 
     return bChanged;
@@ -1576,10 +1551,10 @@ float drwnPatchMatchGraphLearner::scoreMatch(const drwnPatchMatchNode& u,
                         iSum += DISTANCE_METRIC(p[c] - q[c]) + DISTANCE_METRIC(p[c + 1] - q[c + 1]);
                     }
                 }
-                
+
                 score += (float)iSum;
                 if (score > maxValue) break;
-                
+
                 p += pRowStep;
                 q += qRowStep;
             }
@@ -1592,10 +1567,10 @@ float drwnPatchMatchGraphLearner::scoreMatch(const drwnPatchMatchNode& u,
                     }
                     iSum += DISTANCE_METRIC(p[nFeatures - 1] - q[nFeatures - 1]);
                 }
-                
+
                 score += (float)iSum;
                 if (score > maxValue) break;
-                
+
                 p += pRowStep;
                 q += qRowStep;
             }
@@ -1747,7 +1722,7 @@ cv::Mat drwnPatchMatchVis::visualizeMatches(const drwnPatchMatchGraph &graph,
 }
 
 cv::Mat drwnPatchMatchVis::visualizeMatchQuality(const drwnPatchMatchGraph &graph,
-    int imgIndx, float maxScore)
+    int imgIndx, float maxScore, unsigned kthBest)
 {
     // view quality for the first pyramid level
     cv::Mat quality = cv::Mat::zeros(graph[imgIndx][0].height(), graph[imgIndx][0].width(), CV_32FC1);
@@ -1756,8 +1731,11 @@ cv::Mat drwnPatchMatchVis::visualizeMatchQuality(const drwnPatchMatchGraph &grap
         for (int x = 0; x < quality.cols; x++) {
             const drwnPatchMatchEdgeList& e = graph[imgIndx][0](x, y);
             if (!e.empty()) {
-                maxScore = std::max(maxScore, e.front().matchScore);
-                quality.at<float>(y, x) = e.front().matchScore;
+                DRWN_ASSERT(kthBest < e.size());
+                //maxScore = std::max(maxScore, e.front().matchScore);
+                //quality.at<float>(y, x) = e.front().matchScore;
+                maxScore = std::max(maxScore, e[kthBest].matchScore);
+                quality.at<float>(y, x) = e[kthBest].matchScore;
             }
         }
     }
@@ -1769,7 +1747,7 @@ cv::Mat drwnPatchMatchVis::visualizeMatchQuality(const drwnPatchMatchGraph &grap
     return drwnCreateHeatMap(quality, DRWN_COLORMAP_RAINBOW);
 }
 
-cv::Mat drwnPatchMatchVis::visualizeMatchQuality(const drwnPatchMatchGraph &graph)
+cv::Mat drwnPatchMatchVis::visualizeMatchQuality(const drwnPatchMatchGraph &graph, unsigned kthBest)
 {
     // determine max score
     float maxScore = 0.0f;
@@ -1785,7 +1763,7 @@ cv::Mat drwnPatchMatchVis::visualizeMatchQuality(const drwnPatchMatchGraph &grap
     vector<cv::Mat> views;
     for (int imgIndx = 0; imgIndx < (int)graph.size(); imgIndx++) {
         if (!graph[imgIndx].bActive) continue;
-        views.push_back(drwnPatchMatchVis::visualizeMatchQuality(graph, imgIndx, maxScore));
+        views.push_back(drwnPatchMatchVis::visualizeMatchQuality(graph, imgIndx, maxScore, kthBest));
         drwnResizeInPlace(views.back(), views[0].rows, views[0].cols);
     }
 
@@ -1865,6 +1843,7 @@ cv::Mat drwnPatchMatchVis::visualizeMatchTargets(const drwnPatchMatchGraph &grap
 //! \b patchWidth      :: patch width at base scale (default: 8)\n
 //! \b patchHeight     :: patch height at base scale (default: 8)\n
 //! \b K               :: matches per pixel (default: 10)\n
+//! \b allowMultiple   :: allow multiple matches to the same image (default: false)\n
 //! \b decayRate       :: exponential search decay rate (default: 0.5)\n
 //! \b fwdEnrichment   :: forward enrichment search depth (default: 3)\n
 //! \b invEnrichment   :: inverse enrichment (default: yes)\n
@@ -1896,6 +1875,9 @@ public:
            << drwnPatchMatchGraph::PATCH_HEIGHT << ")\n";
         os << "      K               :: matches per pixel (default: "
            << drwnPatchMatchGraph::K << ")\n";
+
+        os << "      allowMultiple   :: allow multiple matches to the same image (default: "
+           << (drwnPatchMatchImageRecord::ALLOW_MULTIPLE ? "yes" : "no") << ")\n";
 
         os << "      decayRate       :: exponential search decay rate (default: "
            << drwnPatchMatchGraphLearner::SEARCH_DECAY_RATE << ")\n";
@@ -1930,6 +1912,8 @@ public:
             drwnPatchMatchGraph::PATCH_HEIGHT = std::max(1, atoi(value));
         } else if (!strcmp(name, "K")) {
             drwnPatchMatchGraph::K = std::max(1, atoi(value));
+        } else if (!strcmp(name, "allowMultiple")) {
+            drwnPatchMatchImageRecord::ALLOW_MULTIPLE = drwn::trueString(string(value));
         } else if (!strcmp(name, "decayRate")) {
             drwnPatchMatchGraphLearner::SEARCH_DECAY_RATE = std::min(std::max(0.0, atof(value)), 1.0);
         } else if (!strcmp(name, "fwdEnrichment")) {
