@@ -1568,42 +1568,38 @@ float drwnPatchMatchGraphLearner::scoreMatch(const drwnPatchMatchNode& u,
         break;
 
     default:
-#if 0
-        for (int y = 0; y < nHeight; y++) {
-
-            unsigned iSum = 0;
-            for (int x = 0; x < nWidth; ++x, p += nFeatures, q += qColStep) {
-                for (int c = 0; c < nFeatures; c++) {
-                    iSum += DISTANCE_METRIC(p[c] - q[c]);
+        if (nFeatures % 2 == 0) {
+            for (int y = 0; y < nHeight; y++) {
+                unsigned iSum = 0;
+                for (int x = 0; x < nWidth; ++x, p += nFeatures, q += qColStep) {
+                    for (int c = 0; c < nFeatures - 1; c += 2) {
+                        iSum += DISTANCE_METRIC(p[c] - q[c]) + DISTANCE_METRIC(p[c + 1] - q[c + 1]);
+                    }
                 }
+                
+                score += (float)iSum;
+                if (score > maxValue) break;
+                
+                p += pRowStep;
+                q += qRowStep;
             }
-
-            score += (float)iSum;
-            if (score > maxValue) break;
-
-            p += pRowStep;
-            q += qRowStep;
-        }
-#else
-        for (int y = 0; y < nHeight; y++) {
-
-            unsigned iSum = 0;
-            for (int x = 0; x < nWidth; ++x, p += nFeatures, q += qColStep) {
-                for (int c = 0; c < nFeatures - 1; c += 2) {
-                    iSum += DISTANCE_METRIC(p[c] - q[c]) + DISTANCE_METRIC(p[c + 1] - q[c + 1]);
-                }
-                if (nFeatures % 2 == 1) {
+        } else {
+            for (int y = 0; y < nHeight; y++) {
+                unsigned iSum = 0;
+                for (int x = 0; x < nWidth; ++x, p += nFeatures, q += qColStep) {
+                    for (int c = 0; c < nFeatures - 1; c += 2) {
+                        iSum += DISTANCE_METRIC(p[c] - q[c]) + DISTANCE_METRIC(p[c + 1] - q[c + 1]);
+                    }
                     iSum += DISTANCE_METRIC(p[nFeatures - 1] - q[nFeatures - 1]);
                 }
+                
+                score += (float)iSum;
+                if (score > maxValue) break;
+                
+                p += pRowStep;
+                q += qRowStep;
             }
-
-            score += (float)iSum;
-            if (score > maxValue) break;
-
-            p += pRowStep;
-            q += qRowStep;
         }
-#endif
     }
 
     return score;

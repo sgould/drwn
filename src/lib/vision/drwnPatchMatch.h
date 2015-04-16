@@ -468,7 +468,7 @@ class drwnPatchMatchGraphLearner {
 
     //! enrichment: inverse (from target to source) and forward (from
     //! source to target's target) (returns true if a better match was found)
-    bool enrichment();
+    virtual bool enrichment();
 
     //! exhaustive search for best match across entire graph --- use sparingly
     //! (returns true if a better match was found)
@@ -477,7 +477,7 @@ class drwnPatchMatchGraphLearner {
     // --- utility routines ---
 
     //! match scoring function (\p maxValue allows for early termination)
-    float scoreMatch(const drwnPatchMatchNode &u, const drwnPatchMatchNode& v,
+    virtual float scoreMatch(const drwnPatchMatchNode &u, const drwnPatchMatchNode& v,
         const drwnPatchMatchTransform& xform, float maxValue = DRWN_FLT_MAX) const;
 
     //! map a patch from one image pyramid level to another
