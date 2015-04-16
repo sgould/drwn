@@ -150,6 +150,7 @@ int main(int argc, char *argv[])
     DRWN_LOG_VERBOSE("  Max. Pyramid Levels: " << drwnPatchMatchImagePyramid::MAX_LEVELS);
     DRWN_LOG_VERBOSE("  Matches per pixel: " << drwnPatchMatchGraph::K << " @ " <<
         (drwnPatchMatchGraphLearner::TOP_VAR_PATCHES * 100.0) << "%");
+    DRWN_LOG_VERBOSE("  Multiple Same-Image Matches: " << (drwnPatchMatchImageRecord::ALLOW_MULTIPLE ? "yes" : "no"));
     DRWN_LOG_VERBOSE("  Search Decay Rate: " << drwnPatchMatchGraphLearner::SEARCH_DECAY_RATE);
     DRWN_LOG_VERBOSE("  Forward Enrichment: " << drwnPatchMatchGraphLearner::FORWARD_ENRICHMENT_K);
     DRWN_LOG_VERBOSE("  Inverse Enrichment: " << (drwnPatchMatchGraphLearner::DO_INVERSE_ENRICHMENT ? "yes" : "no"));
