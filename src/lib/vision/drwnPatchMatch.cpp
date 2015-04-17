@@ -1700,6 +1700,12 @@ void drwnPatchMatchGraphRetarget::cacheImageLabels(unsigned imgIndx)
     DRWN_ASSERT_MSG(_labels[imgIndx].data != NULL, _graph.imageFilename(imgIndx));
 }
 
+void drwnPatchMatchGraphRetarget::updateImageLabels(unsigned imgIndx, const cv::Mat& labels)
+{
+    DRWN_ASSERT((labels.rows == _labels[imgIndx].rows) && (labels.cols == _labels[imgIndx].cols));
+    _labels[imgIndx] = labels.clone();
+}
+
 // drwnPatchMatchVisualization -----------------------------------------------
 
 cv::Mat drwnPatchMatchVis::visualizeMatches(const drwnPatchMatchGraph &graph,

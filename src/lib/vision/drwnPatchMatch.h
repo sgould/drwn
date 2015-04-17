@@ -509,10 +509,13 @@ class drwnPatchMatchGraphRetarget {
     //! retargets an image based on matched patches
     virtual cv::Mat retarget(unsigned imgIndx) const;
 
+    //! update labels from in-memory matrix
+    void updateImageLabels(unsigned imgIndx, const cv::Mat& labels);
+
  protected:
     //! caches labels for all images
     void cacheImageLabels();
-    //! caches features for given image
+    //! caches labels for given image
     virtual void cacheImageLabels(unsigned imgIndx);
 };
 
