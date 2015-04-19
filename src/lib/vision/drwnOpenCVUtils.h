@@ -127,8 +127,10 @@ inline void drwnTruncateRect(cv::Rect& r, const cv::Mat& img) { return drwnTrunc
 
 //! Assemble images into one big image. All images must be of the same format
 //! and \p rows * \p cols must be smaller than \p images.size(). If negative then
-//! will choose a square (rows = cols = ceil(sqrt(images.size()))).
-cv::Mat drwnCombineImages(const vector<cv::Mat>& images, int rows = -1, int cols = -1);
+//! will choose a square (rows = cols = ceil(sqrt(images.size()))). A border can
+//! be added around each image of given \p margin and \p colour.
+cv::Mat drwnCombineImages(const vector<cv::Mat>& images, int rows = -1, int cols = -1,
+    unsigned margin = 0, const cv::Scalar& colour = cv::Scalar(0));
 
 typedef enum {
     DRWN_COLORMAP_RAINBOW,  //!< ranges from blue to red through green and yellow

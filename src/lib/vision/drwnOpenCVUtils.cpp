@@ -467,7 +467,8 @@ void drwnTruncateRect(cv::Rect& r, int width, int height)
 }
 
 // combine images
-cv::Mat drwnCombineImages(const vector<cv::Mat>& images, int rows, int cols)
+cv::Mat drwnCombineImages(const vector<cv::Mat>& images, int rows, int cols,
+    unsigned margin, const cv::Scalar& colour)
 {
     // check sizes
     DRWN_ASSERT(!images.empty());
@@ -482,6 +483,7 @@ cv::Mat drwnCombineImages(const vector<cv::Mat>& images, int rows, int cols)
 	DRWN_ASSERT((int)images.size() <= rows * cols);
     }
 
+    // find biggest image (in each direction)
     int maxWidth = 0;
     int maxHeight = 0;
     for (unsigned i = 0; i < images.size(); i++) {
@@ -490,7 +492,11 @@ cv::Mat drwnCombineImages(const vector<cv::Mat>& images, int rows, int cols)
     }
     DRWN_ASSERT((maxWidth > 0) && (maxHeight > 0));
 
-    cv::Mat outImg = cv::Mat::zeros(maxHeight * rows, maxWidth * cols, images.front().type());
+    // account for margin
+    maxWidth += 2 * margin;
+    maxHeight += 2 * margin;
+
+    cv::Mat outImg(maxHeight * rows, maxWidth * cols, images.front().type(), colour);
 
     for (unsigned i = 0; i < images.size(); i++) {
 	if (images[i].data == NULL) continue;
