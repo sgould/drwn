@@ -94,6 +94,14 @@ void drwnGreyImageInplace(cv::Mat& img);
 //! convert an image to color in place
 void drwnColorImageInplace(cv::Mat& img);
 
+//! Compute the pixelwise average of a stack of images. All images
+//! must be of the same size and type.
+cv::Mat drwnPixelwiseMean(const vector<cv::Mat>& imgStack);
+//! Compute the pixelwise median of a stack of images. All images
+//! must be of the same size and of type CV_8U. The images must
+//! also be continuous.
+cv::Mat drwnPixelwiseMedian(const vector<cv::Mat>& imgStack);
+
 //! pad an image and copy the boundary
 cv::Mat drwnPadImage(const cv::Mat& src, int margin);
 //! pad an image and copy the boundary, top-left reference is (0, 0) so

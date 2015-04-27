@@ -305,6 +305,51 @@ void drwnColorImageInplace(cv::Mat& img)
     }
 }
 
+// mean and median
+cv::Mat drwnPixelwiseMean(const vector<cv::Mat>& imgStack)
+{
+    DRWN_ASSERT(!imgStack.empty());
+    DRWN_FCN_TIC;
+
+    cv::Mat tmp;
+    cv::Mat stackSum = cv::Mat::zeros(imgStack[0].rows, imgStack[0].cols, CV_32FC(imgStack[0].channels()));
+    for (unsigned i = 0; i < imgStack.size(); i++) {
+        imgStack[i].convertTo(tmp, stackSum.type());
+        stackSum += tmp;
+    }
+    cv::Mat mean;
+    stackSum.convertTo(mean, imgStack[0].type(), 1.0 / (double)imgStack.size());
+
+    DRWN_FCN_TOC;
+    return mean;
+}
+
+cv::Mat drwnPixelwiseMedian(const vector<cv::Mat>& imgStack)
+{
+    DRWN_ASSERT(!imgStack.empty());
+    DRWN_ASSERT((imgStack[0].depth() == CV_8U) && (imgStack[0].isContinuous()));
+    DRWN_FCN_TIC;
+
+    cv::Mat median(imgStack[0].rows, imgStack[0].cols, imgStack[0].type());
+
+    vector<unsigned char> v(imgStack.size());
+    for (int y = 0; y < median.rows; y++) {
+        for (int x = 0; x < median.cols; x++) {
+            for (int c = 0; c < median.channels(); c++) {
+                for (unsigned i = 0; i < imgStack.size(); i++) {
+                    v[i] = imgStack[i].at<unsigned char>(y, median.channels() * x + c);
+                }
+
+                const unsigned char m = drwn::destructive_median<unsigned char>(v);
+                median.at<unsigned char>(y, median.channels() * x + c) = m;
+            }
+        }
+    }
+
+    DRWN_FCN_TOC;
+    return median;
+}
+
 // pad image and copy boundary
 cv::Mat drwnPadImage(const cv::Mat& src, int margin)
 {
