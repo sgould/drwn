@@ -110,11 +110,18 @@ class drwnFactor : public drwnStdObjIface {
     bool load(drwnXMLNode& xml);
 
     //! Returns the value of the factor for a given (full) assignment
-    virtual double value(const drwnFullAssignment& y) const = 0;
+    virtual double getValueOf(const drwnFullAssignment& y) const = 0;
     //! Returns the value of the factor for a given partial assignment.
     //! The variables in the scope of this factor must be defined.
-    double value(const drwnPartialAssignment& y) const {
-        return value((drwnFullAssignment)y);
+    double getValueOf(const drwnPartialAssignment& y) const {
+        return getValueOf((drwnFullAssignment)y);
+    }
+    //! Sets the value of the factor for a given (full) assignment
+    virtual void setValueOf(const drwnFullAssignment& y, double val) = 0;
+    //! Sets the value of the factor for a given partial assignment.
+    //! The variables in the scope of this factor must be defined.
+    void setValueOf(const drwnPartialAssignment& y, double val) {
+        setValueOf(drwnFullAssignment(y), val);
     }
 
  protected:
@@ -195,8 +202,12 @@ class drwnTableFactor : public drwnFactor {
     bool save(drwnXMLNode& xml) const;
     bool load(drwnXMLNode& xml);
 
-    double value(const drwnFullAssignment& y) const {
+    double getValueOf(const drwnFullAssignment& y) const {
         return _data[indexOf(y)];
+    }
+
+    void setValueOf(const drwnFullAssignment& y, double val) {
+        _data[indexOf(y)] = val;
     }
 
     // epsilon-tolerant data comparison
@@ -250,7 +261,7 @@ class drwnTableFactorStorage {
     inline const double& operator[](unsigned index) const { return _data[index]; }
 
  protected:
-    //! registers the factor with the storage so that data pointer 
+    //! registers the factor with the storage so that data pointer
     //! can be updated when storage location changes
     void registerFactor(drwnTableFactor *factor);
     //! unregisters a factor with the storage

@@ -647,6 +647,9 @@ random variables. The following code shows how to construct a factor
     }
 \endcode
 
+\note You can also set values for a factor using the
+drwnFactor::setValueOf function.
+
 \sa \ref drwnBase, \ref drwnIO, \ref drwnPGM
 
 \subsection drwnTutorialFactorOps Basic Factor Operations

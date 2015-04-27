@@ -149,7 +149,7 @@ double drwnFactorGraph::getEnergy(const drwnFullAssignment& x) const
     double e = 0.0;
 
     for (vector<drwnTableFactor *>::const_iterator it = _factors.begin(); it != _factors.end(); ++it) {
-        e += (*it)->value(x);
+        e += (*it)->getValueOf(x);
     }
 
     return e;
