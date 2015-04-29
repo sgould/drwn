@@ -61,6 +61,15 @@ using namespace std;
 #define DRWN_END_PROGRESS         drwnLogger::initProgress()
 #define DRWN_SET_PROGRESS(P)      drwnLogger::updateProgress(P)
 
+#define DRWN_PROGRESS_SPINNER(M) \
+    static int _drwnLoggerSpinner ## __LINE__ = 0; \
+    if (drwnLogger::getLogLevel() >= DRWN_LL_STATUS) { \
+        const char TABLE[] = "\\|/-";                  \
+        std::stringstream __s; __s << M; __s << ' ';   \
+        __s << TABLE[_drwnLoggerSpinner ## __LINE__];  \
+        drwnLogger::logMessage(DRWN_LL_STATUS, __s.str()); \
+        _drwnLoggerSpinner ## __LINE__ = (_drwnLoggerSpinner ## __LINE__ + 1) % 4; }
+
 // drwnLogLevel ---------------------------------------------------------------
 //! Verbosity level in logging.
 

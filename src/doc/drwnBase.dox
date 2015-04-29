@@ -170,6 +170,30 @@ macros generate messages at different verbosity levels:
 </table>
 </center>
 
+Other useful macros include \c DRWN_LOG_PROGRESS_SPINNER, which is
+useful to show activity within a loop and \c DRWN_LOG_<level>_ONCE,
+which will only log a message once (even if the code calling the
+message is run multiple times). The following code gives an example of
+each:
+
+\code
+  #include "drwnBase.h"
+
+  int main(int argc, char *argv[]) {
+    // standard command line processing
+    DRWN_BEGIN_CMDLINE_PROCESSING(argc, argv)
+    DRWN_END_CMDLINE_PROCESSING();
+
+    // long running loop 
+    for (int i = 0; i < 1000; i++) {
+      DRWN_LOG_VERBOSE_ONCE("inside loop");
+      DRWN_LOG_PROGRESS_SPINNER("processing...");
+      sleep(1);  // on Windows use Sleep(1000) in <windows.h>
+    }
+    
+    return 0;
+}    
+
 Applications can override the message displaying functions by
 registering callbacks with the \ref drwnLogger class. This is useful
 for interfacing to Matlab or displaying errors in GUI dialog
