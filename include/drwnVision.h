@@ -22,6 +22,7 @@
 #include "../src/lib/vision/drwnImagePyramidCache.h"
 #include "../src/lib/vision/drwnInPaint.h"
 #include "../src/lib/vision/drwnLBPFilterBank.h"
+#include "../src/lib/vision/drwnMaskedPatchMatch.h"
 #include "../src/lib/vision/drwnMultiSegConfig.h"
 #include "../src/lib/vision/drwnMultiSegVis.h"
 #include "../src/lib/vision/drwnObject.h"

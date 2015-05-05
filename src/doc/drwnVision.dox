@@ -13,6 +13,7 @@ namespace drwn {
 \li drwnImageCache : \copybrief drwnImageCache
 \li drwnImagePyramidCache : \copybrief drwnImagePyramidCache
 \li drwnInPaint : \copybrief drwnInPaint
+\li drwnMaskedPatchMatch : \copybrief drwnMaskedPatchMatch
 \li drwnMultiSegRegionDefinitions : \copybrief drwnMultiSegRegionDefinitions
 \li drwnMultiSegConfig : \copybrief drwnMultiSegConfig
 \li \ref drwnMultiSegVis : \copybrief drwnMultiSegVis.h
@@ -52,22 +53,22 @@ labeling see drwnSegImageInstance and drwnPixelSegModel.
 
 \code
     // load image and labels
-    IplImage *img = cvLoadImage("image.png", CV_LOAD_IMAGE_COLOR);
+    cv::Mat img = cv::imread("image.png", CV_LOAD_IMAGE_COLOR);
     MatrixXi labels;
     drwnLoadPixelLabels(labels, "labels.txt");
 
     // build a training dataset
     drwnClassifierDataset dataset;
-    dataset.reserve(img->height * img->width);
+    dataset.reserve(img.size());
 
-    for (int y = 0; y < img->height; y++) {
-        for (int x = 0; x < img->width; x++) {
+    for (int y = 0; y < img.rows; y++) {
+        for (int x = 0; x < img.cols; x++) {
             if (labels(y, x) < 0) continue;
 
             vector<double> features(3);
-            features[0] = CV_IMAGE_ELEM(img, unsigned char, y, 3*x + 0);
-            features[1] = CV_IMAGE_ELEM(img, unsigned char, y, 3*x + 1);
-            features[2] = CV_IMAGE_ELEM(img, unsigned char, y, 3*x + 2);
+            features[0] = img.at<Vec3b>(y, x)[0];
+            features[1] = img.at<Vec3b>(y, x)[1];
+            features[2] = img.at<Vec3b>(y, x)[2];
 
             dataset.append(features, labels(y, x));
         }
@@ -97,7 +98,7 @@ list of objects.
     objects.read(OBJECTS_FILENAME);
 
     // load image
-    IplImage *img = cvLoadImage(IMAGE_FILENAME, CV_LOAD_IMAGE_COLOR);
+    cv::Mat img = cv::imread(IMAGE_FILENAME, CV_LOAD_IMAGE_COLOR);
 
     // draw objects
     for (drwnObjectList::const_iterator it = objects.begin(); it != objects.end(); it++) {
@@ -106,9 +107,6 @@ list of objects.
 
     // show image with objects
     drwnShowDebuggingImage(img, "objects", true);
-
-    // clean up
-    cvReleaseImage(&img);
 \endcode
 
 */

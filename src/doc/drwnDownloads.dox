@@ -66,6 +66,7 @@ downloaded from the following links:
 
 \subsection drwnChangeLog1_9 Release 1.9 (beta)
 
+\li Added drwnMaskedPatchMatch and basicPatchMatch application
 \li drwnPatchMatchGraph now allows multiple matches to the same image
 \li Upgraded wxWidgets to 3.0.2 (problems on Mac OS X)
 \li Switched Mac OS X compilation to libc++ instead of libstdc++

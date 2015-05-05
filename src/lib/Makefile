@@ -29,8 +29,8 @@ PGM_LIB_SRC = drwnADLPInference.cpp drwnFactorGraph.cpp drwnGraphCutInference.cp
 	drwnTRWSInference.cpp drwnVarAssignment.cpp drwnVarUniverse.cpp
 
 VISION_LIB_SRC = drwnColourHistogram.cpp drwnFilterBankResponse.cpp drwnGrabCutInstance.cpp \
-	drwnHOGFeatures.cpp drwnImageCache.cpp drwnImagePyramidCache.cpp \
-	drwnInPaint.cpp drwnLBPFilterBank.cpp drwnMultiSegConfig.cpp drwnMultiSegVis.cpp \
+	drwnHOGFeatures.cpp drwnImageCache.cpp drwnImagePyramidCache.cpp drwnInPaint.cpp \
+	drwnLBPFilterBank.cpp drwnMaskedPatchMatch.cpp drwnMultiSegConfig.cpp drwnMultiSegVis.cpp \
 	drwnObject.cpp drwnOpenCVUtils.cpp drwnPatchMatch.cpp drwnPatchMatchUtils.cpp \
 	drwnPartsModel.cpp drwnPixelNeighbourContrasts.cpp drwnPixelSegCRFInference.cpp \
 	drwnPixelSegModel.cpp drwnSegImageInstance.cpp drwnSegImagePixelFeatures.cpp \

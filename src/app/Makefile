@@ -15,8 +15,9 @@ APP_SRC += testDarwinBase.cpp testDarwinIO.cpp testDarwinML.cpp \
 	testDarwinPGM.cpp testDarwinClassifiers.cpp
 
 ifeq ($(DRWN_BUILD_VISION_LIB), 1)
-  APP_SRC += generateSuperpixels.cpp grabCut.cpp highOrderGrabCut.cpp \
-	testDarwinVision.cpp viewObjectDetections.cpp visualizeImageDataset.cpp \
+  APP_SRC += basicPatchMatch.cpp generateSuperpixels.cpp \
+	grabCut.cpp highOrderGrabCut.cpp testDarwinVision.cpp \
+	viewObjectDetections.cpp visualizeImageDataset.cpp \
 	visualizeSuperpixels.cpp
 endif
 

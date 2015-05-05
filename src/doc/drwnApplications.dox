@@ -22,7 +22,8 @@ namespace drwn {
     \li \ref drwnAppGenSp : generate (and visualize) superpixels.
     \li \ref drwnAppGrabCut : bounding-box-based figure/ground segmentation.
     \li \ref drwnAppVisImgData : visualize image datasets.
-    \li \ref drwnProjPatchMatch "patchMatchDemo" : demonstrate construction of a drwnPatchMatchGraph
+    \li basicPatchMatch : demonstration of using the drwnMaskedPatchMatch class.
+    \li \ref drwnProjPatchMatch "patchMatchDemo" : demonstrate construction of a drwnPatchMatchGraph.
 
     \subsection drwnTestApps Test Applications    
     \li testDarwinBase : regression and unit testing for \ref drwnBase library
