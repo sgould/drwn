@@ -25,6 +25,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "generateSuperpixels", "msvc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "highOrderGrabCut", "msvc\highOrderGrabCut.vcxproj", "{A3E19A22-A802-EEB6-D444-D916C855B7E6}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "basicPatchMatch", "msvc\basicPatchMatch.vcxproj", "{A8BECAD9-299E-142F-30A9-6C093369DE18}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "visualizeSuperpixels", "msvc\visualizeSuperpixels.vcxproj", "{7EFDA8CD-DA4B-4987-2E3E-5CDDB05495A2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -129,6 +133,18 @@ Global
 		{A3E19A22-A802-EEB6-D444-D916C855B7E6}.Release|Win32.Build.0 = Release|Win32
 		{A3E19A22-A802-EEB6-D444-D916C855B7E6}.Release|x64.ActiveCfg = Release|x64
 		{A3E19A22-A802-EEB6-D444-D916C855B7E6}.Release|x64.Build.0 = Release|x64
+		{A8BECAD9-299E-142F-30A9-6C093369DE18}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A8BECAD9-299E-142F-30A9-6C093369DE18}.Debug|Win32.Build.0 = Debug|Win32
+		{A8BECAD9-299E-142F-30A9-6C093369DE18}.Debug|x64.ActiveCfg = Debug|Win32
+		{A8BECAD9-299E-142F-30A9-6C093369DE18}.Release|Win32.ActiveCfg = Release|Win32
+		{A8BECAD9-299E-142F-30A9-6C093369DE18}.Release|Win32.Build.0 = Release|Win32
+		{A8BECAD9-299E-142F-30A9-6C093369DE18}.Release|x64.ActiveCfg = Release|Win32
+		{7EFDA8CD-DA4B-4987-2E3E-5CDDB05495A2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{7EFDA8CD-DA4B-4987-2E3E-5CDDB05495A2}.Debug|Win32.Build.0 = Debug|Win32
+		{7EFDA8CD-DA4B-4987-2E3E-5CDDB05495A2}.Debug|x64.ActiveCfg = Debug|Win32
+		{7EFDA8CD-DA4B-4987-2E3E-5CDDB05495A2}.Release|Win32.ActiveCfg = Release|Win32
+		{7EFDA8CD-DA4B-4987-2E3E-5CDDB05495A2}.Release|Win32.Build.0 = Release|Win32
+		{7EFDA8CD-DA4B-4987-2E3E-5CDDB05495A2}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
