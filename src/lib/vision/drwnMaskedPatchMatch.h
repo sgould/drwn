@@ -37,25 +37,23 @@ using namespace std;
 //! source image are ignored. Matching to masked regions in the target image has
 //! infinite cost.
 //!
-//! Each pixel in the returned nearest neighbour field represents the offset to
-//! the optimal match for a patch of size 2 * \p patchRadius + 1 and centred on 
-//! that pixel. Use the \p getBestMatch() to adjust size of regions for pixels
-//! within \p patchRadius pixel of the boundary.
-//!
 //! \code
 //! cv::Mat imgA;
 //! cv::Mat imgB;
-//! cv::Size patchRadius;
+//! cv::Size patchSize;
 //!
 //! ...
 //!
-//! drwnMaskedPatchMatch pm(imgA, imgB, patchRadius);
+//! drwnMaskedPatchMatch pm(imgA, imgB, patchSize);
 //! pm.search(10);
 //! Vec2s p = pm.nnf().at<Vec2s>(y, x);
-//! cv::Rect rA(x - patchRadius.width, y - patchRadius.height, 2 * patchRadius.width + 1, 2 * patchRadius.height + 1);
-//! cv::Rect rB(p[0] - patchRadius.width, p[1] - patchRadius.height, 2 * patchRadius.width + 1, 2 * patchRadius.height + 1);
+//! cv::Rect rA(x, y, patchSize.width, patchSize.height);
+//! cv::Rect rB(p[0], p[1], patchSize.width, patchSize.height);
 //! cout << rA << " in imageA matches " << rB << " in imageB\n";
 //! \endcode
+//!
+//! Use the \p getBestMatch() to get the matched region centred around some pixel
+//! and adjusted to fit within the image boundary.
 //!
 //! \sa \ref drwnInPaint
 
@@ -65,34 +63,34 @@ class drwnMaskedPatchMatch {
     static float HEIGHT_PENALTY; //!< bias term added for row/height difference
 
  protected:
-    cv::Mat _imgA;          //!< CV_8U multi-channel image (source)
-    cv::Mat _imgB;          //!< CV_8U multi-channel image (target)
-    cv::Mat _maskA;         //!< CV_8UC1 mask for valid source pixels
-    cv::Mat _maskB;         //!< CV_8UC1 mask for valid target pixels
-    cv::Mat _invmaskA;      //!< CV_8UC1 inverse of _maskA
-    cv::Mat _invmaskB;      //!< CV_8UC1 inverse of _maskB
+    cv::Mat _imgA;        //!< CV_8U multi-channel image (source)
+    cv::Mat _imgB;        //!< CV_8U multi-channel image (target)
+    cv::Mat _maskA;       //!< CV_8UC1 mask for valid source pixels
+    cv::Mat _maskB;       //!< CV_8UC1 mask for valid target pixels
+    cv::Mat _invmaskA;    //!< CV_8UC1 inverse of _maskA
+    cv::Mat _invmaskB;    //!< CV_8UC1 inverse of _maskB
 
-    cv::Mat _overlapA;      //!< pixels in _imgA whose patch overlaps with _invmaskA
-    cv::Mat _validB;        //!< pixels in _imgB whose patch doesn't overlap with _maskB
+    cv::Mat _overlapA;    //!< top-left pixels for _imgA whose patch overlaps with _invmaskA
+    cv::Mat _validB;      //!< top-left pixels for _imgB whose patch doesn't overlap with _maskB
 
-    cv::Size _patchRadius;  //!< size of patch is 2 * _patchRadius + 1
-    cv::Mat _nnfA;          //!< CV_16S2 nearest neighbour field (size _imgA)
-    cv::Mat _costsA;        //!< CV_32FC1 field of match costs (same size as _nnfA)
+    cv::Size _patchSize;  //!< size of patch
+    cv::Mat _nnfA;        //!< CV_16S2 nearest neighbour field (size _imgA size less _patchSize)
+    cv::Mat _costsA;      //!< CV_32FC1 field of match costs (same size as _nnfA)
 
-    int _iterationCount;    //!< total number of iterations since initialization
-    cv::Mat _lastChanged;   //!< last iteration that given patch was changed
+    int _iterationCount;  //!< total number of iterations since initialization
+    cv::Mat _lastChanged; //!< last iteration that given patch was changed
 
  public:
     //! construct without masks and square patches
-    drwnMaskedPatchMatch(const cv::Mat& imgA, const cv::Mat& imgB, unsigned patchRadius);
+    drwnMaskedPatchMatch(const cv::Mat& imgA, const cv::Mat& imgB, unsigned patchSize);
     //! construct without masks and arbitrary patches
-    drwnMaskedPatchMatch(const cv::Mat& imgA, const cv::Mat& imgB, const cv::Size& patchRadius);
+    drwnMaskedPatchMatch(const cv::Mat& imgA, const cv::Mat& imgB, const cv::Size& patchSize);
     //! costruct with matching masks (empty for no mask) and square patches
     drwnMaskedPatchMatch(const cv::Mat& imgA, const cv::Mat& imgB, const cv::Mat& maskA,
-        const cv::Mat& maskB, unsigned patchRadius);
+        const cv::Mat& maskB, unsigned patchSize);
     //! costruct with matching masks (empty for no mask) and arbitrary patches
     drwnMaskedPatchMatch(const cv::Mat& imgA, const cv::Mat& imgB, const cv::Mat& maskA,
-        const cv::Mat& maskB, const cv::Size& patchRadius);
+        const cv::Mat& maskB, const cv::Size& patchSize);
     //! destructor
     virtual ~drwnMaskedPatchMatch() { /* do nothing */ }
 
@@ -105,34 +103,34 @@ class drwnMaskedPatchMatch {
     //! return the target mask
     const cv::Mat& getTargetMask() const { return _maskB; }
     //! return the patch size
-    cv::Size getPatchSize() const { return cv::Size(2 * _patchRadius.width + 1, 2 * _patchRadius.height + 1); }
+    const cv::Size& getPatchSize() const { return _patchSize; }
     //! return the size of the nearest neighbour field
     cv::Size getFieldSize() const { return _nnfA.size(); }
-    //! Return the best matching destination patch for patch centred at \p ptA. Points close
-    //! to the boundary have their size adjusted.
-    cv::Rect getBestMatch(const cv::Point& ptA) const;
+    //! Return the best matching destination patch for patch centred at the given pixel. 
+    //! Points close to the boundary have their size adjusted.
+    cv::Rect getBestMatch(const cv::Point& centreA) const;
 
     //! initialize the matches with default patch size
-    void initialize() { initialize(_patchRadius); }
-    //! initialize the matches given patchRadius
-    void initialize(const cv::Size& patchRadius);
-    //! initialize the matches given nearest neighbour field (patch size is unchanged)
+    void initialize() { initialize(_patchSize); }
+    //! initialize the matches given patchSize
+    void initialize(const cv::Size& patchSize);
+    //! initialize the matches given nearest neighbour field (patch size is inferred)
     void initialize(const cv::Mat& nnf);
 
     //! Search for better matches and return updated nearest neighbour field. The
-    //! nearest neighbour field maps is indexed by the centre pixel of the patch.
+    //! nearest neighbour field maps is indexed by the top-left pixel of the patch.
     const cv::Mat& search(unsigned maxIterations = 1) {
         return search(cv::Rect(0, 0, _nnfA.cols, _nnfA.rows), maxIterations);
     }
     //! Search for better matches on subregion of the image and return updated
-    //! nearest neighbour field. Only regions whose centre pixel appear in
+    //! nearest neighbour field. Only regions whose top-left pixel appear in
     //! \p roiToUpdate will be changed.
-    const cv::Mat& search(cv::Rect roiToUpdate, unsigned maxIterations = 1);
+    const cv::Mat& search(const cv::Rect& roiToUpdate, unsigned maxIterations = 1);
 
     //! return the current nearest neighbour field
     const cv::Mat& nnf() const { return _nnfA; }
     //! return the current match energy
-    double energy() const { return cv::norm(_costsA, cv::NORM_L1, _maskA); }
+    double energy() const { return (double)cv::sum(_costsA)[0]; }
 
     //! Copy over a region of the source image and unmask the region copied into.
     //! Alpha-blends with the masked area.
@@ -158,16 +156,16 @@ class drwnMaskedPatchMatch {
 
  protected:
     //! attempt and update a match candidate
-    bool update(const cv::Point& ptA, const cv::Point& ptB);
+    bool update(const cv::Rect& roiA, const cv::Rect& roiB);
     //! scores a match
-    float score(const cv::Point& ptA, const cv::Point& ptB) const;
+    float score(const cv::Rect& roiA, const cv::Rect& roiB) const;
 
     //! calculate nnf pixels affected by a mask or image modification
     cv::Rect affectedRegion(const cv::Rect& modified) const {
-        const int y1 = std::max(modified.y - _patchRadius.height, _patchRadius.height);
-        const int x1 = std::max(modified.x - _patchRadius.width, _patchRadius.width);
-        const int y2 = std::min(modified.y + modified.height + _patchRadius.height, _nnfA.rows - _patchRadius.height);
-        const int x2 = std::min(modified.x + modified.width + _patchRadius.width, _nnfA.cols - _patchRadius.width);
+        const int y1 = std::max(modified.y - _patchSize.height + 1, 0);
+        const int x1 = std::max(modified.x - _patchSize.width + 1, 0);
+        const int y2 = std::min(modified.y + modified.height, _nnfA.rows);
+        const int x2 = std::min(modified.x + modified.width, _nnfA.cols);
         return cv::Rect(x1, y1, x2 - x1, y2 - y1);
     }
 
