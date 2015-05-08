@@ -377,7 +377,7 @@ void drwnMaskedPatchMatch::expandTargetMask(unsigned radius)
 
 cv::Mat drwnMaskedPatchMatch::visualize() const
 {
-    vector<cv::Mat> views(_imgA.type() == CV_8UC3 ? 5 : 3);
+    vector<cv::Mat> views(_imgA.type() == CV_8UC3 ? 7 : 5);
 
     // nnf (x and y)
     cv::split(_nnfA, &views[0]);
@@ -389,15 +389,21 @@ cv::Mat drwnMaskedPatchMatch::visualize() const
     drwnScaleToRange(views[2], 0.0, 1.0);
     views[2] = drwnCreateHeatMap(views[2], DRWN_COLORMAP_REDGREEN);
 
-    if (views.size() == 5) {
+    // masks
+    views[3] = drwnColorImage(_overlapA);
+    drwnDrawRegionBoundaries(views[3], _maskA, CV_RGB(255, 0, 0), 1);
+    views[4] = drwnColorImage(_validB);
+    drwnDrawRegionBoundaries(views[4], _maskB, CV_RGB(255, 0, 0), 1);
+
+    if (views.size() == 7) {
         // masked source
-        views[3] = _imgA.clone();
-        drwnDrawRegionBoundaries(views[3], _maskA, CV_RGB(0, 255, 0), 2);
+        views[5] = _imgA.clone();
+        drwnDrawRegionBoundaries(views[5], _maskA, CV_RGB(0, 255, 0), 2);
 
         // masked target
-        views[4] = _imgB.clone();
-        drwnShadeRegion(views[4], _invmaskB, CV_RGB(255, 0, 0), 1.0, DRWN_FILL_DIAG, 1);
-        drwnDrawRegionBoundaries(views[4], _maskB, CV_RGB(255, 0, 0), 2);
+        views[6] = _imgB.clone();
+        drwnShadeRegion(views[6], _invmaskB, CV_RGB(255, 0, 0), 1.0, DRWN_FILL_DIAG, 1);
+        drwnDrawRegionBoundaries(views[6], _maskB, CV_RGB(255, 0, 0), 2);
     }
 
     return drwnCombineImages(views, 1);
@@ -462,10 +468,18 @@ void drwnMaskedPatchMatch::rescore(const cv::Rect& roi)
 
 void drwnMaskedPatchMatch::cacheValidPixels()
 {
+#if 0
     // find centre of any patch that overlap with invmaskA
     _overlapA = cv::Mat::zeros(_maskA.size(), CV_8UC1);
 
+    cv::Mat element = cv::getStructuringElement(MORPH_RECT,
+        cv::Size(2 * _patchRadius.width + 1, 2 * _patchRadius.height + 1),
+        cv::Point(_patchRadius.width, _patchRadius.height));
+    cv::dilate(_invmaskA, _overlapA, element);
+
+
     cv::Mat maskSum;
+    /*
     cv::integral(_invmaskA, maskSum, CV_32S);
 
     for (int y = _patchRadius.height; y < _overlapA.rows - _patchRadius.height; y++) {
@@ -479,8 +493,9 @@ void drwnMaskedPatchMatch::cacheValidPixels()
             }
         }
     }
+    */
 
-     // find top-left of patches that don't overlap with maskB
+     // find patches that don't overlap with maskB
     _validB = cv::Mat::zeros(_maskB.size(), CV_8UC1);
 
     maskSum.release();
@@ -497,6 +512,24 @@ void drwnMaskedPatchMatch::cacheValidPixels()
             }
         }
     }
+
+    cv::Mat tmp;
+    cv::erode(_maskB, tmp, element);
+    drwnShowDebuggingImage(tmp, "A", false);
+    drwnShowDebuggingImage(_validB, "B", true);
+
+#else
+    cv::Mat element = cv::getStructuringElement(MORPH_RECT,
+        cv::Size(2 * _patchRadius.width + 1, 2 * _patchRadius.height + 1),
+        cv::Point(_patchRadius.width, _patchRadius.height));
+    cv::dilate(_invmaskA, _overlapA, element);
+    cv::erode(_maskB, _validB, element);
+
+    _validB(cv::Rect(0, 0, _patchRadius.width, _validB.rows)).setTo(cv::Scalar(0x00));
+    _validB(cv::Rect(_validB.cols - _patchRadius.width, 0, _patchRadius.width, _validB.rows)).setTo(cv::Scalar(0x00));
+    _validB(cv::Rect(0, 0, _validB.cols, _patchRadius.height)).setTo(cv::Scalar(0x00));
+    _validB(cv::Rect(0, _validB.rows - _patchRadius.height, _validB.cols, _patchRadius.height)).setTo(cv::Scalar(0x00));
+#endif
 }
 
 void drwnMaskedPatchMatch::updateValidPixels(const cv::Rect& roi)
@@ -524,7 +557,7 @@ void drwnMaskedPatchMatch::updateValidPixels(const cv::Rect& roi)
             }
         }
     }
-#else
+#elif 0
     cv::Mat maskSum;
     cv::integral(_invmaskA, maskSum, CV_32S);
 
@@ -539,6 +572,11 @@ void drwnMaskedPatchMatch::updateValidPixels(const cv::Rect& roi)
             }
         }
     }
+#else
+    cv::Mat element = cv::getStructuringElement(MORPH_RECT,
+        cv::Size(2 * _patchRadius.width + 1, 2 * _patchRadius.height + 1),
+        cv::Point(_patchRadius.width, _patchRadius.height));
+    cv::dilate(_invmaskA, _overlapA, element);
 #endif
 
     DRWN_FCN_TOC;
