@@ -36,8 +36,9 @@ using namespace Eigen;
 void usage()
 {
     cerr << DRWN_USAGE_HEADER << endl;
-    cerr << "USAGE: ./basicPatchMatch [OPTIONS] <imgA> <imgB> (<maskA> <maskB>)\n";
+    cerr << "USAGE: ./basicPatchMatch [OPTIONS] <imgA> <imgB> (<maskA> (<maskB>))\n";
     cerr << "OPTIONS:\n"
+         << "  -negate           :: negate masks\n"
          << "  -m <iterations>   :: maximum number of iterations\n"
          << "  -o <filebase>     :: output nearest neighbour field\n"
          << "  -p <size>         :: patch size (<size>-by-<size>)\n"
@@ -50,6 +51,7 @@ void usage()
 
 int main(int argc, char *argv[])
 {
+    bool bNegateMask = false;
     unsigned maxIterations = 2;
     unsigned patchSize = 8;
     const char *outFilebase = NULL;
@@ -58,13 +60,14 @@ int main(int argc, char *argv[])
     // process commandline arguments
     srand48((unsigned)time(NULL));
     DRWN_BEGIN_CMDLINE_PROCESSING(argc, argv)
+        DRWN_CMDLINE_BOOL_OPTION("-negate", bNegateMask)
         DRWN_CMDLINE_INT_OPTION("-m", maxIterations)
         DRWN_CMDLINE_STR_OPTION("-o", outFilebase)
         DRWN_CMDLINE_INT_OPTION("-p", patchSize)
         DRWN_CMDLINE_BOOL_OPTION("-x", bVisualize)
     DRWN_END_CMDLINE_PROCESSING(usage());
 
-    if ((DRWN_CMDLINE_ARGC != 2) && (DRWN_CMDLINE_ARGC != 4)) {
+    if ((DRWN_CMDLINE_ARGC < 2) || (DRWN_CMDLINE_ARGC > 4)) {
         usage();
         return -1;
     }
@@ -85,15 +88,18 @@ int main(int argc, char *argv[])
     if (maskNameA != NULL) {
         maskA = cv::imread(maskNameA, CV_LOAD_IMAGE_GRAYSCALE);
         DRWN_ASSERT_MSG(maskA.data != NULL, maskNameA);
+        if (bNegateMask) maskA = (maskA == 0x00);
     }
     if (maskNameB != NULL) {
         maskB = cv::imread(maskNameB, CV_LOAD_IMAGE_GRAYSCALE);
         DRWN_ASSERT_MSG(maskB.data != NULL, maskNameB);
+        if (bNegateMask) maskB = (maskB == 0x00);
     }
 
     // run patch match
     drwnMaskedPatchMatch pm(imgA, imgB, maskA, maskB, cv::Size(patchSize, patchSize));
     pm.search(maxIterations);
+    DRWN_LOG_VERBOSE("...final matching energy " << pm.energy());
 
     // save nearest neighbour field
     if (outFilebase != NULL) {
