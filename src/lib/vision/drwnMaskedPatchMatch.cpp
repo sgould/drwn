@@ -129,10 +129,12 @@ void drwnMaskedPatchMatch::initialize(const cv::Size& patchRadius)
 
     // initialize nearest neighbour field if not already
     if ((_nnfA.rows != _imgA.rows) || (_nnfA.cols != _imgA.cols)) {
-        _nnfA = cv::Mat(_imgA.rows, _imgA.cols, CV_16SC2, cv::Scalar(-1, -1));
-        _costsA = cv::Mat::zeros(_nnfA.size(), CV_32FC1);
-        _costsA(cv::Rect(_patchRadius.width, _patchRadius.height, 
-                _nnfA.cols - 2 * _patchRadius.width, _nnfA.rows - 2 * _patchRadius.height)).setTo(cv::Scalar(DRWN_FLT_MAX)); 
+        const cv::Rect roi(_patchRadius.width, _patchRadius.height, 
+            _imgA.cols - 2 * _patchRadius.width, _imgA.rows - 2 * _patchRadius.height);
+        _nnfA = cv::Mat(_imgA.size(), CV_16SC2, cv::Scalar(-1, -1));
+        _nnfA(roi).setTo(cv::Scalar(0, 0));
+        _costsA = cv::Mat::zeros(_imgA.size(), CV_32FC1);
+        _costsA(roi).setTo(cv::Scalar(DRWN_FLT_MAX)); 
         _lastChanged = cv::Mat(_nnfA.size(), CV_32SC1);
     }
 
@@ -144,8 +146,9 @@ void drwnMaskedPatchMatch::initialize(const cv::Size& patchRadius)
             if (_imgA.size() == _imgB.size()) {
                 update(ptA, ptA);
             }
-            if (_costsA.at<float>(y, x) == 0.0f)
+            if (_costsA.at<float>(y, x) == 0.0f) {
                 continue;
+            }
 #endif
             //! \todo only attempt valid B
             const cv::Point ptB(rand() % (_imgB.cols - 2 * _patchRadius.width) + _patchRadius.width,
@@ -193,16 +196,16 @@ const cv::Mat& drwnMaskedPatchMatch::search(cv::Rect roiToUpdate, unsigned maxIt
                 const cv::Point ptA(x, y);
 
                 // north
-                if ((y > 0) && (_lastChanged.at<int>(y - 1, x) >= _iterationCount)) {
+                if ((y > _patchRadius.height) && (_lastChanged.at<int>(y - 1, x) >= _iterationCount)) {
                     const cv::Vec2s p = _nnfA.at<Vec2s>(y - 1, x);
-                    const cv::Point ptB(p[0], std::min(p[1] + 1, _imgB.rows - _patchRadius.height));
+                    const cv::Point ptB(p[0], std::min(p[1] + 1, _imgB.rows - _patchRadius.height - 1));
                     update(ptA, ptB);
                 }
 
                 // east
-                if ((x > 0) && (_lastChanged.at<int>(y, x - 1) >= _iterationCount)) {
+                if ((x > _patchRadius.width) && (_lastChanged.at<int>(y, x - 1) >= _iterationCount)) {
                     const cv::Vec2s p = _nnfA.at<Vec2s>(y, x - 1);
-                    const cv::Point ptB(std::min(p[0] + 1, _imgB.cols - _patchRadius.width), p[1]);
+                    const cv::Point ptB(std::min(p[0] + 1, _imgB.cols - _patchRadius.width - 1), p[1]);
                     update(ptA, ptB);
                 }
             }
@@ -216,16 +219,16 @@ const cv::Mat& drwnMaskedPatchMatch::search(cv::Rect roiToUpdate, unsigned maxIt
                 const cv::Point ptA(x, y);
 
                 // south
-                if ((y < _nnfA.rows - 1) && (_lastChanged.at<int>(y + 1, x) >= _iterationCount)) {
+                if ((y < _nnfA.rows - _patchRadius.height - 1) && (_lastChanged.at<int>(y + 1, x) >= _iterationCount)) {
                     const cv::Vec2s p = _nnfA.at<Vec2s>(y + 1, x);
-                    const cv::Point ptB(p[0], std::max(p[1] - 1, 0));
+                    const cv::Point ptB(p[0], std::max(p[1] - 1, _patchRadius.height));
                     update(ptA, ptB);
                 }
 
                 // west
-                if ((x < _nnfA.cols - 1)  && (_lastChanged.at<int>(y, x + 1) >= _iterationCount)) {
+                if ((x < _nnfA.cols - _patchRadius.width - 1)  && (_lastChanged.at<int>(y, x + 1) >= _iterationCount)) {
                     const cv::Vec2s p = _nnfA.at<Vec2s>(y, x + 1);
-                    const cv::Point ptB(std::max(p[0] - 1, 0), p[1]);
+                    const cv::Point ptB(std::max(p[0] - 1, _patchRadius.width), p[1]);
                     update(ptA, ptB);
                 }
             }
