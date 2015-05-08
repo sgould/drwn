@@ -314,19 +314,15 @@ void drwnMaskedPatchMatch::modifyTargetImage(const cv::Rect& roi, const cv::Mat&
     _invmaskB(roi).setTo(cv::Scalar(0x00));
 
     // update valid pixels
-    //! \todo speedup
-    cv::Mat maskSum;
-    cv::integral(_invmaskB, maskSum, CV_32S);
+    cv::Mat element = cv::getStructuringElement(MORPH_RECT,
+        cv::Size(2 * _patchRadius.width + 1, 2 * _patchRadius.height + 1),
+        cv::Point(_patchRadius.width, _patchRadius.height));
+    cv::erode(_maskB, _validB, element);
 
-    for (int y = _patchRadius.height; y < _validB.rows - _patchRadius.height; y++) {
-        for (int x = _patchRadius.width; x < _validB.cols - _patchRadius.width; x++) {
-            const int count = maskSum.at<int>(y - _patchRadius.height, x - _patchRadius.width) +
-                maskSum.at<int>(y + _patchRadius.height + 1, x + _patchRadius.width + 1) -
-                maskSum.at<int>(y - _patchRadius.height, x + _patchRadius.width + 1) -
-                maskSum.at<int>(y + _patchRadius.height + 1, x - _patchRadius.width);
-            _validB.at<unsigned char>(y, x) = (count == 0x00) ? 0xff : 0x00;
-        }
-    }
+    _validB(cv::Rect(0, 0, _patchRadius.width, _validB.rows)).setTo(cv::Scalar(0x00));
+    _validB(cv::Rect(_validB.cols - _patchRadius.width, 0, _patchRadius.width, _validB.rows)).setTo(cv::Scalar(0x00));
+    _validB(cv::Rect(0, 0, _validB.cols, _patchRadius.height)).setTo(cv::Scalar(0x00));
+    _validB(cv::Rect(0, _validB.rows - _patchRadius.height, _validB.cols, _patchRadius.height)).setTo(cv::Scalar(0x00));
 
     // rescore any region that matches into this patch (and the masked pixels have changed)
     if (alpha != 0.0) {
@@ -358,19 +354,15 @@ void drwnMaskedPatchMatch::expandTargetMask(unsigned radius)
     cv::compare(_maskB, cv::Scalar(0x00), _invmaskB, CV_CMP_EQ);
 
     // update valid pixels
-    //! \todo speedup
-    cv::Mat maskSum;
-    cv::integral(_invmaskB, maskSum, CV_32S);
+    element = cv::getStructuringElement(MORPH_RECT,
+        cv::Size(2 * _patchRadius.width + 1, 2 * _patchRadius.height + 1),
+        cv::Point(_patchRadius.width, _patchRadius.height));
+    cv::erode(_maskB, _validB, element);
 
-    for (int y = _patchRadius.height; y < _validB.rows - _patchRadius.height; y++) {
-        for (int x = _patchRadius.width; x < _validB.cols - _patchRadius.width; x++) {
-            const int count = maskSum.at<int>(y - _patchRadius.height, x - _patchRadius.width) +
-                maskSum.at<int>(y + _patchRadius.height + 1, x + _patchRadius.width + 1) -
-                maskSum.at<int>(y - _patchRadius.height, x + _patchRadius.width + 1) -
-                maskSum.at<int>(y + _patchRadius.height + 1, x - _patchRadius.width);
-            _validB.at<unsigned char>(y, x) = (count == 0x00) ? 0xff : 0x00;
-        }
-    }
+    _validB(cv::Rect(0, 0, _patchRadius.width, _validB.rows)).setTo(cv::Scalar(0x00));
+    _validB(cv::Rect(_validB.cols - _patchRadius.width, 0, _patchRadius.width, _validB.rows)).setTo(cv::Scalar(0x00));
+    _validB(cv::Rect(0, 0, _validB.cols, _patchRadius.height)).setTo(cv::Scalar(0x00));
+    _validB(cv::Rect(0, _validB.rows - _patchRadius.height, _validB.cols, _patchRadius.height)).setTo(cv::Scalar(0x00));
 
     //! \todo mark as updated any matches adjacent to the boundary
 }
