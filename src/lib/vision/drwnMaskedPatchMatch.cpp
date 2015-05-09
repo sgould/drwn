@@ -521,9 +521,14 @@ void drwnMaskedPatchMatch::cacheValidPixels()
     cv::Mat element = cv::getStructuringElement(MORPH_RECT,
         cv::Size(2 * _patchRadius.width + 1, 2 * _patchRadius.height + 1),
         cv::Point(_patchRadius.width, _patchRadius.height));
-    cv::dilate(_invmaskA, _overlapA, element);
-    cv::erode(_maskB, _validB, element);
 
+    cv::dilate(_invmaskA, _overlapA, element);
+    _overlapA(cv::Rect(0, 0, _patchRadius.width, _overlapA.rows)).setTo(cv::Scalar(0x00));
+    _overlapA(cv::Rect(_overlapA.cols - _patchRadius.width, 0, _patchRadius.width, _overlapA.rows)).setTo(cv::Scalar(0x00));
+    _overlapA(cv::Rect(0, 0, _overlapA.cols, _patchRadius.height)).setTo(cv::Scalar(0x00));
+    _overlapA(cv::Rect(0, _overlapA.rows - _patchRadius.height, _overlapA.cols, _patchRadius.height)).setTo(cv::Scalar(0x00));
+
+    cv::erode(_maskB, _validB, element);
     _validB(cv::Rect(0, 0, _patchRadius.width, _validB.rows)).setTo(cv::Scalar(0x00));
     _validB(cv::Rect(_validB.cols - _patchRadius.width, 0, _patchRadius.width, _validB.rows)).setTo(cv::Scalar(0x00));
     _validB(cv::Rect(0, 0, _validB.cols, _patchRadius.height)).setTo(cv::Scalar(0x00));
@@ -576,6 +581,10 @@ void drwnMaskedPatchMatch::updateValidPixels(const cv::Rect& roi)
         cv::Size(2 * _patchRadius.width + 1, 2 * _patchRadius.height + 1),
         cv::Point(_patchRadius.width, _patchRadius.height));
     cv::dilate(_invmaskA, _overlapA, element);
+    _overlapA(cv::Rect(0, 0, _patchRadius.width, _overlapA.rows)).setTo(cv::Scalar(0x00));
+    _overlapA(cv::Rect(_overlapA.cols - _patchRadius.width, 0, _patchRadius.width, _overlapA.rows)).setTo(cv::Scalar(0x00));
+    _overlapA(cv::Rect(0, 0, _overlapA.cols, _patchRadius.height)).setTo(cv::Scalar(0x00));
+    _overlapA(cv::Rect(0, _overlapA.rows - _patchRadius.height, _overlapA.cols, _patchRadius.height)).setTo(cv::Scalar(0x00));
 #endif
 
     DRWN_FCN_TOC;
