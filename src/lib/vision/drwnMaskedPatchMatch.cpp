@@ -32,6 +32,7 @@ using namespace std;
 
 // drwnMaskedPatchMatch ------------------------------------------------------
 
+bool drwnMaskedPatchMatch::TRY_IDENTITY_INIT = true;
 int drwnMaskedPatchMatch::DISTANCE_MEASURE = cv::NORM_L1;
 float drwnMaskedPatchMatch::HEIGHT_PENALTY = 32.0f;
 
@@ -102,16 +103,20 @@ drwnMaskedPatchMatch::drwnMaskedPatchMatch(const cv::Mat& imgA, const cv::Mat& i
     initialize();
 }
 
-cv::Rect drwnMaskedPatchMatch::getBestMatch(const cv::Point& ptA) const
+std::pair<cv::Rect, cv::Rect> drwnMaskedPatchMatch::getMatchingPatches(const cv::Point& ptA) const
 {
     const int x = std::max(_patchRadius.width, std::min(ptA.x, _imgA.cols - _patchRadius.width - 1));
     const int y = std::max(_patchRadius.height, std::min(ptA.y, _imgA.rows - _patchRadius.height - 1));
-    const int dx = abs(ptA.x - x);
-    const int dy = abs(ptA.y - y);
+    const int w = 2 * (_patchRadius.width - abs(ptA.x - x)) + 1;
+    const int h = 2 * (_patchRadius.height - abs(ptA.y - y)) + 1;
+
+    std::pair<cv::Rect, cv::Rect> match;
+    match.first = cv::Rect(x - _patchRadius.width, y - _patchRadius.height, w, h);
 
     const cv::Vec2s ptB = _nnfA.at<cv::Vec2s>(y, x);
-    return cv::Rect(ptB[0] - _patchRadius.width + dx, ptB[1] - _patchRadius.height + dy,
-        2 * (_patchRadius.width - dx) + 1, 2 * (_patchRadius.height - dy) + 1);
+    match.second = cv::Rect(ptB[0] - _patchRadius.width, ptB[1] - _patchRadius.height, w, h);
+
+    return match;
 }
 
 void drwnMaskedPatchMatch::initialize(const cv::Size& patchRadius)
@@ -141,15 +146,17 @@ void drwnMaskedPatchMatch::initialize(const cv::Size& patchRadius)
     for (int y = _patchRadius.height; y < _nnfA.rows - _patchRadius.height; y++) {
         for (int x = _patchRadius.width; x < _nnfA.cols - _patchRadius.width; x++) {
             const cv::Point ptA(x, y);
-#if 1
+
             // try initialize with identity first
-            if (_imgA.size() == _imgB.size()) {
-                update(ptA, ptA);
+            if (TRY_IDENTITY_INIT) {
+                if (_imgA.size() == _imgB.size()) {
+                    update(ptA, ptA);
+                }
+                if (_costsA.at<float>(y, x) == 0.0f) {
+                    continue;
+                }
             }
-            if (_costsA.at<float>(y, x) == 0.0f) {
-                continue;
-            }
-#endif
+
             //! \todo only attempt valid B
             const cv::Point ptB(rand() % (_imgB.cols - 2 * _patchRadius.width) + _patchRadius.width,
                 rand() % (_imgB.rows - 2 * _patchRadius.height) + _patchRadius.height);

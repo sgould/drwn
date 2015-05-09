@@ -63,6 +63,7 @@ void testImageCache(const char *directory);
 void testImagePyramidCache(const char *directory);
 void testImageInPainting(const char *imgFile);
 void testColourHistogram(const char *imgFile);
+void testMaskedPatchMatch();
 
 // usage ---------------------------------------------------------------------
 
@@ -90,6 +91,7 @@ void usage()
          << "  drwnImagePyramidCache <d> :: test drwnImagePryamidCache on directory <d>\n"
          << "  drwnInPaint <img> :: test drwnInPaint on image <img>\n"
          << "  drwnColourHistogram <img> :: test drwnColourHistogram class on image <img>\n"
+         << "  drwnMaskedPatchMatch :: test drwnMaskedPatchMatch\n"
 	 << endl;
 }
 
@@ -152,6 +154,9 @@ int main(int argc, char *argv[])
         DRWN_CMDLINE_OPTION_BEGIN("drwnColourHistogram", p)
             testColourHistogram(p[0]);
         DRWN_CMDLINE_OPTION_END(1)
+        DRWN_CMDLINE_FLAG_BEGIN("drwnMaskedPatchMatch")
+            testMaskedPatchMatch();
+        DRWN_CMDLINE_FLAG_END
     DRWN_END_CMDLINE_PROCESSING(usage());
 
     if (DRWN_CMDLINE_ARGC != 0) {
@@ -682,4 +687,51 @@ void testColourHistogram(const char *imgFile)
     drwnScaleToRange(canvas, 0.0, 1.0);
     drwnShowDebuggingImage(drwnCreateHeatMap(canvas), string("testColourHistogram"), true);
     DRWN_FCN_TOC;
+}
+
+void testMaskedPatchMatch()
+{
+    // run test twice, once with gradient image and once with random image
+    for (int nTest = 0; nTest < 2; nTest++) {
+        DRWN_LOG_MESSAGE("Running test on " << (nTest == 0 ? "gradient" : "random") << " image...");
+
+        // create gradient image or random image
+        cv::Mat testImage(256, 256, CV_8UC1);
+        for (int y = 0; y < testImage.rows; y++) {
+            for (int x = 0; x < testImage.cols; x++) {
+                if (nTest == 0) {
+                    testImage.at<unsigned char>(y, x) = (x + y) % 256;
+                } else {
+                    testImage.at<unsigned char>(y, x) = rand() % 256;
+                }
+            }
+        }
+
+        // show the image
+        drwnShowDebuggingImage(testImage, "testMaskedPatchMatch.1", false);
+
+        // match to self
+        const unsigned patchRadius = 4;
+        drwnMaskedPatchMatch::TRY_IDENTITY_INIT = false;
+        drwnMaskedPatchMatch pm(testImage, testImage, patchRadius);
+        drwnShowDebuggingImage(pm.visualize(), "testMaskedPatchMatch.2", false);
+        pm.search(1);
+        drwnShowDebuggingImage(pm.visualize(), "testMaskedPatchMatch.3", false);
+        
+        // copy a patch and check that is matches exactly
+        const int TEST_POINTS[5][2] = {{32, 32}, {1, 1}, {1, 128}, {128, 1}, {255, 255}};
+
+        vector<cv::Mat> views;
+        for (int i = 0; i < 5; i++) {
+            cv::Point srcPoint(TEST_POINTS[i][0], TEST_POINTS[i][1]);
+            pair<cv::Rect, cv::Rect> match = pm.getMatchingPatches(srcPoint);
+            DRWN_LOG_MESSAGE(match.first << " centred at " << srcPoint << " matches to " << match.second);
+        
+            testImage(match.second).copyTo(testImage(match.first));
+            views.push_back(testImage.clone());
+        }
+        drwnShowDebuggingImage(views, "testMaskedPatchMatch.4", false);
+
+        cv::waitKey(-1);
+    }
 }

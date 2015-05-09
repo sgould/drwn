@@ -39,8 +39,8 @@ using namespace std;
 //!
 //! Each pixel in the returned nearest neighbour field represents the offset to
 //! the optimal match for a patch of size 2 * \p patchRadius + 1 and centred on 
-//! that pixel. Use the \p getBestMatch() to adjust size of regions for pixels
-//! within \p patchRadius pixel of the boundary.
+//! that pixel. Use the \p getMatchingPatches() to get matching regions with size
+//! adjusted for pixels within \p patchRadius pixel of the boundary.
 //!
 //! \code
 //! cv::Mat imgA;
@@ -61,8 +61,9 @@ using namespace std;
 
 class drwnMaskedPatchMatch {
  public:
-    static int DISTANCE_MEASURE; //!< norm type for comparing patches (cv::NORM_L1 or cv::NORM_L2)
-    static float HEIGHT_PENALTY; //!< bias term added for row/height difference
+    static bool TRY_IDENTITY_INIT; //!< attempt identity match during initialization (default: true)
+    static int DISTANCE_MEASURE;   //!< norm type for comparing patches (cv::NORM_L1 or cv::NORM_L2)
+    static float HEIGHT_PENALTY;   //!< bias term added for row/height difference
 
  protected:
     cv::Mat _imgA;          //!< CV_8U multi-channel image (source)
@@ -108,9 +109,9 @@ class drwnMaskedPatchMatch {
     cv::Size getPatchSize() const { return cv::Size(2 * _patchRadius.width + 1, 2 * _patchRadius.height + 1); }
     //! return the size of the nearest neighbour field
     cv::Size getFieldSize() const { return _nnfA.size(); }
-    //! Return the best matching destination patch for patch centred at \p ptA. Points close
-    //! to the boundary have their size adjusted.
-    cv::Rect getBestMatch(const cv::Point& ptA) const;
+    //! Return the best matching pair of patches (source and destination) for source patch
+    //! centred at \p ptA. Points close to the boundary have their size adjusted.
+    std::pair<cv::Rect, cv::Rect> getMatchingPatches(const cv::Point& ptA) const;
 
     //! initialize the matches with default patch size
     void initialize() { initialize(_patchRadius); }
