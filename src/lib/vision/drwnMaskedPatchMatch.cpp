@@ -109,12 +109,14 @@ std::pair<cv::Rect, cv::Rect> drwnMaskedPatchMatch::getMatchingPatches(const cv:
     const int y = std::max(_patchRadius.height, std::min(ptA.y, _imgA.rows - _patchRadius.height - 1));
     const int w = 2 * (_patchRadius.width - abs(ptA.x - x)) + 1;
     const int h = 2 * (_patchRadius.height - abs(ptA.y - y)) + 1;
+    const int dx = 2 * std::max(0, ptA.x - x);
+    const int dy = 2 * std::max(0, ptA.y - y);
 
     std::pair<cv::Rect, cv::Rect> match;
-    match.first = cv::Rect(x - _patchRadius.width, y - _patchRadius.height, w, h);
+    match.first = cv::Rect(x - _patchRadius.width + dx, y - _patchRadius.height + dy, w, h);
 
     const cv::Vec2s ptB = _nnfA.at<cv::Vec2s>(y, x);
-    match.second = cv::Rect(ptB[0] - _patchRadius.width, ptB[1] - _patchRadius.height, w, h);
+    match.second = cv::Rect(ptB[0] - _patchRadius.width + dx, ptB[1] - _patchRadius.height + dy, w, h);
 
     return match;
 }

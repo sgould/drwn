@@ -715,14 +715,14 @@ void testMaskedPatchMatch()
         drwnMaskedPatchMatch::TRY_IDENTITY_INIT = false;
         drwnMaskedPatchMatch pm(testImage, testImage, patchRadius);
         drwnShowDebuggingImage(pm.visualize(), "testMaskedPatchMatch.2", false);
-        pm.search(1);
+        pm.search(10);
         drwnShowDebuggingImage(pm.visualize(), "testMaskedPatchMatch.3", false);
         
         // copy a patch and check that is matches exactly
-        const int TEST_POINTS[5][2] = {{32, 32}, {1, 1}, {1, 128}, {128, 1}, {255, 255}};
+        const int TEST_POINTS[6][2] = {{32, 32}, {1, 1}, {1, 128}, {128, 1}, {255, 255}, {254, 254}};
 
         vector<cv::Mat> views;
-        for (int i = 0; i < 5; i++) {
+        for (int i = 0; i < 6; i++) {
             cv::Point srcPoint(TEST_POINTS[i][0], TEST_POINTS[i][1]);
             pair<cv::Rect, cv::Rect> match = pm.getMatchingPatches(srcPoint);
             DRWN_LOG_MESSAGE(match.first << " centred at " << srcPoint << " matches to " << match.second);
