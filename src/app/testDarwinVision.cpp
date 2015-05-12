@@ -709,13 +709,14 @@ void testMaskedPatchMatch()
 
         // show the image
         drwnShowDebuggingImage(testImage, "testMaskedPatchMatch.1", false);
-
         // match to self
         const unsigned patchRadius = 4;
         drwnMaskedPatchMatch::TRY_IDENTITY_INIT = false;
+#if 0
         drwnMaskedPatchMatch pm(testImage, testImage, patchRadius);
         drwnShowDebuggingImage(pm.visualize(), "testMaskedPatchMatch.2", false);
         pm.search(10);
+        DRWN_LOG_VERBOSE("energy is " << pm.energy());
         drwnShowDebuggingImage(pm.visualize(), "testMaskedPatchMatch.3", false);
         
         // copy a patch and check that is matches exactly
@@ -731,6 +732,15 @@ void testMaskedPatchMatch()
             views.push_back(testImage.clone());
         }
         drwnShowDebuggingImage(views, "testMaskedPatchMatch.4", false);
+#endif
+        // mask the image and check search
+        cv::Mat mask = cv::Mat(testImage.size(), CV_8UC1, cv::Scalar(0xff));
+        mask(cv::Rect(96, 96, 48, 48)).setTo(cv::Scalar(0x00));
+        drwnMaskedPatchMatch pm2(testImage, testImage, mask, mask, patchRadius);
+        drwnShowDebuggingImage(pm2.visualize(), "testMaskedPatchMatch.5", false);
+        pm2.search(10);
+        DRWN_LOG_VERBOSE("energy is " << pm2.energy());
+        drwnShowDebuggingImage(pm2.visualize(), "testMaskedPatchMatch.6", false);
 
         cv::waitKey(-1);
     }

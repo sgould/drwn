@@ -139,11 +139,22 @@ void drwnMaskedPatchMatch::initialize(const cv::Size& patchRadius)
         const cv::Rect roi(_patchRadius.width, _patchRadius.height, 
             _imgA.cols - 2 * _patchRadius.width, _imgA.rows - 2 * _patchRadius.height);
         _nnfA = cv::Mat(_imgA.size(), CV_16SC2, cv::Scalar(-1, -1));
-        _nnfA(roi).setTo(cv::Scalar(0, 0));
         _costsA = cv::Mat::zeros(_imgA.size(), CV_32FC1);
         _costsA(roi).setTo(cv::Scalar(DRWN_FLT_MAX)); 
         _lastChanged = cv::Mat(_nnfA.size(), CV_32SC1);
     }
+
+    // construct vector of allowed match points
+    vector<cv::Point> allowedB;
+    allowedB.reserve(_imgB.rows * _imgB.cols);
+    for (int y = 0; y < _imgB.rows; y++) {
+        for (int x = 0; x < _imgB.cols; x++) {
+            if (_validB.at<unsigned char>(y, x) != 0x00) {
+                allowedB.push_back(cv::Point(x, y));
+            }
+        }
+    }
+    DRWN_ASSERT(!allowedB.empty());
 
     for (int y = _patchRadius.height; y < _nnfA.rows - _patchRadius.height; y++) {
         for (int x = _patchRadius.width; x < _nnfA.cols - _patchRadius.width; x++) {
@@ -159,12 +170,23 @@ void drwnMaskedPatchMatch::initialize(const cv::Size& patchRadius)
                 }
             }
 
-            //! \todo only attempt valid B
-            const cv::Point ptB(rand() % (_imgB.cols - 2 * _patchRadius.width) + _patchRadius.width,
-                rand() % (_imgB.rows - 2 * _patchRadius.height) + _patchRadius.height);
-            update(ptA, ptB);
+            //! only attempt valid B
+            update(ptA, allowedB[rand() % allowedB.size()]);
         }
     }
+
+#if 0
+    // check integrity of nnf
+    for (int y = _patchRadius.height; y < _nnfA.rows - _patchRadius.height; y++) {
+        for (int x = _patchRadius.width; x < _nnfA.cols - _patchRadius.width; x++) {
+            const cv::Vec2s p = _nnfA.at<Vec2s>(y, x);
+            DRWN_ASSERT_MSG((p[0] >= _patchRadius.width) && (p[0] < _imgB.cols - _patchRadius.width),
+                "nnf(" << x << ", " << y << ") = " << p << " with cost " << _costsA.at<float>(y, x));
+            DRWN_ASSERT_MSG((p[1] >= _patchRadius.height) && (p[1] < _imgB.rows - _patchRadius.height),
+                "nnf(" << x << ", " << y << ") = " << p << " with cost " << _costsA.at<float>(y, x));
+        }
+    }
+#endif
 
     DRWN_LOG_DEBUG("...initial PatchMatch energy is " << energy());
 
@@ -189,6 +211,19 @@ void drwnMaskedPatchMatch::initialize(const cv::Mat& nnf)
 const cv::Mat& drwnMaskedPatchMatch::search(cv::Rect roiToUpdate, unsigned maxIterations)
 {
     DRWN_FCN_TIC;
+
+#if 0
+    // check integrity of nnf
+    for (int y = _patchRadius.height; y < _nnfA.rows - _patchRadius.height; y++) {
+        for (int x = _patchRadius.width; x < _nnfA.cols - _patchRadius.width; x++) {
+            const cv::Vec2s p = _nnfA.at<Vec2s>(y, x);
+            DRWN_ASSERT_MSG((p[0] >= _patchRadius.width) && (p[0] < _imgB.cols - _patchRadius.width),
+                "nnf(" << x << ", " << y << ") = " << p << " with cost " << _costsA.at<float>(y, x));
+            DRWN_ASSERT_MSG((p[1] >= _patchRadius.height) && (p[1] < _imgB.rows - _patchRadius.height),
+                "nnf(" << x << ", " << y << ") = " << p << " with cost " << _costsA.at<float>(y, x));
+        }
+    }
+#endif
 
     // make sure roiToUpdate is within the search region
     roiToUpdate = roiToUpdate & cv::Rect(_patchRadius.width, _patchRadius.height,
@@ -259,7 +294,7 @@ const cv::Mat& drwnMaskedPatchMatch::search(cv::Rect roiToUpdate, unsigned maxIt
                 const int ymin = std::max(_patchRadius.height, p[1] - diameter);
                 const int ymax = std::min(_imgB.rows - _patchRadius.height - 1, p[1] + diameter);
 
-                //! \todo only attempt valid B
+                DRWN_ASSERT((xmax >= xmin) && (ymax >= ymin));
                 const cv::Vec2s q = cv::Vec2s(xmin + rand() % (xmax - xmin + 1),
                     ymin + rand() % (ymax - ymin + 1));
                 if (q == p) continue;
