@@ -742,6 +742,11 @@ void testMaskedPatchMatch()
         DRWN_LOG_VERBOSE("energy is " << pm2.energy());
         drwnShowDebuggingImage(pm2.visualize(), "testMaskedPatchMatch.6", false);
 
+        pm2.expandTargetMask(24);
+        pm2.search(10);
+        DRWN_LOG_VERBOSE("energy is " << pm2.energy());
+        drwnShowDebuggingImage(pm2.visualize(), "testMaskedPatchMatch.7", false);
+
         cv::waitKey(-1);
     }
 }

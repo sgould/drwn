@@ -382,6 +382,17 @@ void drwnMaskedPatchMatch::modifyTargetImage(const cv::Rect& roi, const cv::Mat&
             }
         }
     }
+
+    // mark as updated any patch adjacent to the updated region
+    cv::Rect adjROI(roi.x - 1, roi.y - 1, roi.width + 2, roi.height + 2);
+    for (int y = 0; y < _nnfA.rows; y++) {
+        for (int x = 0; x < _nnfA.cols; x++) {
+            const cv::Vec2s p = _nnfA.at<Vec2s>(y, x);
+            if (cv::Point(p[0], p[1]).inside(adjROI)) {
+                _lastChanged.at<int>(y, x) = _iterationCount + 1;
+            }
+        }
+    }    
 }
 
 void drwnMaskedPatchMatch::modifyTargetImage(const cv::Rect& roiA, const cv::Rect& roiB, double alpha)
@@ -391,6 +402,18 @@ void drwnMaskedPatchMatch::modifyTargetImage(const cv::Rect& roiA, const cv::Rec
 
 void drwnMaskedPatchMatch::expandTargetMask(unsigned radius)
 {
+    // mark as updated any matches adjacent to the boundary of the old mask
+    cv::Mat adj;
+    cv::dilate(_maskB, adj, cv::Mat());
+    for (int y = 0; y < _nnfA.rows; y++) {
+        for (int x = 0; x < _nnfA.cols; x++) {
+            const cv::Vec2s p = _nnfA.at<Vec2s>(y, x);
+            if (adj.at<unsigned char>(p[1], p[0]) != 0x00) {
+                _lastChanged.at<int>(y, x) = _iterationCount + 1;
+            }
+        }
+    }
+
     // dilate the mask/erode the inverse mask
     cv::Mat element = cv::getStructuringElement(MORPH_CROSS,
         cv::Size(2 * radius + 1, 2 * radius + 1), cv::Point(radius, radius));
@@ -408,7 +431,6 @@ void drwnMaskedPatchMatch::expandTargetMask(unsigned radius)
     _validB(cv::Rect(0, 0, _validB.cols, _patchRadius.height)).setTo(cv::Scalar(0x00));
     _validB(cv::Rect(0, _validB.rows - _patchRadius.height, _validB.cols, _patchRadius.height)).setTo(cv::Scalar(0x00));
 
-    //! \todo mark as updated any matches adjacent to the boundary
 }
 
 cv::Mat drwnMaskedPatchMatch::visualize() const
