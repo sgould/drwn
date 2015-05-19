@@ -57,6 +57,13 @@ using namespace std;
 //! cout << rA << " in imageA matches " << rB << " in imageB\n";
 //! \endcode
 //!
+//! Alternatively you can use the \p getMatchingPatches() function, as in:
+//!
+//! \code
+//! pair<cv::Rect, cv::Rect> r = pm.getMatchingPatches(cv::Point(x, y));
+//! cout << r.first << " in imageA matches " << r.second << " in imageB\n";
+//! \endcode
+//!
 //! \sa \ref drwnInPaint
 
 class drwnMaskedPatchMatch {
@@ -132,6 +139,8 @@ class drwnMaskedPatchMatch {
 
     //! return the current nearest neighbour field
     const cv::Mat& nnf() const { return _nnfA; }
+    //! return (matching) costs (CV_32FC1) associated with the current nearest neighbour field
+    const cv::Mat& costs() const { return _costsA; }
     //! return the current match energy
     double energy() const { return cv::norm(_costsA, cv::NORM_L1, _maskA); }
 
