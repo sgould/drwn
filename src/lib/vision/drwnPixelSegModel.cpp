@@ -106,7 +106,7 @@ public:
 
 // drwnPixelSegModel class ------------------------------------------------
 
-drwnPixelSegModel::drwnPixelSegModel() : _pixelContrastWeight(0.0), _robustPottsWeight(0.0)
+drwnPixelSegModel::drwnPixelSegModel() : _pixelContrastWeight(0.0), _auxiliaryEdgeWeight(0.0), _robustPottsWeight(0.0)
 {
     // default feature generator
     _featureGenerator = new drwnSegImageStdPixelFeatures();
@@ -118,6 +118,7 @@ drwnPixelSegModel::drwnPixelSegModel(const drwnPixelSegModel& model) :
     _pixelFeatureWhitener(model._pixelFeatureWhitener),
     _pixelUnaryModel(model._pixelUnaryModel),
     _pixelContrastWeight(model._pixelContrastWeight),
+    _auxiliaryEdgeWeight(model._auxiliaryEdgeWeight),
     _robustPottsWeight(model._robustPottsWeight)
 {
     _pixelClassModels.reserve(model._pixelClassModels.size());
@@ -163,8 +164,9 @@ bool drwnPixelSegModel::save(drwnXMLNode& xml) const
     node = drwnAddXMLChildNode(xml, "unaryModel", NULL, false);
     _pixelUnaryModel.save(*node);
 
-    // save pairwise and robust potts weight
+    // save pairwise and robust potts weights
     drwnAddXMLAttribute(xml, "contrastWeight", toString(_pixelContrastWeight).c_str(), false);
+    drwnAddXMLAttribute(xml, "auxiliaryEdgeWeight", toString(_auxiliaryEdgeWeight).c_str(), false);
     drwnAddXMLAttribute(xml, "robustPottsWeight", toString(_robustPottsWeight).c_str(), false);
 
     return true;
@@ -209,6 +211,13 @@ bool drwnPixelSegModel::load(drwnXMLNode& xml)
         DRWN_LOG_WARNING("XML is missing the contrastWeight");
     } else {
         _pixelContrastWeight = atof(drwnGetXMLAttribute(xml, "contrastWeight"));
+    }
+
+    // load auxiliary edge weight
+    if (drwnGetXMLAttribute(xml, "auxiliaryEdgeWeight") == NULL) {
+        DRWN_LOG_WARNING("XML is missing the auxiliaryEdgeWeight");
+    } else {
+        _auxiliaryEdgeWeight = atof(drwnGetXMLAttribute(xml, "auxiliaryEdgeWeight"));
     }
 
     // load robust potts weight
@@ -456,7 +465,7 @@ double drwnPixelSegModel::inferPixelLabels(drwnSegImageInstance *instance) const
 
     // run inference
     drwnRobustPottsCRFInference inf;
-    inf.alphaExpansion(instance, _pixelContrastWeight, _robustPottsWeight);
+    inf.alphaExpansion(instance, _pixelContrastWeight, _robustPottsWeight, _auxiliaryEdgeWeight);
 
     DRWN_FCN_TOC;
     return energy(instance);

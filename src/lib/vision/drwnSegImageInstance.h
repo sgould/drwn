@@ -29,6 +29,7 @@
 #include "drwnPixelNeighbourContrasts.h"
 #include "drwnSuperpixelContainer.h"
 #include "drwnSegImagePixelFeatures.h"
+#include "drwnVisionUtils.h"
 
 using namespace std;
 using namespace Eigen;
@@ -52,15 +53,18 @@ class drwnSegImageInstance {
 
  public:
     // cached pixel features
-    vector<vector<double> > unaries;       //!< cached unary potentials or pixel feature vectors
-    drwnPixelNeighbourContrasts contrast;  //!< neighborhood contrast for pairwise smoothness
+    vector<vector<double> > unaries;         //!< cached unary potentials or pixel feature vectors
+    drwnPixelNeighbourContrasts contrast;    //!< neighborhood contrast for pairwise smoothness
+
+    // long range edges
+    vector<drwnWeightedPixelEdge> auxEdges;  //!< auxiliary (long range) edges
 
     // superpixels and auxiliary data
-    drwnSuperpixelContainer superpixels;   //!< superpixels for features or consistency terms
-    vector<cv::Mat> auxiliaryData;         //!< auxiliary data for certain models (future extensions)
+    drwnSuperpixelContainer superpixels;     //!< superpixels for features or consistency terms
+    vector<cv::Mat> auxiliaryData;           //!< auxiliary data for certain models (future extensions)
 
     // class labels
-    MatrixXi pixelLabels;                  //!< pixel labels (0 to K-1) and -1 for unknown
+    MatrixXi pixelLabels;                    //!< pixel labels (0 to K-1) and -1 for unknown
 
  public:
     //! create a drwnSegImageInstance from file

@@ -30,11 +30,12 @@ using namespace std;
 // drwnPixelSegCRFInference class -----------------------------------------
 
 void drwnPixelSegCRFInference::alphaExpansion(drwnSegImageInstance *instance,
-    double pairwiseStrength, double higherOrderStrength) const
+    double contrastStrength, double higherOrderStrength, double longRangeStrength) const
 {
     DRWN_ASSERT(instance != NULL);
     DRWN_ASSERT(instance->unaries.size() == (unsigned)instance->size());
-    DRWN_ASSERT(pairwiseStrength >= 0.0);
+    DRWN_ASSERT(contrastStrength >= 0.0);
+    DRWN_ASSERT(longRangeStrength >= 0.0);
 
     // check cardinality
     const int nVariables = instance->size();
@@ -55,7 +56,7 @@ void drwnPixelSegCRFInference::alphaExpansion(drwnSegImageInstance *instance,
     DRWN_LOG_DEBUG("...unary energy is " << eUnary);
 
     // return if no pairwise or higher-order terms
-    if ((pairwiseStrength == 0.0) && (higherOrderStrength == 0.0)) {
+    if ((contrastStrength == 0.0) && (higherOrderStrength == 0.0) && (longRangeStrength == 0.0)) {
         return;
     }
 
@@ -83,7 +84,8 @@ void drwnPixelSegCRFInference::alphaExpansion(drwnSegImageInstance *instance,
             e += addUnaryTerms(g, instance, alpha);
 
             // add pairwise terms
-            e += addPairwiseTerms(g, pairwiseStrength, instance, alpha);
+            e += addPairwiseContrastTerms(g, contrastStrength, instance, alpha);
+            e += addLongRangePairwiseTerms(g, longRangeStrength, instance, alpha);
 
             // add higher order terms
             e += addHigherOrderTerms(g, higherOrderStrength, instance, alpha);
@@ -125,8 +127,8 @@ void drwnPixelSegCRFInference::alphaExpansion(drwnSegImageInstance *instance,
     delete g;
 }
 
-double drwnPixelSegCRFInference::energy(const drwnSegImageInstance *instance, double pairwiseStrength,
-    double higherOrderStrength) const
+double drwnPixelSegCRFInference::energy(const drwnSegImageInstance *instance, double contrastStrength,
+    double higherOrderStrength, double longRangeStrength) const
 {
     DRWN_ASSERT(instance != NULL);
     double e = 0.0;
@@ -135,8 +137,11 @@ double drwnPixelSegCRFInference::energy(const drwnSegImageInstance *instance, do
     e += computeUnaryEnergy(instance);
 
     // add energy from pairwise terms
-    if (pairwiseStrength != 0.0) {
-        e += computePairwiseEnergy(instance, pairwiseStrength);
+    if (contrastStrength != 0.0) {
+        e += computePairwiseContrastEnergy(instance, contrastStrength);
+    }
+    if (longRangeStrength != 0.0) {
+        e += computeLongRangePairwiseEnergy(instance, longRangeStrength);
     }
 
     // add energy from higher order terms
@@ -171,12 +176,12 @@ double drwnPixelSegCRFInference::addUnaryTerms(drwnMaxFlow *g, const drwnSegImag
     return 0.0;
 }
 
-double drwnPixelSegCRFInference::addPairwiseTerms(drwnMaxFlow *g, double pairwiseStrength,
+double drwnPixelSegCRFInference::addPairwiseContrastTerms(drwnMaxFlow *g, double contrastStrength,
     const drwnSegImageInstance *instance, int alpha, int varOffset) const
 {
     // return immediately if pairwise strength is zero
-    if (pairwiseStrength == 0.0) return 0.0;
-    DRWN_ASSERT(pairwiseStrength > 0.0);
+    if (contrastStrength == 0.0) return 0.0;
+    DRWN_ASSERT(contrastStrength > 0.0);
 
     // add horizontal pairwise terms
     for (int y = 0; y < instance->height(); y++) {
@@ -189,7 +194,7 @@ double drwnPixelSegCRFInference::addPairwiseTerms(drwnMaxFlow *g, double pairwis
             const int u = instance->pixel2Indx(x, y) + varOffset;
             const int v = instance->pixel2Indx(x - 1, y) + varOffset;
 
-            const double w = pairwiseStrength * instance->contrast.contrastW(x, y);
+            const double w = contrastStrength * instance->contrast.contrastW(x, y);
 
             if (labelA == alpha) {
                 g->addSourceEdge(v, w);
@@ -215,7 +220,7 @@ double drwnPixelSegCRFInference::addPairwiseTerms(drwnMaxFlow *g, double pairwis
             const int u = instance->pixel2Indx(x, y) + varOffset;
             const int v = instance->pixel2Indx(x, y - 1) + varOffset;
 
-            const double w = pairwiseStrength * instance->contrast.contrastN(x, y);
+            const double w = contrastStrength * instance->contrast.contrastN(x, y);
 
             if (labelA == alpha) {
                 g->addSourceEdge(v, w);
@@ -241,7 +246,7 @@ double drwnPixelSegCRFInference::addPairwiseTerms(drwnMaxFlow *g, double pairwis
             const int u = instance->pixel2Indx(x, y) + varOffset;
             const int v = instance->pixel2Indx(x - 1, y - 1) + varOffset;
 
-            const double w = pairwiseStrength * instance->contrast.contrastNW(x, y);
+            const double w = contrastStrength * instance->contrast.contrastNW(x, y);
 
             if (labelA == alpha) {
                 g->addSourceEdge(v, w);
@@ -266,7 +271,7 @@ double drwnPixelSegCRFInference::addPairwiseTerms(drwnMaxFlow *g, double pairwis
             const int u = instance->pixel2Indx(x, y - 1) + varOffset;
             const int v = instance->pixel2Indx(x - 1, y) + varOffset;
 
-            const double w = pairwiseStrength * instance->contrast.contrastSW(x, y - 1);
+            const double w = contrastStrength * instance->contrast.contrastSW(x, y - 1);
 
             if (labelA == alpha) {
                 g->addSourceEdge(v, w);
@@ -278,6 +283,35 @@ double drwnPixelSegCRFInference::addPairwiseTerms(drwnMaxFlow *g, double pairwis
                 g->addSourceEdge(u, w);
                 g->addEdge(u, v, w, 0.0);
             }
+        }
+    }
+
+    return 0.0;
+}
+
+double drwnPixelSegCRFInference::addLongRangePairwiseTerms(drwnMaxFlow *g, double longRangeStrength,
+    const drwnSegImageInstance *instance, int alpha, int varOffset) const
+{
+    for (vector<drwnWeightedPixelEdge>::const_iterator it = instance->auxEdges.begin(); it != instance->auxEdges.end(); ++it) {
+        const int labelA = instance->pixelLabels(it->p.y, it->p.x);
+        const int labelB = instance->pixelLabels(it->q.y, it->q.x);
+
+        if ((labelA == alpha) && (labelB == alpha)) continue;
+
+        const int u = instance->pixel2Indx(it->p.x, it->p.y) + varOffset;
+        const int v = instance->pixel2Indx(it->q.x, it->q.y) + varOffset;
+
+        const double w = longRangeStrength * it->w;
+
+        if (labelA == alpha) {
+            g->addSourceEdge(v, w);
+        } else if (labelB == alpha) {
+            g->addSourceEdge(u, w);
+        } else if (labelA == labelB) {
+            g->addEdge(u, v, w, w);
+        } else {
+            g->addSourceEdge(u, w);
+            g->addEdge(u, v, w, 0.0);
         }
     }
 
@@ -304,7 +338,7 @@ double drwnPixelSegCRFInference::computeUnaryEnergy(const drwnSegImageInstance *
     return e;
 }
 
-double drwnPixelSegCRFInference::computePairwiseEnergy(const drwnSegImageInstance *instance, double pairwiseStrength) const
+double drwnPixelSegCRFInference::computePairwiseContrastEnergy(const drwnSegImageInstance *instance, double contrastStrength) const
 {
     double e = 0.0;
 
@@ -339,7 +373,20 @@ double drwnPixelSegCRFInference::computePairwiseEnergy(const drwnSegImageInstanc
         }
     }
 
-    return pairwiseStrength * e;
+    return contrastStrength * e;
+}
+
+double drwnPixelSegCRFInference::computeLongRangePairwiseEnergy(const drwnSegImageInstance *instance, double longRangeStrength) const
+{
+    double e = 0.0;
+
+    for (vector<drwnWeightedPixelEdge>::const_iterator it = instance->auxEdges.begin(); it != instance->auxEdges.end(); ++it) {
+        if (instance->pixelLabels(it->p.y, it->p.x) != instance->pixelLabels(it->q.y, it->q.x)) {
+            e += it->w;
+        }
+    }
+
+    return longRangeStrength * e;
 }
 
 double drwnPixelSegCRFInference::computeHigherOrderEnergy(const drwnSegImageInstance *instance,

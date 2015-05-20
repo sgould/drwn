@@ -53,7 +53,7 @@ drwnSegImageInstance::drwnSegImageInstance(const cv::Mat& img, const char *baseN
 drwnSegImageInstance::drwnSegImageInstance(const drwnSegImageInstance& instance) :
     _baseName(instance._baseName), _img(instance._img.clone()),
     _grayImg(instance._grayImg.clone()), _softEdgeImg(instance._softEdgeImg.clone()),
-    unaries(instance.unaries), contrast(instance.contrast),
+    unaries(instance.unaries), contrast(instance.contrast), auxEdges(instance.auxEdges),
     superpixels(instance.superpixels), auxiliaryData(instance.auxiliaryData),
     pixelLabels(instance.pixelLabels)
 {
@@ -90,6 +90,7 @@ drwnSegImageInstance& drwnSegImageInstance::operator=(const drwnSegImageInstance
     _baseName = instance._baseName;
     unaries = instance.unaries;
     contrast = instance.contrast;
+    auxEdges = instance.auxEdges;
     superpixels = instance.superpixels;
     auxiliaryData = instance.auxiliaryData;
     pixelLabels = instance.pixelLabels;

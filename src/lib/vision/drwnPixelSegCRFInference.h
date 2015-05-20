@@ -49,12 +49,12 @@ class drwnPixelSegCRFInference {
     //! higher-order strength (modifies \p instance). When constructing graphs the S
     //! set (nomially 1) takes value \alpha and the T set (nominally 0) takes each
     //! variable's previous value.
-    void alphaExpansion(drwnSegImageInstance *instance, double pairwiseStrength = 0.0,
-        double higherOrderStrength = 0.0) const;
+    void alphaExpansion(drwnSegImageInstance *instance, double contrastStrength = 0.0,
+        double higherOrderStrength = 0.0, double longRangeStrength = 0.0) const;
 
     //! Return the energy of a given instance labeling.
-    double energy(const drwnSegImageInstance *instance, double pairwiseStrength = 0.0,
-        double higherOrderStrength = 0.0) const;
+    double energy(const drwnSegImageInstance *instance, double contrastStrength = 0.0,
+        double higherOrderStrength = 0.0, double longRangeStrength = 0.0) const;
 
  protected:
     //! adds node to the graph for any auxiliary variables (e.g., as required for
@@ -66,9 +66,14 @@ class drwnPixelSegCRFInference {
     double addUnaryTerms(drwnMaxFlow *g, const drwnSegImageInstance *instance,
         int alpha, int varOffset = 0) const;
 
-    //! add pairwise potentials to max-flow graph for a given alpha-expansion move
-    //! and return constant energy component
-    double addPairwiseTerms(drwnMaxFlow *g, double pairwiseStrength,
+    //! add pairwise contrast potentials to max-flow graph for a given alpha-expansion
+    //! move and return constant energy component
+    double addPairwiseContrastTerms(drwnMaxFlow *g, double contrastStrength,
+        const drwnSegImageInstance *instance, int alpha, int varOffset = 0) const;
+
+    //! add long-range pairwise potentials to max-flow graph for a given alpha-expansion
+    //! move and return constant energy component
+    double addLongRangePairwiseTerms(drwnMaxFlow *g, double longRangeStrength,
         const drwnSegImageInstance *instance, int alpha, int varOffset = 0) const;
 
     //! add higher-order potentials to max-flow graph for a given alpha-expansion move
@@ -79,8 +84,11 @@ class drwnPixelSegCRFInference {
     //! compute energy contribution from unary potentials
     double computeUnaryEnergy(const drwnSegImageInstance *instance) const;
 
-    //! compute energy contribution from unary potentials
-    double computePairwiseEnergy(const drwnSegImageInstance *instance, double pairwiseStrength) const;
+    //! compute energy contribution from pairwise contrast potentials
+    double computePairwiseContrastEnergy(const drwnSegImageInstance *instance, double contrastStrength) const;
+
+    //! compute energy contribution from long-range pairwise potentials
+    double computeLongRangePairwiseEnergy(const drwnSegImageInstance *instance, double longRangeStrength) const;
 
     //! compute energy contribution from higher-order potentials
     virtual double computeHigherOrderEnergy(const drwnSegImageInstance *instance,

@@ -34,6 +34,20 @@
 using namespace std;
 using namespace Eigen;
 
+//! Weighted undirected arc between pixels in an image
+class drwnWeightedPixelEdge {
+ public:
+    double w;     //!< weight
+    cv::Point p;  //!< first pixel
+    cv::Point q;  //!< second pixel
+
+ public:
+    drwnWeightedPixelEdge() : w(0.0), p(-1, -1), q(-1, -1) { /* do nothing */ };
+    drwnWeightedPixelEdge(const cv::Point& _p, const cv::Point& _q, double _w = 0.0) :
+        w(_w), p(_p), q(_q) { /* do nothing */ };
+    ~drwnWeightedPixelEdge() { /* do nothing */ };
+};
+
 //! Image rescaling factor for \p lambda levels per octave
 inline double drwnPyramidScale(int lambda) {
     return exp(-1.0 * log(2.0) / (double)lambda);

@@ -68,6 +68,9 @@ class drwnPixelSegModel : public drwnWriteable {
     //! weight for pairwise constrast-dependent smoothness term
     double _pixelContrastWeight;
 
+    //! weight for (long range) auxiliary edges
+    double _auxiliaryEdgeWeight;
+
     //! weight for robust potts consistency term
     double _robustPottsWeight;
 
