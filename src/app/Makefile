@@ -17,8 +17,8 @@ APP_SRC += testDarwinBase.cpp testDarwinIO.cpp testDarwinML.cpp \
 ifeq ($(DRWN_BUILD_VISION_LIB), 1)
   APP_SRC += basicPatchMatch.cpp generateSuperpixels.cpp \
 	grabCut.cpp highOrderGrabCut.cpp testDarwinVision.cpp \
-	viewObjectDetections.cpp visualizeImageDataset.cpp \
-	visualizeSuperpixels.cpp
+	selfPatchMatchDemo.cpp viewObjectDetections.cpp \
+	visualizeImageDataset.cpp visualizeSuperpixels.cpp
 endif
 
 #######################################################################

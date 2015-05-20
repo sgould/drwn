@@ -492,7 +492,7 @@ class drwnPatchMatchGraphLearner {
     cv::Point mapPatch(const cv::Point& p, int imgIndx, int srcScale, int dstScale) const;
 };
 
-// drwnPatchMatchRetarget ----------------------------------------------------
+// drwnPatchMatchGraphRetarget -----------------------------------------------
 //! Class for retargetting an image from matches within the PatchMatchGraph.
 //!
 //! \sa \ref drwnProjPatchMatch

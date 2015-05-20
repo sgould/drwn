@@ -27,6 +27,48 @@
 
 using namespace std;
 
+// drwnBasicPatchMatch -------------------------------------------------------
+//! Implements the basic PatchMatch algorithm of Barnes et al., SIGGRAPH 2009. 
+//!
+//! The input and output images can have different sizes but must be CV_8U and
+//! have the same number of channels (features). Nearest neighbor field is returned 
+//! in \p nnfA the same size as \p imgA (but not valid around the boundary) has
+//! type CV_16SC2. If empty the nearest neighbor field is initialized randomly. Call
+//! repeatedly to continue the search. Returns matching costs for patch centred
+//! at pixel (x, y).
+//!
+//! \code
+//! Vec2s p = nnf.at<Vec2s>(y, x);
+//! cv::Rect rA(x - patchRadius.width, y - patchRadius.height,
+//!   2 * patchRadius.width + 1, 2 * patchRadius.height + 1);
+//! cv::Rect rA(p[0] - patchRadius.width, p[1] - patchRadius.height,
+//!   2 * patchRadius.width + 1, 2 * patchRadius.height + 1);
+//! cout << rA << " in imageA matches " << rB << " in imageB\n";
+//! \endcode
+
+cv::Mat drwnBasicPatchMatch(const cv::Mat& imgA, const cv::Mat& imgB,
+    const cv::Size& patchRadius, cv::Mat& nnfA, unsigned maxIterations = 2);
+
+// drwnSelfPatchMatch --------------------------------------------------------
+//! Same as drwnBasicPatchMatch but applies a penalty to avoid matching
+//! a patch to itself.
+
+cv::Mat drwnSelfPatchMatch(const cv::Mat& imgA, const cv::Size& patchRadius,
+    cv::Mat& nnfA, double illegalOverlap = 0.0, unsigned maxIterations = 2);
+
+// drwnNNFRetarget -----------------------------------------------------------
+//! Performs simple image retargetting given a nearest neighbour field (e.g.,
+//! from running a PatchMatch algorithm.
+//!
+//! \code
+//! cv::Mat img = ...;
+//! cv::Mat nnf;
+//! drwnSelfPatchMatch(img, nnf, cv::Size(4, 4));
+//! drwnShowDebuggingImage(drwnNNFRetarget(img, nnf), "wnd", true);
+//! \endcode
+
+cv::Mat drwnNNFRetarget(const cv::Mat& img, const cv::Mat& nnf);
+
 // drwnMaskedPatchMatch ------------------------------------------------------
 //! Implements the basic PatchMatch algorithm of Barnes et al., SIGGRAPH 2009 on
 //! masked images. 

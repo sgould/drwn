@@ -30,6 +30,340 @@
 
 using namespace std;
 
+// drwnBasicPatchMatch -------------------------------------------------------
+
+cv::Mat drwnBasicPatchMatch(const cv::Mat& imgA, const cv::Mat& imgB,
+    const cv::Size& patchRadius, cv::Mat& nnfA, unsigned maxIterations)
+{
+    DRWN_FCN_TIC;
+    DRWN_ASSERT((imgA.depth() == CV_8U) && (imgB.depth() == CV_8U));
+    DRWN_ASSERT(imgA.channels() == imgB.channels());
+
+    // determine patch size
+    const cv::Size patchSize(2 * patchRadius.width + 1, 2 * patchRadius.height + 1);
+
+    // initialize nearest neighbour field
+    if (nnfA.empty()) {
+        nnfA = cv::Mat(imgA.rows, imgA.cols, CV_16SC2, cv::Scalar::all(-1));
+        for (int y = patchRadius.height; y < nnfA.rows - patchRadius.height; y++) {
+            for (int x = patchRadius.width; x < nnfA.cols - patchRadius.width; x++) {
+                nnfA.at<cv::Vec2s>(y, x) = cv::Vec2s(patchRadius.width + rand() % (imgB.cols - patchSize.width),
+                    patchRadius.height + rand() % (imgB.rows - patchSize.height));
+            }
+        }
+    }
+
+    DRWN_ASSERT((nnfA.type() == CV_16SC2) && (nnfA.size() == imgA.size()));
+
+    // compute initial costs
+    cv::Mat costsA(nnfA.rows, nnfA.cols, CV_32FC1, cv::Scalar(0.0));
+
+    for (int y = patchRadius.height; y < nnfA.rows - patchRadius.height; y++) {
+        for (int x = patchRadius.width; x < nnfA.cols - patchRadius.width; x++) {
+            const cv::Vec2s p = nnfA.at<Vec2s>(y, x);
+            const cv::Rect roiA(x - patchRadius.width, y - patchRadius.height, patchSize.width, patchSize.height);
+            const cv::Rect roiB(p[0] - patchRadius.width, p[1] - patchRadius.height, patchSize.width, patchSize.height);
+            costsA.at<float>(y, x) = cv::norm(imgA(roiA), imgB(roiB), cv::NORM_L1);
+        }
+    }
+
+    DRWN_LOG_VERBOSE("...initial PatchMatch energy is " << (double)cv::sum(costsA)[0]);
+
+    // search moves
+    cv::Mat lastChanged = cv::Mat::zeros(nnfA.rows, nnfA.cols, CV_32SC1);
+    for (unsigned i = 0; i < maxIterations; i++) {
+
+        // forward propagation
+        for (int y = patchRadius.height; y < nnfA.rows - patchRadius.height; y++) {
+            for (int x = patchRadius.width; x < nnfA.cols - patchRadius.width; x++) {
+
+                // check if the pixel has changed
+	        if (lastChanged.at<int>(y, x) < (int)i)
+		    continue;
+
+                const cv::Vec2s p = nnfA.at<Vec2s>(y, x);
+
+                // south
+                if (y < nnfA.rows - patchRadius.height - 1) {
+                    const cv::Rect roiA(x - patchRadius.width, y - patchRadius.height + 1, patchSize.width, patchSize.height);
+                    const cv::Rect roiB(p[0] - patchRadius.width, std::min(p[1] - patchRadius.height + 1, imgB.rows - patchSize.height - 1),
+                        patchSize.width, patchSize.height);
+                    const float cost = cv::norm(imgA(roiA), imgB(roiB), cv::NORM_L1);
+                    if (cost < costsA.at<float>(y + 1, x)) {
+                        nnfA.at<cv::Vec2s>(y + 1, x) = cv::Vec2s(roiB.x + patchRadius.width, roiB.y + patchRadius.height);
+                        costsA.at<float>(y + 1, x) = cost;
+                        lastChanged.at<int>(y + 1, x) = i + 1;
+                    }
+                }
+
+                // west
+                if (x < nnfA.cols - patchRadius.width - 1) {
+                    const cv::Rect roiA(x - patchRadius.width + 1, y - patchRadius.height, patchSize.width, patchSize.height);
+                    const cv::Rect roiB(std::min(p[0] - patchRadius.width + 1, imgB.cols - patchSize.width - 1), p[1] - patchRadius.height,
+                        patchSize.width, patchSize.height);
+                    const float cost = cv::norm(imgA(roiA), imgB(roiB), cv::NORM_L1);
+                    if (cost < costsA.at<float>(y, x + 1)) {
+                        nnfA.at<cv::Vec2s>(y, x + 1) = cv::Vec2s(roiB.x + patchRadius.width, roiB.y + patchRadius.height);
+                        costsA.at<float>(y, x + 1) = cost;
+                        lastChanged.at<int>(y, x + 1) = i + 1;
+                    }
+                }
+            }
+        }
+
+        // backward propagation
+        for (int y = nnfA.rows - patchRadius.height - 1; y >= patchRadius.height; y--) {
+            for (int x = nnfA.cols - patchRadius.width - 1; x >= patchRadius.width; x--) {
+
+                // check if the pixel has changed
+                if (lastChanged.at<int>(y, x) < (int)i)
+		    continue;
+
+                const cv::Vec2s p = nnfA.at<Vec2s>(y, x);
+
+                // north
+                if (y > patchRadius.height) {
+                    const cv::Rect roiA(x - patchRadius.width, y - patchRadius.height - 1, patchSize.width, patchSize.height);
+                    const cv::Rect roiB(p[0] - patchRadius.width, std::max(p[1] - patchRadius.height - 1, 0), patchSize.width, patchSize.height);
+                    const float cost = cv::norm(imgA(roiA), imgB(roiB), cv::NORM_L1);
+                    if (cost < costsA.at<float>(y - 1, x)) {
+                        nnfA.at<cv::Vec2s>(y - 1, x) = cv::Vec2s(roiB.x + patchRadius.width, roiB.y + patchRadius.height);
+                        costsA.at<float>(y - 1, x) = cost;
+                        lastChanged.at<int>(y - 1, x) = i + 1;
+                    }
+                }
+
+                // west
+                if (x > patchRadius.width) {
+                    const cv::Rect roiA(x - patchRadius.width - 1, y - patchRadius.height, patchSize.width, patchSize.height);
+                    const cv::Rect roiB(std::max(p[0] - patchRadius.width - 1, 0), p[1] - patchRadius.height, patchSize.width, patchSize.height);
+                    const float cost = cv::norm(imgA(roiA), imgB(roiB), cv::NORM_L1);
+                    if (cost < costsA.at<float>(y, x - 1)) {
+                        nnfA.at<cv::Vec2s>(y, x - 1) = cv::Vec2s(roiB.x + patchRadius.width, roiB.y + patchRadius.height);
+                        costsA.at<float>(y, x - 1) = cost;
+                        lastChanged.at<int>(y, x - 1) = i + 1;
+                    }
+                }
+            }
+        }
+
+        // random update
+        for (int y = patchRadius.height; y < nnfA.rows - patchRadius.height; y++) {
+            for (int x = patchRadius.width; x < nnfA.cols - patchRadius.width; x++) {
+                const cv::Vec2s p = nnfA.at<Vec2s>(y, x);
+
+                const int diameter = std::max<int>(i + 2 - lastChanged.at<int>(y, x), 1);
+                const int x_min = std::max(patchRadius.width, p[0] - diameter);
+                const int x_max = std::min(p[0] + diameter, imgB.cols - patchRadius.width - 1);
+                const int y_min = std::max(patchRadius.height, p[1] - diameter);
+                const int y_max = std::min(p[1] + diameter, imgB.rows - patchRadius.height - 1);
+
+                const cv::Vec2s q = cv::Vec2s(x_min + rand() % (x_max - x_min + 1),
+                    y_min + rand() % (y_max - y_min + 1));
+                const cv::Rect roiA(x - patchRadius.width, y - patchRadius.height, patchSize.width, patchSize.height);
+                const cv::Rect roiB(q[0] - patchRadius.width, q[1] - patchRadius.height, patchSize.width, patchSize.height);
+                const float cost = cv::norm(imgA(roiA), imgB(roiB), cv::NORM_L1);
+                if (cost < costsA.at<float>(y, x)) {
+                    nnfA.at<cv::Vec2s>(y, x) = cv::Vec2s(roiB.x + patchRadius.width, roiB.y + patchRadius.height);
+                    costsA.at<float>(y, x) = cost;
+                    lastChanged.at<int>(y, x) = i + 1;
+                }
+            }
+        }
+
+        DRWN_LOG_VERBOSE("...at iteration " << (i + 1) << " PatchMatch energy is " << (double)cv::sum(costsA)[0]);
+    }
+
+    DRWN_FCN_TOC;
+    return costsA;
+}
+
+// drwnSelfPatchMatch --------------------------------------------------------
+
+cv::Mat drwnSelfPatchMatch(const cv::Mat& imgA, const cv::Size& patchRadius,
+    cv::Mat& nnfA, double illegalOverlap, unsigned maxIterations)
+{
+    DRWN_FCN_TIC;
+    DRWN_ASSERT((0.0 <= illegalOverlap) && (illegalOverlap <= 1.0));
+
+    // determine patch size
+    const cv::Size patchSize(2 * patchRadius.width + 1, 2 * patchRadius.height + 1);
+    const int illegalAreaOverlap = (int)std::max(1.0, illegalOverlap * patchSize.width * patchSize.height);
+
+    // initialize nearest neighbour field
+    if (nnfA.empty()) {
+        nnfA = cv::Mat(imgA.rows, imgA.cols, CV_16SC2, cv::Scalar::all(-1));
+        for (int y = patchRadius.height; y < nnfA.rows - patchRadius.height; y++) {
+            for (int x = patchRadius.width; x < nnfA.cols - patchRadius.width; x++) {
+                nnfA.at<cv::Vec2s>(y, x) = cv::Vec2s(patchRadius.width + rand() % (imgA.cols - patchSize.width),
+                    patchRadius.height + rand() % (imgA.rows - patchSize.height));
+            }
+        }
+    }
+
+    DRWN_ASSERT((nnfA.type() == CV_16SC2) && (nnfA.size() == imgA.size()));
+
+    // compute initial costs
+    cv::Mat costsA(nnfA.rows, nnfA.cols, CV_32FC1, cv::Scalar(0.0));
+
+    for (int y = patchRadius.height; y < nnfA.rows - patchRadius.height; y++) {
+        for (int x = patchRadius.width; x < nnfA.cols - patchRadius.width; x++) {
+            const cv::Vec2s p = nnfA.at<Vec2s>(y, x);
+            const cv::Rect roiA(x - patchRadius.width, y - patchRadius.height, patchSize.width, patchSize.height);
+            const cv::Rect roiB(p[0] - patchRadius.width, p[1] - patchRadius.height, patchSize.width, patchSize.height);
+            const double overlap = (roiA & roiB).area();
+            if (overlap < illegalAreaOverlap) {
+                costsA.at<float>(y, x) = cv::norm(imgA(roiA), imgA(roiB), cv::NORM_L1);
+            } else {
+                costsA.at<float>(y, x) = DRWN_FLT_MAX;
+            }
+        }
+    }
+
+    DRWN_LOG_VERBOSE("...initial PatchMatch energy is " << (double)cv::sum(costsA)[0]);
+
+    // search moves
+    cv::Mat lastChanged = cv::Mat::zeros(nnfA.rows, nnfA.cols, CV_32SC1);
+    for (unsigned i = 0; i < maxIterations; i++) {
+
+        // forward propagation
+        for (int y = patchRadius.height; y < nnfA.rows - patchRadius.height; y++) {
+            for (int x = patchRadius.width; x < nnfA.cols - patchRadius.width; x++) {
+
+                // check if the pixel has changed
+	        if (lastChanged.at<int>(y, x) < (int)i)
+		    continue;
+
+                const cv::Vec2s p = nnfA.at<Vec2s>(y, x);
+
+                // south
+                if (y < nnfA.rows - patchRadius.height - 1) {
+                    const cv::Rect roiA(x - patchRadius.width, y - patchRadius.height + 1, patchSize.width, patchSize.height);
+                    const cv::Rect roiB(p[0] - patchRadius.width, std::min(p[1] - patchRadius.height + 1, imgA.rows - patchSize.height - 1),
+                        patchSize.width, patchSize.height);
+                    const double overlap = (roiA & roiB).area();
+                    if (overlap < illegalAreaOverlap) {
+                        const float cost = cv::norm(imgA(roiA), imgA(roiB), cv::NORM_L1);
+                        if (cost < costsA.at<float>(y + 1, x)) {
+                            nnfA.at<cv::Vec2s>(y + 1, x) = cv::Vec2s(roiB.x + patchRadius.width, roiB.y + patchRadius.height);
+                            costsA.at<float>(y + 1, x) = cost;
+                            lastChanged.at<int>(y + 1, x) = i + 1;
+                        }
+                    }
+                }
+
+                // west
+                if (x < nnfA.cols - patchRadius.width - 1) {
+                    const cv::Rect roiA(x - patchRadius.width + 1, y - patchRadius.height, patchSize.width, patchSize.height);
+                    const cv::Rect roiB(std::min(p[0] - patchRadius.width + 1, imgA.cols - patchSize.width - 1), p[1] - patchRadius.height,
+                        patchSize.width, patchSize.height);
+                    const double overlap = (roiA & roiB).area();
+                    if (overlap < illegalAreaOverlap) {
+                        const float cost = cv::norm(imgA(roiA), imgA(roiB), cv::NORM_L1);
+                        if (cost < costsA.at<float>(y, x + 1)) {
+                            nnfA.at<cv::Vec2s>(y, x + 1) = cv::Vec2s(roiB.x + patchRadius.width, roiB.y + patchRadius.height);
+                            costsA.at<float>(y, x + 1) = cost;
+                            lastChanged.at<int>(y, x + 1) = i + 1;
+                        }
+                    }
+                }
+            }
+        }
+
+        // backward propagation
+        for (int y = nnfA.rows - patchRadius.height - 1; y >= patchRadius.height; y--) {
+            for (int x = nnfA.cols - patchRadius.width - 1; x >= patchRadius.width; x--) {
+
+                // check if the pixel has changed
+                if (lastChanged.at<int>(y, x) < (int)i)
+		    continue;
+
+                const cv::Vec2s p = nnfA.at<Vec2s>(y, x);
+
+                // north
+                if (y > patchRadius.height) {
+                    const cv::Rect roiA(x - patchRadius.width, y - patchRadius.height - 1, patchSize.width, patchSize.height);
+                    const cv::Rect roiB(p[0] - patchRadius.width, std::max(p[1] - patchRadius.height - 1, 0), patchSize.width, patchSize.height);
+                    const double overlap = (roiA & roiB).area();
+                    if (overlap < illegalAreaOverlap) {
+                        const float cost = cv::norm(imgA(roiA), imgA(roiB), cv::NORM_L1);
+                        if (cost < costsA.at<float>(y - 1, x)) {
+                            nnfA.at<cv::Vec2s>(y - 1, x) = cv::Vec2s(roiB.x + patchRadius.width, roiB.y + patchRadius.height);
+                            costsA.at<float>(y - 1, x) = cost;
+                            lastChanged.at<int>(y - 1, x) = i + 1;
+                        }
+                    }
+                }
+
+                // west
+                if (x > patchRadius.width) {
+                    const cv::Rect roiA(x - patchRadius.width - 1, y - patchRadius.height, patchSize.width, patchSize.height);
+                    const cv::Rect roiB(std::max(p[0] - patchRadius.width - 1, 0), p[1] - patchRadius.height, patchSize.width, patchSize.height);
+                    const double overlap = (roiA & roiB).area();
+                    if (overlap < illegalAreaOverlap) {
+                        const float cost = cv::norm(imgA(roiA), imgA(roiB), cv::NORM_L1);
+                        if (cost < costsA.at<float>(y, x - 1)) {
+                            nnfA.at<cv::Vec2s>(y, x - 1) = cv::Vec2s(roiB.x + patchRadius.width, roiB.y + patchRadius.height);
+                            costsA.at<float>(y, x - 1) = cost;
+                            lastChanged.at<int>(y, x - 1) = i + 1;
+                        }
+                    }
+                }
+            }
+        }
+
+        // random update
+        for (int y = patchRadius.height; y < nnfA.rows - patchRadius.height; y++) {
+            for (int x = patchRadius.width; x < nnfA.cols - patchRadius.width; x++) {
+                const cv::Vec2s p = nnfA.at<Vec2s>(y, x);
+
+                const int diameter = std::max<int>(i + 2 - lastChanged.at<int>(y, x), 1);
+                const int x_min = std::max(patchRadius.width, p[0] - diameter);
+                const int x_max = std::min(p[0] + diameter, imgA.cols - patchRadius.width - 1);
+                const int y_min = std::max(patchRadius.height, p[1] - diameter);
+                const int y_max = std::min(p[1] + diameter, imgA.rows - patchRadius.height - 1);
+
+                const cv::Vec2s q = cv::Vec2s(x_min + rand() % (x_max - x_min + 1),
+                    y_min + rand() % (y_max - y_min + 1));
+                const cv::Rect roiA(x - patchRadius.width, y - patchRadius.height, patchSize.width, patchSize.height);
+                const cv::Rect roiB(q[0] - patchRadius.width, q[1] - patchRadius.height, patchSize.width, patchSize.height);
+                const double overlap = (roiA & roiB).area();
+                if (overlap < illegalAreaOverlap) {
+                    const float cost = cv::norm(imgA(roiA), imgA(roiB), cv::NORM_L1);
+                    if (cost < costsA.at<float>(y, x)) {
+                        nnfA.at<cv::Vec2s>(y, x) = cv::Vec2s(roiB.x + patchRadius.width, roiB.y + patchRadius.height);
+                        costsA.at<float>(y, x) = cost;
+                        lastChanged.at<int>(y, x) = i + 1;
+                    }
+                }
+            }
+        }
+
+        DRWN_LOG_VERBOSE("...at iteration " << (i + 1) << " PatchMatch energy is " << (double)cv::sum(costsA)[0]);
+    }
+
+    DRWN_FCN_TOC;
+    return costsA;
+}
+
+// drwnNNFRetarget -----------------------------------------------------------
+
+cv::Mat drwnNNFRetarget(const cv::Mat& img, const cv::Mat& nnf)
+{
+    DRWN_ASSERT(img.type() == CV_8UC3);
+    DRWN_ASSERT(nnf.type() == CV_16SC2);
+
+    cv::Mat canvas = cv::Mat::zeros(nnf.size(), img.type());
+    for (int y = 0; y < nnf.rows; y++) {
+        for (int x = 0; x < nnf.cols; x++) {
+            const cv::Vec2s p = nnf.at<Vec2s>(y, x);
+            if ((p[0] < 0) || (p[1] < 0)) continue;
+            canvas.at<cv::Vec3b>(y, x) = img.at<cv::Vec3b>(p[1], p[0]);
+        }
+    }
+    return canvas;
+}
+
 // drwnMaskedPatchMatch ------------------------------------------------------
 
 bool drwnMaskedPatchMatch::TRY_IDENTITY_INIT = true;
@@ -136,11 +470,11 @@ void drwnMaskedPatchMatch::initialize(const cv::Size& patchRadius)
 
     // initialize nearest neighbour field if not already
     if ((_nnfA.rows != _imgA.rows) || (_nnfA.cols != _imgA.cols)) {
-        const cv::Rect roi(_patchRadius.width, _patchRadius.height, 
+        const cv::Rect roi(_patchRadius.width, _patchRadius.height,
             _imgA.cols - 2 * _patchRadius.width, _imgA.rows - 2 * _patchRadius.height);
         _nnfA = cv::Mat(_imgA.size(), CV_16SC2, cv::Scalar(-1, -1));
         _costsA = cv::Mat::zeros(_imgA.size(), CV_32FC1);
-        _costsA(roi).setTo(cv::Scalar(DRWN_FLT_MAX)); 
+        _costsA(roi).setTo(cv::Scalar(DRWN_FLT_MAX));
         _lastChanged = cv::Mat(_nnfA.size(), CV_32SC1);
     }
 
@@ -392,7 +726,7 @@ void drwnMaskedPatchMatch::modifyTargetImage(const cv::Rect& roi, const cv::Mat&
                 _lastChanged.at<int>(y, x) = _iterationCount + 1;
             }
         }
-    }    
+    }
 }
 
 void drwnMaskedPatchMatch::modifyTargetImage(const cv::Rect& roiA, const cv::Rect& roiB, double alpha)
@@ -491,9 +825,9 @@ float drwnMaskedPatchMatch::score(const cv::Point& ptA, const cv::Point& ptB) co
 #endif
 
     // compute distance between patch features
-    const cv::Rect roiA(ptA.x - _patchRadius.width, ptA.y - _patchRadius.height, 
+    const cv::Rect roiA(ptA.x - _patchRadius.width, ptA.y - _patchRadius.height,
         2 * _patchRadius.width + 1, 2 * _patchRadius.height + 1);
-    const cv::Rect roiB(ptB.x - _patchRadius.width, ptB.y - _patchRadius.height, 
+    const cv::Rect roiB(ptB.x - _patchRadius.width, ptB.y - _patchRadius.height,
         2 * _patchRadius.width + 1, 2 * _patchRadius.height + 1);
 
     float cost;
