@@ -36,16 +36,20 @@ using namespace std;
 //! Implements a pixel-level CRF model for multi-class image segmentation
 //! (pixel labeling).
 //!
-//! The model supports a contrast-sensitive pairwise smoothness prior and
-//! a higher-order robust generalized potts consistency prior. The pairwise
-//! smoothness prior is defined over an 8-connected neighbourhood for each
-//! pixel. The robust potts prior is implemented on the superpixels defined
-//! in each drwnSegImageInstance.
+//! The model supports a contrast-sensitive pairwise smoothness prior, long
+//! range pairwise terms determined from patch matching, and a higher-order
+//! robust generalized potts consistency prior. The pairwise smoothness prior
+//! is defined over an 8-connected neighbourhood for each pixel. The robust potts
+//! prior is implemented on the superpixels defined in each drwnSegImageInstance.
 //!
 //! \sa drwnSegImageInstance
 //! \sa \ref drwnProjMultiSeg
 
 class drwnPixelSegModel : public drwnWriteable {
+ public:
+    static unsigned LONG_RANGE_PATCH_RADIUS;   //!< radius for matching patches for long range edges
+    static double LONG_RANGE_THRESHOLD;        //!< ratio of long range edges to add (0.0 to 1.0)
+
  protected:
     //! pixel feature generator
     drwnSegImagePixelFeatures *_featureGenerator;
@@ -69,7 +73,11 @@ class drwnPixelSegModel : public drwnWriteable {
     double _pixelContrastWeight;
 
     //! weight for (long range) auxiliary edges
-    double _auxiliaryEdgeWeight;
+    double _longRangeEdgeWeight;
+    //! radius for long range edge match
+    unsigned _longRangeMatchRadius;
+    //! percentage of long range edges to include
+    double _longRangeEdgeThreshold;
 
     //! weight for robust potts consistency term
     double _robustPottsWeight;
@@ -110,6 +118,10 @@ class drwnPixelSegModel : public drwnWriteable {
     void learnPixelContrastWeight(const vector<string>& baseNames);
     //! set the weight of the pairwise contrast term
     void learnPixelContrastWeight(double weight);
+    //! learn the weight of the long range pairwise term
+    void learnLongRangePairwiseWeight(const vector<string>& baseNames, double threshold, unsigned radius = 4);
+    //! set the weight of the long range pairwise term
+    void learnLongRangePairwiseWeight(double weight, double threshold, unsigned radius = 4);
     //! learn the weight of the robust potts consistency term
     void learnRobustPottsWeight(const vector<string>& baseNames);
     //! set the weight of the robust potts consistency term
@@ -119,12 +131,16 @@ class drwnPixelSegModel : public drwnWriteable {
 
     //! get the weight of the pairwise contrast term
     double getPairwiseContrastWeight() const { return _pixelContrastWeight; }
+    //! get the weight of the long range pairwise term
+    double getLongRangePairwiseWeight() const { return _longRangeEdgeWeight; }
     //! get the weight of the robust potts term
     double getRobustPottsWeight() const { return _robustPottsWeight; }
 
     // inference
     //! cache the unary potentials inside the instance object
     void cacheUnaryPotentials(drwnSegImageInstance *instance) const;
+    //! cache the long-range edges inside the instance object
+    void cacheLongRangeEdges(drwnSegImageInstance *instance) const;
     //! infer the pixel labels using learned model parameters and store the predicted
     //! labels inside the instance object
     double inferPixelLabels(drwnSegImageInstance *instance) const;
@@ -149,6 +165,6 @@ class drwnPixelSegModel : public drwnWriteable {
     //! cross-validate pairwise contrast and robust potts weights
     void crossValidateWeights(const vector<string>& baseNames,
         const vector<double>& pairwiseContrastValues,
-        const vector<double>& robustPottsValues);
+        const vector<double>& robustPottsValues, const vector<double>& longRangeValues);
 };
 

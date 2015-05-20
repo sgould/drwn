@@ -40,7 +40,8 @@ void usage()
     cerr << "USAGE: ./learnPixelSegModel [OPTIONS] <trainList>\n";
     cerr << "OPTIONS:\n"
          << "  -component <str>  :: model component to learn BOOSTED (default),\n"
-         << "                       UNARY, CONTRAST, ROBUSTPOTTS or CONTRASTANDPOTTS\n"
+         << "                       UNARY, CONTRAST, LONGRANGE, ROBUSTPOTTS or\n"
+         << "                       CONTRASTANDPOTTS\n"
          << "  -subSample <n>    :: subsample data by 1/<n>\n"
          << DRWN_STANDARD_OPTIONS_USAGE
 	 << endl;
@@ -93,6 +94,12 @@ int main(int argc, char *argv[])
     if (!strcasecmp(modelComponent, "CONTRAST")) {
         model->read(modelFilename.c_str());
         model->learnPixelContrastWeight(baseNames);
+    }
+
+    // learn long range pairwise weight
+    if (!strcasecmp(modelComponent, "LONGRANGE")) {
+        model->read(modelFilename.c_str());
+        model->learnLongRangePairwiseWeight(baseNames, 0.25);
     }
 
     // learn robust potts weight

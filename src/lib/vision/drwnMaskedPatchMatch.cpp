@@ -67,7 +67,7 @@ cv::Mat drwnBasicPatchMatch(const cv::Mat& imgA, const cv::Mat& imgB,
         }
     }
 
-    DRWN_LOG_VERBOSE("...initial PatchMatch energy is " << (double)cv::sum(costsA)[0]);
+    DRWN_LOG_DEBUG("...initial PatchMatch energy is " << (double)cv::sum(costsA)[0]);
 
     // search moves
     cv::Mat lastChanged = cv::Mat::zeros(nnfA.rows, nnfA.cols, CV_32SC1);
@@ -171,7 +171,7 @@ cv::Mat drwnBasicPatchMatch(const cv::Mat& imgA, const cv::Mat& imgB,
             }
         }
 
-        DRWN_LOG_VERBOSE("...at iteration " << (i + 1) << " PatchMatch energy is " << (double)cv::sum(costsA)[0]);
+        DRWN_LOG_DEBUG("...at iteration " << (i + 1) << " PatchMatch energy is " << (double)cv::sum(costsA)[0]);
     }
 
     DRWN_FCN_TOC;
@@ -220,7 +220,7 @@ cv::Mat drwnSelfPatchMatch(const cv::Mat& imgA, const cv::Size& patchRadius,
         }
     }
 
-    DRWN_LOG_VERBOSE("...initial PatchMatch energy is " << (double)cv::sum(costsA)[0]);
+    DRWN_LOG_DEBUG("...initial PatchMatch energy is " << (double)cv::sum(costsA)[0]);
 
     // search moves
     cv::Mat lastChanged = cv::Mat::zeros(nnfA.rows, nnfA.cols, CV_32SC1);
@@ -339,7 +339,7 @@ cv::Mat drwnSelfPatchMatch(const cv::Mat& imgA, const cv::Size& patchRadius,
             }
         }
 
-        DRWN_LOG_VERBOSE("...at iteration " << (i + 1) << " PatchMatch energy is " << (double)cv::sum(costsA)[0]);
+        DRWN_LOG_DEBUG("...at iteration " << (i + 1) << " PatchMatch energy is " << (double)cv::sum(costsA)[0]);
     }
 
     DRWN_FCN_TOC;

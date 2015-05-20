@@ -46,6 +46,15 @@ class drwnWeightedPixelEdge {
     drwnWeightedPixelEdge(const cv::Point& _p, const cv::Point& _q, double _w = 0.0) :
         w(_w), p(_p), q(_q) { /* do nothing */ };
     ~drwnWeightedPixelEdge() { /* do nothing */ };
+
+    //! default comparison for sorting
+    bool operator<(const drwnWeightedPixelEdge& e) const {
+        if (w < e.w) return true;
+        if (w > e.w) return false;
+        if (p.y < q.y) return true;
+        if (p.y > q.y) return false;
+        return (p.x < q.x);
+    };
 };
 
 //! Image rescaling factor for \p lambda levels per octave

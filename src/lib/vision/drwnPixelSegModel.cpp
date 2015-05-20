@@ -35,19 +35,21 @@ protected:
     const string _baseName;
     const vector<double> _pairwiseContrastValues;
     const vector<double> _robustPottsValues;
+    const vector<double> _longRangeValues;
 
-    map<pair<double, double>, double>& _scores;
+    map<drwnTriplet<double>, double>& _scores;
 
 public:
     GridSearchJob(const drwnPixelSegModel& model, const string& baseName,
         const vector<double>& pairwiseContrastValues, const vector<double>& robustPottsValues,
-        map<pair<double, double>, double>& scores) :
+        const vector<double>& longRangeValues, map<drwnTriplet<double>, double>& scores) :
         _model(model), _baseName(baseName), _pairwiseContrastValues(pairwiseContrastValues),
-        _robustPottsValues(robustPottsValues), _scores(scores) { /* do nothing */ }
+        _robustPottsValues(robustPottsValues), _longRangeValues(longRangeValues), _scores(scores)
+        { /* do nothing */ }
     ~GridSearchJob() { /* do nothing */ }
 
     void operator()() {
-        DRWN_ASSERT(!_pairwiseContrastValues.empty() && !_robustPottsValues.empty());
+        DRWN_ASSERT(!_pairwiseContrastValues.empty() && !_robustPottsValues.empty() && !_longRangeValues.empty());
 
         lock();
         DRWN_LOG_VERBOSE("evaluating model weights on " << _baseName << "...");
@@ -74,6 +76,11 @@ public:
             }
         }
 
+        // find long range edges
+        if ((_longRangeValues.size() > 1) || (_longRangeValues[0] != 0.0)) {
+            _model.cacheLongRangeEdges(&instance);
+        }
+
         // load labels
         MatrixXi labels(instance.height(), instance.width());
         drwnLoadPixelLabels(labels, lblFilename.c_str(), _model.numLabels());
@@ -83,22 +90,24 @@ public:
         // predict labels
         for (unsigned i = 0; i < _robustPottsValues.size(); i++) {
             for (unsigned j = 0; j < _pairwiseContrastValues.size(); j++) {
+                for (unsigned k = 0; k < _longRangeValues.size(); k++) {
 
-                drwnRobustPottsCRFInference inf;
-                inf.alphaExpansion(&instance, _pairwiseContrastValues[j], _robustPottsValues[i]);
+                    drwnRobustPottsCRFInference inf;
+                    inf.alphaExpansion(&instance, _pairwiseContrastValues[j], _robustPottsValues[i], _longRangeValues[k]);
 
-                // unweighted error
-                double errors = (double)(instance.pixelLabels.array() != labels.array()).cast<int>().sum() - numUnknown;
+                    // unweighted error
+                    double errors = (double)(instance.pixelLabels.array() != labels.array()).cast<int>().sum() - numUnknown;
 
-                // update scores
-                const pair<double, double> w(_pairwiseContrastValues[j], _robustPottsValues[i]);
-                lock();
-                if (_scores.find(w) == _scores.end()) {
-                    _scores[w] = errors;
-                } else {
-                    _scores[w] += errors;
+                    // update scores
+                    const drwnTriplet<double> w(_pairwiseContrastValues[j], _robustPottsValues[i], _longRangeValues[k]);
+                    lock();
+                    if (_scores.find(w) == _scores.end()) {
+                        _scores[w] = errors;
+                    } else {
+                        _scores[w] += errors;
+                    }
+                    unlock();
                 }
-                unlock();
             }
         }
     }
@@ -106,7 +115,8 @@ public:
 
 // drwnPixelSegModel class ------------------------------------------------
 
-drwnPixelSegModel::drwnPixelSegModel() : _pixelContrastWeight(0.0), _auxiliaryEdgeWeight(0.0), _robustPottsWeight(0.0)
+drwnPixelSegModel::drwnPixelSegModel() : _pixelContrastWeight(0.0), _longRangeEdgeWeight(0.0),
+    _longRangeMatchRadius(4), _longRangeEdgeThreshold(0.0), _robustPottsWeight(0.0)
 {
     // default feature generator
     _featureGenerator = new drwnSegImageStdPixelFeatures();
@@ -118,7 +128,9 @@ drwnPixelSegModel::drwnPixelSegModel(const drwnPixelSegModel& model) :
     _pixelFeatureWhitener(model._pixelFeatureWhitener),
     _pixelUnaryModel(model._pixelUnaryModel),
     _pixelContrastWeight(model._pixelContrastWeight),
-    _auxiliaryEdgeWeight(model._auxiliaryEdgeWeight),
+    _longRangeEdgeWeight(model._longRangeEdgeWeight),
+    _longRangeMatchRadius(model._longRangeMatchRadius),
+    _longRangeEdgeThreshold(model._longRangeEdgeThreshold),
     _robustPottsWeight(model._robustPottsWeight)
 {
     _pixelClassModels.reserve(model._pixelClassModels.size());
@@ -166,7 +178,9 @@ bool drwnPixelSegModel::save(drwnXMLNode& xml) const
 
     // save pairwise and robust potts weights
     drwnAddXMLAttribute(xml, "contrastWeight", toString(_pixelContrastWeight).c_str(), false);
-    drwnAddXMLAttribute(xml, "auxiliaryEdgeWeight", toString(_auxiliaryEdgeWeight).c_str(), false);
+    drwnAddXMLAttribute(xml, "longRangeEdgeWeight", toString(_longRangeEdgeWeight).c_str(), false);
+    drwnAddXMLAttribute(xml, "longRangeMatchRadius", toString(_longRangeMatchRadius).c_str(), false);
+    drwnAddXMLAttribute(xml, "longRangeEdgeThreshold", toString(_longRangeEdgeThreshold).c_str(), false);
     drwnAddXMLAttribute(xml, "robustPottsWeight", toString(_robustPottsWeight).c_str(), false);
 
     return true;
@@ -213,11 +227,23 @@ bool drwnPixelSegModel::load(drwnXMLNode& xml)
         _pixelContrastWeight = atof(drwnGetXMLAttribute(xml, "contrastWeight"));
     }
 
-    // load auxiliary edge weight
-    if (drwnGetXMLAttribute(xml, "auxiliaryEdgeWeight") == NULL) {
-        DRWN_LOG_WARNING("XML is missing the auxiliaryEdgeWeight");
+    // load long range edge parameters
+    if (drwnGetXMLAttribute(xml, "longRangeEdgeWeight") == NULL) {
+        DRWN_LOG_WARNING("XML is missing the longRangeEdgeWeight");
     } else {
-        _auxiliaryEdgeWeight = atof(drwnGetXMLAttribute(xml, "auxiliaryEdgeWeight"));
+        _longRangeEdgeWeight = atof(drwnGetXMLAttribute(xml, "longRangeEdgeWeight"));
+    }
+
+    if (drwnGetXMLAttribute(xml, "longRangeMatchRadius") == NULL) {
+        DRWN_LOG_WARNING("XML is missing the longRangeMatchRadius");
+    } else {
+        _longRangeMatchRadius = std::max(1, atoi(drwnGetXMLAttribute(xml, "longRangeMatchRadius")));
+    }
+
+    if (drwnGetXMLAttribute(xml, "longRangeEdgeThreshold") == NULL) {
+        DRWN_LOG_WARNING("XML is missing the longRangeEdgeThreshold");
+    } else {
+        _longRangeEdgeWeight = std::min(std::max(0.0, atof(drwnGetXMLAttribute(xml, "longRangeEdgeThreshold"))), 1.0);
     }
 
     // load robust potts weight
@@ -382,9 +408,10 @@ void drwnPixelSegModel::learnPixelContrastWeight(const vector<string>& baseNames
     // determine search space
     vector<double> pixelContrastValues = drwn::logSpaceVector(1.0, 128.0, 15);
     vector<double> robustPottsValues(1, _robustPottsWeight);
+    vector<double> longRangeValues(1, _longRangeEdgeWeight);
 
     // cross-validate weight
-    crossValidateWeights(baseNames, pixelContrastValues, robustPottsValues);
+    crossValidateWeights(baseNames, pixelContrastValues, robustPottsValues, longRangeValues);
 }
 
 void drwnPixelSegModel::learnPixelContrastWeight(double weight)
@@ -394,14 +421,43 @@ void drwnPixelSegModel::learnPixelContrastWeight(double weight)
     _pixelContrastWeight = weight;
 }
 
+void drwnPixelSegModel::learnLongRangePairwiseWeight(const vector<string>& baseNames, double threshold, unsigned radius)
+{
+    // set long range parameters
+    _longRangeMatchRadius = radius;
+    _longRangeEdgeThreshold = std::min(std::max(0.0, threshold), 1.0);
+    if (_longRangeEdgeThreshold == 0.0)
+        return;
+
+    // determine search space
+    vector<double> pixelContrastValues(1, _pixelContrastWeight);
+    vector<double> robustPottsValues(1, _robustPottsWeight);
+    vector<double> longRangeValues = drwn::logSpaceVector(0.5, 64.0, 15);
+
+    // cross-validate weight
+    crossValidateWeights(baseNames, pixelContrastValues, robustPottsValues, longRangeValues);
+}
+
+void drwnPixelSegModel::learnLongRangePairwiseWeight(double weight, double threshold, unsigned radius)
+{
+    // set long range parameters
+    _longRangeMatchRadius = radius;
+    _longRangeEdgeThreshold = std::min(std::max(0.0, threshold), 1.0);
+
+    DRWN_LOG_VERBOSE("setting long range pairwise weight to " << weight);
+    DRWN_ASSERT(weight >= 0.0);
+    _longRangeEdgeWeight = weight;
+}
+
 void drwnPixelSegModel::learnRobustPottsWeight(const vector<string>& baseNames)
 {
     // determine search space
     vector<double> pixelContrastValues(1, _pixelContrastWeight);
     vector<double> robustPottsValues = drwn::logSpaceVector(0.125, 4.0, 11);
+    vector<double> longRangeValues(1, _longRangeEdgeWeight);
 
     // cross-validate weight
-    crossValidateWeights(baseNames, pixelContrastValues, robustPottsValues);
+    crossValidateWeights(baseNames, pixelContrastValues, robustPottsValues, longRangeValues);
 }
 
 void drwnPixelSegModel::learnRobustPottsWeight(double weight)
@@ -416,16 +472,17 @@ void drwnPixelSegModel::learnPixelContrastAndRobustPottsWeights(const vector<str
     // process in two stages for faster search
     vector<double> pixelContrastValues(1, 0.0);
     vector<double> robustPottsValues = drwn::logSpaceVector(0.125, 4.0, 11);
+    vector<double> longRangeValues(1, _longRangeEdgeWeight);
 
     // cross-validate weight
-    crossValidateWeights(baseNames, pixelContrastValues, robustPottsValues);
+    crossValidateWeights(baseNames, pixelContrastValues, robustPottsValues, longRangeValues);
 
     // stage-two: search around stage-one optimum
     pixelContrastValues = drwn::logSpaceVector(1.0, 128.0, 15);
     robustPottsValues = drwn::logSpaceVector(0.5 * _robustPottsWeight, 2.0 * _robustPottsWeight, 5);
 
     // cross-validate weight
-    crossValidateWeights(baseNames, pixelContrastValues, robustPottsValues);
+    crossValidateWeights(baseNames, pixelContrastValues, robustPottsValues, longRangeValues);
 }
 
 // inference
@@ -453,6 +510,60 @@ void drwnPixelSegModel::cacheUnaryPotentials(drwnSegImageInstance *instance) con
     }
 }
 
+void drwnPixelSegModel::cacheLongRangeEdges(drwnSegImageInstance *instance) const
+{
+    DRWN_FCN_TIC;
+    const unsigned maxIterations = 10;
+
+    // find matches for long-range edges
+    cv::Mat nnf, nnfFlipped;
+    cv::Mat costs = drwnSelfPatchMatch(instance->image(),
+        cv::Size(_longRangeMatchRadius, _longRangeMatchRadius), nnf, 0.0, maxIterations);
+
+    cv::Mat imgFlipped;
+    cv::flip(instance->image(), imgFlipped, 1);
+    cv::Mat costsFlipped = drwnBasicPatchMatch(instance->image(), imgFlipped,
+        cv::Size(_longRangeMatchRadius, _longRangeMatchRadius), nnfFlipped, maxIterations);
+
+    // find minimum between regular and flipped matches
+    for (int y = 0; y < instance->height(); y++) {
+        for (int x = 0; x < instance->width(); x++) {
+            if (costsFlipped.at<float>(y, x) < costs.at<float>(y, x)) {
+                const cv::Vec2s p = nnfFlipped.at<cv::Vec2s>(y, x);
+                if ((p[0] != x) || (p[1] != y)) {
+                    costs.at<float>(y, x) = costsFlipped.at<float>(y, x);
+                    nnf.at<cv::Vec2s>(y, x) = p;
+                }
+            }
+        }
+    }
+
+    // normalize scores
+    drwnScaleToRange(costs, 0.0, 1.0);
+    
+    // add and sort edges
+    instance->auxEdges.clear();
+    instance->auxEdges.reserve(instance->size());
+    for (int y = 0; y < instance->height(); y++) {
+        for (int x = 0; x < instance->width(); x++) {
+            const cv::Vec2s p = nnf.at<cv::Vec2s>(y, x);
+            if ((p[0] < 0) || (p[1] < 0)) continue;
+            DRWN_ASSERT((p[0] != x) || (p[1] != y));
+            const double w = 1.0 - (double)costs.at<float>(y, x);
+            if (w < 1.0e-6) continue;
+            instance->auxEdges.push_back(drwnWeightedPixelEdge(cv::Point(x, y), cv::Point(p[0], p[1]), w));
+        }
+    }    
+
+    std::sort(instance->auxEdges.begin(), instance->auxEdges.end());
+    std::reverse(instance->auxEdges.begin(), instance->auxEdges.end());
+    if (instance->auxEdges.size() > _longRangeEdgeThreshold * instance->size()) {
+        instance->auxEdges.resize(_longRangeEdgeThreshold * instance->size());
+    }
+
+    DRWN_FCN_TOC;
+}
+
 double drwnPixelSegModel::inferPixelLabels(drwnSegImageInstance *instance) const
 {
     DRWN_FCN_TIC;
@@ -463,9 +574,14 @@ double drwnPixelSegModel::inferPixelLabels(drwnSegImageInstance *instance) const
         cacheUnaryPotentials(instance);
     }
 
+    // find long range edges
+    if (_longRangeEdgeWeight != 0.0) {
+        cacheLongRangeEdges(instance);
+    }
+
     // run inference
     drwnRobustPottsCRFInference inf;
-    inf.alphaExpansion(instance, _pixelContrastWeight, _robustPottsWeight, _auxiliaryEdgeWeight);
+    inf.alphaExpansion(instance, _pixelContrastWeight, _robustPottsWeight, _longRangeEdgeWeight);
 
     DRWN_FCN_TOC;
     return energy(instance);
@@ -721,10 +837,11 @@ void drwnPixelSegModel::buildSampledTrainingSet(const vector<string>& baseNames,
 }
 
 void drwnPixelSegModel::crossValidateWeights(const vector<string>& baseNames,
-    const vector<double>& pairwiseContrastValues, const vector<double>& robustPottsValues)
+    const vector<double>& pairwiseContrastValues, const vector<double>& robustPottsValues,
+    const vector<double>& longRangeValues)
 {
-    // cross-validate pairwise contrast and robust potts weights
-    map<pair<double, double>, double> scores;
+    // cross-validate pairwise and robust potts weights
+    map<drwnTriplet<double>, double> scores;
     int delta = std::max(1, (int)baseNames.size() / 100);
 
     // start thread pool and add jobs
@@ -733,7 +850,7 @@ void drwnPixelSegModel::crossValidateWeights(const vector<string>& baseNames,
     vector<GridSearchJob *> jobs;
     for (int i = 0; i < (int)baseNames.size(); i += delta) {
         jobs.push_back(new GridSearchJob(*this, baseNames[i],
-            pairwiseContrastValues, robustPottsValues, scores));
+            pairwiseContrastValues, robustPottsValues, longRangeValues, scores));
         threadPool.addJob(jobs.back());
     }
 
@@ -745,14 +862,16 @@ void drwnPixelSegModel::crossValidateWeights(const vector<string>& baseNames,
 
     // find best weight
     double bestScore = numeric_limits<double>::max();
-    for (map<pair<double, double>, double>::const_iterator it = scores.begin(); it != scores.end(); it++) {
-        DRWN_LOG_VERBOSE("CONTRAST/ROBUST POTTS WEIGHTS "
+    for (map<drwnTriplet<double>, double>::const_iterator it = scores.begin(); it != scores.end(); it++) {
+        DRWN_LOG_VERBOSE("MODEL WEIGHTS/SCORE "
             << setw(5) << setprecision(3) << it->first.first << " "
-            << setw(5) << setprecision(3) << it->first.second << "\t"
+            << setw(5) << setprecision(3) << it->first.second << " "
+            << setw(5) << setprecision(3) << it->first.third << "\t"
             << setprecision(5) << it->second);
         if (it->second < bestScore) {
             _pixelContrastWeight = it->first.first;
             _robustPottsWeight = it->first.second;
+            _longRangeEdgeWeight = it->first.third;
             bestScore = it->second;
         }
     }
