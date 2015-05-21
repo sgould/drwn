@@ -46,10 +46,6 @@ using namespace std;
 //! \sa \ref drwnProjMultiSeg
 
 class drwnPixelSegModel : public drwnWriteable {
- public:
-    static unsigned LONG_RANGE_PATCH_RADIUS;   //!< radius for matching patches for long range edges
-    static double LONG_RANGE_THRESHOLD;        //!< ratio of long range edges to add (0.0 to 1.0)
-
  protected:
     //! pixel feature generator
     drwnSegImagePixelFeatures *_featureGenerator;
@@ -128,6 +124,8 @@ class drwnPixelSegModel : public drwnWriteable {
     void learnRobustPottsWeight(double weight);
     //! learn the weights of the pairwise contrast and robust potts consistency terms jointly
     void learnPixelContrastAndRobustPottsWeights(const vector<string>& baseNames);
+    //! learn the contrast and long-range weights jointly
+    void learnPixelContrastAndLongRangeWeights(const vector<string>& baseNames, double threshold, unsigned radius = 4);
 
     //! get the weight of the pairwise contrast term
     double getPairwiseContrastWeight() const { return _pixelContrastWeight; }

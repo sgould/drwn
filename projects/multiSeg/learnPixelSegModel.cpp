@@ -41,7 +41,7 @@ void usage()
     cerr << "OPTIONS:\n"
          << "  -component <str>  :: model component to learn BOOSTED (default),\n"
          << "                       UNARY, CONTRAST, LONGRANGE, ROBUSTPOTTS or\n"
-         << "                       CONTRASTANDPOTTS\n"
+         << "                       CONTRASTANDPOTTS, CONTRASTANDLONGRANGE\n"
          << "  -subSample <n>    :: subsample data by 1/<n>\n"
          << DRWN_STANDARD_OPTIONS_USAGE
 	 << endl;
@@ -112,6 +112,12 @@ int main(int argc, char *argv[])
     if (!strcasecmp(modelComponent, "CONTRASTANDPOTTS")) {
         model->read(modelFilename.c_str());
         model->learnPixelContrastAndRobustPottsWeights(baseNames);
+    }
+
+    // learn contrast and long range weights jointly
+    if (!strcasecmp(modelComponent, "CONTRASTANDLONGRANGE")) {
+        model->read(modelFilename.c_str());
+        model->learnPixelContrastAndLongRangeWeights(baseNames, 1.0);
     }
 
     // save the learned model

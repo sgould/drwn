@@ -485,6 +485,32 @@ void drwnPixelSegModel::learnPixelContrastAndRobustPottsWeights(const vector<str
     crossValidateWeights(baseNames, pixelContrastValues, robustPottsValues, longRangeValues);
 }
 
+void drwnPixelSegModel::learnPixelContrastAndLongRangeWeights(const vector<string>& baseNames, double threshold, unsigned radius)
+{
+    // set long range parameters
+    _longRangeMatchRadius = radius;
+    _longRangeEdgeThreshold = std::min(std::max(0.0, threshold), 1.0);
+    if (_longRangeEdgeThreshold == 0.0) {
+      learnPixelContrastWeight(baseNames);
+      return;
+    }
+
+    // process in two stages for faster search
+    vector<double> pixelContrastValues(1, 0.0);
+    vector<double> robustPottsValues(1, _robustPottsWeight);
+    vector<double> longRangeValues = drwn::logSpaceVector(0.5, 64.0, 15);
+
+    // cross-validate weight
+    crossValidateWeights(baseNames, pixelContrastValues, robustPottsValues, longRangeValues);
+
+    // stage-two: search around stage-one optimum
+    pixelContrastValues = drwn::logSpaceVector(1.0, 128.0, 15);
+    longRangeValues = drwn::logSpaceVector(0.5 * _longRangeEdgeWeight, 2.0 * _longRangeEdgeWeight, 5);
+
+    // cross-validate weight
+    crossValidateWeights(baseNames, pixelContrastValues, robustPottsValues, longRangeValues);
+}
+
 // inference
 void drwnPixelSegModel::cacheUnaryPotentials(drwnSegImageInstance *instance) const
 {
@@ -554,7 +580,7 @@ void drwnPixelSegModel::cacheLongRangeEdges(drwnSegImageInstance *instance) cons
             if (w < 1.0e-6) continue;
             instance->auxEdges.push_back(drwnWeightedPixelEdge(cv::Point(x, y), cv::Point(p[0], p[1]), w));
         }
-    }    
+    }
 
     std::sort(instance->auxEdges.begin(), instance->auxEdges.end());
     std::reverse(instance->auxEdges.begin(), instance->auxEdges.end());
