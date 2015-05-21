@@ -54,7 +54,7 @@ if True:
 
 # evaluate test set on unary potentials
 if True:
-    if os.system(os.path.join(BIN_DIR, "inferPixelLabels") + " -config " + CONFIG + " -pairwise 0.0" +
+    if os.system(os.path.join(BIN_DIR, "inferPixelLabels") + " -config " + CONFIG + " -pairwise 0.0 -longrange 0.0" +
         " -outLabels .unary.txt -outImages .unary.png " + TEST_LIST) != 0:
         exit()
 
@@ -66,7 +66,7 @@ if True:
 
 # evaluate test set on contrast pairwise model
 if True:
-    if os.system(os.path.join(BIN_DIR, "inferPixelLabels") + " -config " + CONFIG +
+    if os.system(os.path.join(BIN_DIR, "inferPixelLabels") + " -config " + CONFIG + " -longrange 0.0" +
         " -outLabels .pairwise.txt -outImages .pairwise.png " + TEST_LIST) != 0:
         exit()
 

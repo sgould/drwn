@@ -243,7 +243,7 @@ bool drwnPixelSegModel::load(drwnXMLNode& xml)
     if (drwnGetXMLAttribute(xml, "longRangeEdgeThreshold") == NULL) {
         DRWN_LOG_WARNING("XML is missing the longRangeEdgeThreshold");
     } else {
-        _longRangeEdgeWeight = std::min(std::max(0.0, atof(drwnGetXMLAttribute(xml, "longRangeEdgeThreshold"))), 1.0);
+        _longRangeEdgeThreshold = std::min(std::max(0.0, atof(drwnGetXMLAttribute(xml, "longRangeEdgeThreshold"))), 1.0);
     }
 
     // load robust potts weight
@@ -529,7 +529,8 @@ void drwnPixelSegModel::cacheLongRangeEdges(drwnSegImageInstance *instance) cons
     for (int y = 0; y < instance->height(); y++) {
         for (int x = 0; x < instance->width(); x++) {
             if (costsFlipped.at<float>(y, x) < costs.at<float>(y, x)) {
-                const cv::Vec2s p = nnfFlipped.at<cv::Vec2s>(y, x);
+                cv::Vec2s p = nnfFlipped.at<cv::Vec2s>(y, x);
+                p[0] = instance->width() - p[0] - 1;
                 if ((p[0] != x) || (p[1] != y)) {
                     costs.at<float>(y, x) = costsFlipped.at<float>(y, x);
                     nnf.at<cv::Vec2s>(y, x) = p;
@@ -540,7 +541,7 @@ void drwnPixelSegModel::cacheLongRangeEdges(drwnSegImageInstance *instance) cons
 
     // normalize scores
     drwnScaleToRange(costs, 0.0, 1.0);
-    
+
     // add and sort edges
     instance->auxEdges.clear();
     instance->auxEdges.reserve(instance->size());
@@ -560,6 +561,7 @@ void drwnPixelSegModel::cacheLongRangeEdges(drwnSegImageInstance *instance) cons
     if (instance->auxEdges.size() > _longRangeEdgeThreshold * instance->size()) {
         instance->auxEdges.resize(_longRangeEdgeThreshold * instance->size());
     }
+    DRWN_LOG_DEBUG("..." << instance->auxEdges.size() << " long-range edges cached");
 
     DRWN_FCN_TOC;
 }

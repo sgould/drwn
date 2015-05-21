@@ -138,7 +138,8 @@ void usage()
          << "  -outLabels <ext>  :: extension for label output (default: none)\n"
          << "  -outImages <ext>  :: extension for image output (default: none)\n"
          << "  -outUnary <ext>   :: extension for dumping unary potentials (default: none)\n"
-         << "  -pairwise <w>     :: override learned pairwise weight\n"
+         << "  -pairwise <w>     :: override learned pairwise contrast weight\n"
+         << "  -longrange <w>    :: override learned long-range pairwise weight\n"
          << "  -robustpotts <w>  :: override learned robust potts weight\n"
          << "  -x                :: visualize\n"
          << DRWN_STANDARD_OPTIONS_USAGE
@@ -150,6 +151,7 @@ void usage()
 int main(int argc, char *argv[])
 {
     double pairwiseWeight = -1.0;
+    double longRangeWeight = -1.0;
     double robustPottsWeight = -1.0;
 
     // process commandline arguments
@@ -158,6 +160,7 @@ int main(int argc, char *argv[])
         DRWN_CMDLINE_STR_OPTION("-outImages", InferenceThread::outImageExt)
         DRWN_CMDLINE_STR_OPTION("-outUnary", InferenceThread::outUnaryExt)
         DRWN_CMDLINE_REAL_OPTION("-pairwise", pairwiseWeight)
+        DRWN_CMDLINE_REAL_OPTION("-longrange", longRangeWeight)
         DRWN_CMDLINE_REAL_OPTION("-robustpotts", robustPottsWeight)
         DRWN_CMDLINE_BOOL_OPTION("-x", InferenceThread::bVisualize)
     DRWN_END_CMDLINE_PROCESSING(usage());
@@ -189,8 +192,12 @@ int main(int argc, char *argv[])
     DRWN_LOG_MESSAGE("Reading model from " << modelFilename);
     model->read(modelFilename.c_str());
     if (pairwiseWeight >= 0.0) {
-        DRWN_LOG_MESSAGE("...overriding pairwise weight with " << pairwiseWeight);
+        DRWN_LOG_MESSAGE("...overriding pairwise contrast weight with " << pairwiseWeight);
         model->learnPixelContrastWeight(pairwiseWeight);
+    }
+    if (longRangeWeight >= 0.0) {
+        DRWN_LOG_MESSAGE("...overriding long-range pairwise weight with " << longRangeWeight);
+        model->learnLongRangePairwiseWeight(longRangeWeight, 0.25);
     }
     if (robustPottsWeight >= 0.0) {
         DRWN_LOG_MESSAGE("...overriding robust potts weight with " << robustPottsWeight);
