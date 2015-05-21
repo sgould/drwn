@@ -197,7 +197,7 @@ int main(int argc, char *argv[])
     }
     if (longRangeWeight >= 0.0) {
         DRWN_LOG_MESSAGE("...overriding long-range pairwise weight with " << longRangeWeight);
-        model->learnLongRangePairwiseWeight(longRangeWeight, 0.25);
+        model->learnLongRangePairwiseWeight(longRangeWeight, 1.0);
     }
     if (robustPottsWeight >= 0.0) {
         DRWN_LOG_MESSAGE("...overriding robust potts weight with " << robustPottsWeight);

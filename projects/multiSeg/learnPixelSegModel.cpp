@@ -99,7 +99,7 @@ int main(int argc, char *argv[])
     // learn long range pairwise weight
     if (!strcasecmp(modelComponent, "LONGRANGE")) {
         model->read(modelFilename.c_str());
-        model->learnLongRangePairwiseWeight(baseNames, 0.25);
+        model->learnLongRangePairwiseWeight(baseNames, 1.0);
     }
 
     // learn robust potts weight
