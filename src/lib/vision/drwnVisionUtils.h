@@ -51,9 +51,13 @@ class drwnWeightedPixelEdge {
     bool operator<(const drwnWeightedPixelEdge& e) const {
         if (w < e.w) return true;
         if (w > e.w) return false;
-        if (p.y < q.y) return true;
-        if (p.y > q.y) return false;
-        return (p.x < q.x);
+        if (p.y < e.p.y) return true;
+        if (p.y > e.p.y) return false;
+        if (p.x < e.p.x) return true;
+        if (p.x > e.p.x) return false;
+        if (q.y < e.q.y) return true;
+        if (q.y > e.q.y) return false;
+        return (q.x < e.q.x);
     };
 };
 
