@@ -66,7 +66,7 @@ downloaded from the following links:
 
 \subsection drwnChangeLog1_9 Release 1.9 (beta)
 
-\li Added drwnMaskedPatchMatch and basicPatchMatch application
+\li Added drwnMaskedPatchMatch, drwnBasicPatchMatch, drwnSelfPatchMatch and basicPatchMatch application
 \li drwnPatchMatchGraph now allows multiple matches to the same image
 \li Upgraded wxWidgets to 3.0.2 (problems on Mac OS X)
 \li Switched Mac OS X compilation to libc++ instead of libstdc++
@@ -74,6 +74,7 @@ downloaded from the following links:
 \li Refactored drwnGrabCutInstance class to support both GMM and colour histogram model
 \li Added \p cacheSortIndex to drwnDecisionTree for trading-off speed versus memory usage
 \li Added mexLoadPatchMatchGraph for loading drwnPatchMatchGraph objects into Matlab
+\li Improved documentation, other bug fixes and performance improvements
 
 \subsection drwnChangeLog1_8 Release 1.8
 

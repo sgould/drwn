@@ -46,11 +46,11 @@ URL_FILE = "msrc_objcategimagedatabase_v2.zip"
 
 # fetch data
 if (os.path.isfile(URL_FILE) == 0):
-    print("WARNING: this make take a while...")
+    print("WARNING: Downloading images. This make take a while...")
     try:
         urllib.request.urlretrieve(URL_BASE + URL_FILE, URL_FILE)
     except:
-        print("ERROR: could not download data file " + URL_FILE)
+        print("ERROR: Could not download data file " + URL_FILE)
         exit()
 
 # extract data
