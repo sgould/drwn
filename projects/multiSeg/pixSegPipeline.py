@@ -70,14 +70,14 @@ if True:
         " -outLabels .pairwise.txt -outImages .pairwise.png " + TEST_LIST) != 0:
         exit()
 
-# cross-validate long-range pairwise cost
-if False:
-    if os.system(os.path.join(BIN_DIR, "learnPixelSegModel") + " -config " + CONFIG + " -component LONGRANGE " + 
+# cross-validate contrast and long-range pairwise cost
+if True:
+    if os.system(os.path.join(BIN_DIR, "learnPixelSegModel") + " -config " + CONFIG + " -component CONTRASTANDLONGRANGE " + 
         VAL_LIST) != 0:
         exit()
 
 # evaluate test set on contrast and long-range pairwise model
-if False:
+if True:
     if os.system(os.path.join(BIN_DIR, "inferPixelLabels") + " -config " + CONFIG +
         " -outLabels .longrange.txt -outImages .longrange.png " + TEST_LIST) != 0:
         exit()
@@ -87,9 +87,8 @@ if False:
 os.system(os.path.join(BIN_DIR, "scorePixelLabels") + " -config " + CONFIG +
     " -inLabels .unary.txt " + TEST_LIST)
 
-os.system(os.path.join(BIN_DIR, "scorePixelLabels") + " -config " + CONFIG + " -confusion" +
+os.system(os.path.join(BIN_DIR, "scorePixelLabels") + " -config " + CONFIG +
     " -inLabels .pairwise.txt " + TEST_LIST)
 
-if False:
-    os.system(os.path.join(BIN_DIR, "scorePixelLabels") + " -config " + CONFIG + " -confusion" +
-        " -inLabels .longrange.txt " + TEST_LIST)
+os.system(os.path.join(BIN_DIR, "scorePixelLabels") + " -config " + CONFIG +
+    " -inLabels .longrange.txt " + TEST_LIST)

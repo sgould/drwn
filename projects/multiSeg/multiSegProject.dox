@@ -195,7 +195,7 @@ namespace drwn {
 
    \code
    # evaluate with unary terms only
-   ${BIN_DIR}/inferPixelLabels -config $CONFIG -pairwise 0.0 \
+   ${BIN_DIR}/inferPixelLabels -config $CONFIG -pairwise 0.0 -longrange 0.0 \
         -outLabels .unary.txt -outImages .unary.png $TEST_LIST
 
    # score results
@@ -223,19 +223,45 @@ namespace drwn {
    however, the code will only use up to 100 images from the list to
    learn the contrast weight.
 
-   \section drwnProjMultiSeg6 Evaluation
+   \section drwnProjMultiSeg6
 
-   The final step in the pipeline evaluatres the model on some test
+   In addition to the contrast-dependent smoothness pairwise terms
+   which are defined on a local neighbourhood raound each pixel, we
+   can add long-range pairwise terms to encourage consistent labeling
+   across the image.
+
+   The long-range edges are determined by finding similar pairs of
+   patches within the image. A similar approach is taken in Gould,
+   CVPR 2012. Like the contrast-dependent pairwise terms, the strength
+   of the long-range edge constraints is determined by cross-validation
+   on a subset of the training images as,
+
+   \code
+   # train pairwise potentials
+   ${BIN_DIR}/learnPixelSegModel -config $CONFIG -component LONGRANGE $VAL_LIST
+   \endcode
+   
+   \section drwnProjMultiSegy Evaluation
+
+   The final step in the pipeline evaluates the model on some test
    images and reports average performance.
 
    \code
-   # evaluate with unary and pariwise terms
-   ${BIN_DIR}/inferPixelLabels -config $CONFIG \
+   # evaluate with unary and pairwise terms
+   ${BIN_DIR}/inferPixelLabels -config $CONFIG -longtrange 0.0 \
         -outLabels .pairwise.txt -outImages .pairwise.png $TEST_LIST
 
    # score results
    ${BIN_DIR}/scorePixelLabels -config $CONFIG -confusion \
         -inLabels .pairwise.txt $TEST_LIST
+
+   # evaluate with unary and pairwise and long range terms
+   ${BIN_DIR}/inferPixelLabels -config $CONFIG \
+        -outLabels .longrange.txt -outImages .longrange.png $TEST_LIST
+
+   # score results
+   ${BIN_DIR}/scorePixelLabels -config $CONFIG -confusion \
+        -inLabels .longrange.txt $TEST_LIST
    \endcode
 
    Unlike the unary-only evaluation, in this example we also generate
@@ -254,6 +280,9 @@ namespace drwn {
    \li S. Gould, R. Fulton, and D. Koller, "Decomposing a Scene into
    Geometric and Semantically Consistent Regions." In ICCV, 2009.
    
+   \li S. Gould, "Multiclass Pixel Labeling with Non-Local Matching
+   Constraints." In CVRP, 2012.
+
 */
 
 /*@}*/
