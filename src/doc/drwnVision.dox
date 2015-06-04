@@ -27,7 +27,7 @@ namespace drwn {
 \li drwnPatchMatchImagePyramid : \copybrief drwnPatchMatchImagePyramid
 \li drwnPatchMatchImageRecord : \copybrief drwnPatchMatchImageRecord
 \li drwnPatchMatchNode : \copybrief drwnPatchMatchNode
-\li drwnPatchMatchRetarget : \copybrief drwnPatchMatchRetarget
+\li drwnPatchMatchRepaint : \copybrief drwnPatchMatchRepaint
 \li drwnPartsModel : \copybrief drwnPartsModel
 \li drwnPixelNeighbourContrasts : \copybrief drwnPixelNeighbourContrasts
 \li drwnPixelSegCRFInference : \copybrief drwnPixelSegCRFInference

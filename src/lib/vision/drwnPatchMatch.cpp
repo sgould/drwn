@@ -1609,21 +1609,21 @@ cv::Point drwnPatchMatchGraphLearner::mapPatch(const cv::Point& p, int imgIndx,
     return q;
 }
 
-// drwnPatchMatchRetarget ----------------------------------------------------
+// drwnPatchMatchRepaint -----------------------------------------------------
 
-drwnPatchMatchGraphRetarget::drwnPatchMatchGraphRetarget(const drwnPatchMatchGraph& graph) :
+drwnPatchMatchGraphRepaint::drwnPatchMatchGraphRepaint(const drwnPatchMatchGraph& graph) :
     _graph(graph)
 {
     // cache labels
     cacheImageLabels();
 }
 
-drwnPatchMatchGraphRetarget::~drwnPatchMatchGraphRetarget()
+drwnPatchMatchGraphRepaint::~drwnPatchMatchGraphRepaint()
 {
     // do nothing
 }
 
-cv::Mat drwnPatchMatchGraphRetarget::retarget(unsigned imgIndx) const
+cv::Mat drwnPatchMatchGraphRepaint::retarget(unsigned imgIndx) const
 {
     DRWN_ASSERT(imgIndx < _graph.size());
 
@@ -1684,7 +1684,7 @@ cv::Mat drwnPatchMatchGraphRetarget::retarget(unsigned imgIndx) const
     return canvas;
 }
 
-void drwnPatchMatchGraphRetarget::cacheImageLabels()
+void drwnPatchMatchGraphRepaint::cacheImageLabels()
 {
     DRWN_ASSERT(_labels.empty());
     _labels.resize(_graph.size());
@@ -1693,14 +1693,14 @@ void drwnPatchMatchGraphRetarget::cacheImageLabels()
     }
 }
 
-void drwnPatchMatchGraphRetarget::cacheImageLabels(unsigned imgIndx)
+void drwnPatchMatchGraphRepaint::cacheImageLabels(unsigned imgIndx)
 {
     // load image
     _labels[imgIndx] = cv::imread(_graph.imageFilename(imgIndx), CV_LOAD_IMAGE_COLOR);
     DRWN_ASSERT_MSG(_labels[imgIndx].data != NULL, _graph.imageFilename(imgIndx));
 }
 
-void drwnPatchMatchGraphRetarget::updateImageLabels(unsigned imgIndx, const cv::Mat& labels)
+void drwnPatchMatchGraphRepaint::updateImageLabels(unsigned imgIndx, const cv::Mat& labels)
 {
     DRWN_ASSERT((labels.rows == _labels[imgIndx].rows) && (labels.cols == _labels[imgIndx].cols));
     _labels[imgIndx] = labels.clone();

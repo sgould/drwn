@@ -346,9 +346,9 @@ cv::Mat drwnSelfPatchMatch(const cv::Mat& imgA, const cv::Size& patchRadius,
     return costsA;
 }
 
-// drwnNNFRetarget -----------------------------------------------------------
+// drwnNNFRepaint ------------------------------------------------------------
 
-cv::Mat drwnNNFRetarget(const cv::Mat& img, const cv::Mat& nnf)
+cv::Mat drwnNNFRepaint(const cv::Mat& img, const cv::Mat& nnf)
 {
     DRWN_ASSERT(img.type() == CV_8UC3);
     DRWN_ASSERT(nnf.type() == CV_16SC2);

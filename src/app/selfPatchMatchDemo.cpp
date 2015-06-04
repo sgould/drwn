@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
         drwnScaleToRange(views.back(), 0.0, 1.0);
         views.back() = drwnCreateHeatMap(views.back(), DRWN_COLORMAP_RAINBOW);
 
-        views.push_back(drwnNNFRetarget(img, nnf));
+        views.push_back(drwnNNFRepaint(img, nnf));
         drwnShowDebuggingImage(views, "selfPatchMatchDemo", false);
     }
 
@@ -102,7 +102,7 @@ int main(int argc, char *argv[])
         drwnScaleToRange(views.back(), 0.0, 1.0);
         views.back() = drwnCreateHeatMap(views.back(), DRWN_COLORMAP_RAINBOW);
 
-        views.push_back(drwnNNFRetarget(imgFlipped, nnfFlipped));
+        views.push_back(drwnNNFRepaint(imgFlipped, nnfFlipped));
         drwnShowDebuggingImage(views, "selfPatchMatchDemo flipped", true);
     }
 

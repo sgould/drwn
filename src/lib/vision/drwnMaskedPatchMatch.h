@@ -56,18 +56,18 @@ cv::Mat drwnBasicPatchMatch(const cv::Mat& imgA, const cv::Mat& imgB,
 cv::Mat drwnSelfPatchMatch(const cv::Mat& imgA, const cv::Size& patchRadius,
     cv::Mat& nnfA, double illegalOverlap = 0.0, unsigned maxIterations = 2);
 
-// drwnNNFRetarget -----------------------------------------------------------
-//! Performs simple image retargetting given a nearest neighbour field (e.g.,
+// drwnNNFRepaint ------------------------------------------------------------
+//! Performs simple image repainting given a nearest neighbour field (e.g.,
 //! from running a PatchMatch algorithm.
 //!
 //! \code
 //! cv::Mat img = ...;
 //! cv::Mat nnf;
 //! drwnSelfPatchMatch(img, nnf, cv::Size(4, 4));
-//! drwnShowDebuggingImage(drwnNNFRetarget(img, nnf), "wnd", true);
+//! drwnShowDebuggingImage(drwnNNFRepaint(img, nnf), "wnd", true);
 //! \endcode
 
-cv::Mat drwnNNFRetarget(const cv::Mat& img, const cv::Mat& nnf);
+cv::Mat drwnNNFRepaint(const cv::Mat& img, const cv::Mat& nnf);
 
 // drwnMaskedPatchMatch ------------------------------------------------------
 //! Implements the basic PatchMatch algorithm of Barnes et al., SIGGRAPH 2009 on
