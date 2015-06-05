@@ -64,6 +64,7 @@ void testImagePyramidCache(const char *directory);
 void testImageInPainting(const char *imgFile);
 void testColourHistogram(const char *imgFile);
 void testMaskedPatchMatch();
+void testLoadCIFAR(const char* filename);
 
 // usage ---------------------------------------------------------------------
 
@@ -92,6 +93,7 @@ void usage()
          << "  drwnInPaint <img> :: test drwnInPaint on image <img>\n"
          << "  drwnColourHistogram <img> :: test drwnColourHistogram class on image <img>\n"
          << "  drwnMaskedPatchMatch :: test drwnMaskedPatchMatch\n"
+         << "  drwnLoadCIFAR <file> :: test drwnLoadCIFAR function on <file>\n"
 	 << endl;
 }
 
@@ -157,6 +159,9 @@ int main(int argc, char *argv[])
         DRWN_CMDLINE_FLAG_BEGIN("drwnMaskedPatchMatch")
             testMaskedPatchMatch();
         DRWN_CMDLINE_FLAG_END
+        DRWN_CMDLINE_OPTION_BEGIN("drwnLoadCIFAR", p)
+            testLoadCIFAR(p[0]);
+        DRWN_CMDLINE_OPTION_END(1)
     DRWN_END_CMDLINE_PROCESSING(usage());
 
     if (DRWN_CMDLINE_ARGC != 0) {
@@ -749,4 +754,24 @@ void testMaskedPatchMatch()
 
         cv::waitKey(-1);
     }
+}
+
+void testLoadCIFAR(const char *filename)
+{
+    DRWN_FCN_TIC;
+    vector<pair<cv::Mat, int> > data = drwnLoadCIFAR(filename, cv::Size(32, 32), 3);
+    
+    for (int i = 0; i < 10; i++) {
+        vector<cv::Mat> views;
+        for (unsigned j = 0; j < data.size(); j++) {
+            if (data[j].second == i) {
+                views.push_back(data[j].first);
+            }
+        }
+
+        drwnShowDebuggingImage(views, string("CIFAR Label ") + toString(i), false);
+    }
+    cv::waitKey(-1);
+
+    DRWN_FCN_TOC;
 }

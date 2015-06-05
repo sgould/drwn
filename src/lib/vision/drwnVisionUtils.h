@@ -116,3 +116,10 @@ cv::Mat drwnSLICSuperpixels(const cv::Mat& img, unsigned nClusters,
 //! Merges small superpixels into neighbours until at most \p maxSegs
 //! remain.
 void drwnMergeSuperpixels(const cv::Mat& img, cv::Mat& seg, unsigned maxSegs);
+
+//! Loads CIFAR-10, CIFAR-100 or similarly stored datasets, where images
+//! are stored in binary row-major order with prepended byte label. Data
+//! is returned as a vector of image-label pairs.
+std::vector<std::pair<cv::Mat, int> > drwnLoadCIFAR(const string& filename,
+    cv::Size sz = cv::Size(32, 32), unsigned nChannels = 3);
+    

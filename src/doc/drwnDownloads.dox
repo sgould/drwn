@@ -66,6 +66,7 @@ downloaded from the following links:
 
 \subsection drwnChangeLog1_9 Release 1.9 (beta)
 
+\li Added function to read CIFAR-10 and CIFAR-100 style datasets (see http://www.cs.utoronto.ca/~kriz/cifar.html)
 \li Added drwnMaskedPatchMatch, drwnBasicPatchMatch, drwnSelfPatchMatch and basicPatchMatch application
 \li drwnPatchMatchGraph now allows multiple matches to the same image
 \li Upgraded wxWidgets to 3.0.2 (problems on Mac OS X)
