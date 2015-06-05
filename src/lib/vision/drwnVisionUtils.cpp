@@ -705,15 +705,16 @@ void drwnMergeSuperpixels(const cv::Mat& img, cv::Mat& seg, unsigned maxSegs)
     }
 }
 
-vector<pair<cv::Mat, int> > drwnLoadCIFAR(const string& filename, cv::Size sz, unsigned nChannels)
+vector<pair<cv::Mat, unsigned> > drwnLoadCIFAR(const string& filename, unsigned headerBytes,
+    cv::Size sz, unsigned nChannels)
 {
     ifstream ifs(filename.c_str(), ios::binary);
     DRWN_ASSERT_MSG(!ifs.fail(), filename);
 
-    vector<pair<cv::Mat, int> > data;
+    vector<pair<cv::Mat, unsigned> > data;
     cv::Mat img(sz, CV_8UC(nChannels));
 
-    const unsigned bytesPerImage = sz.width * sz.height * nChannels + 1;
+    const unsigned bytesPerImage = sz.width * sz.height * nChannels + headerBytes;
     const unsigned channelStep = sz.width * sz.height;
     char buffer[bytesPerImage];
 
@@ -721,7 +722,7 @@ vector<pair<cv::Mat, int> > drwnLoadCIFAR(const string& filename, cv::Size sz, u
         ifs.read(&buffer[0], bytesPerImage * sizeof(char));
         if (ifs.fail()) break;
 
-        unsigned rowOffset = 1;
+        unsigned rowOffset = headerBytes;
         for (int y = 0; y < sz.height; y++) {
             unsigned char *p = img.ptr<unsigned char>(y);
             for (int x = 0; x < sz.width; x++) {
@@ -732,7 +733,11 @@ vector<pair<cv::Mat, int> > drwnLoadCIFAR(const string& filename, cv::Size sz, u
             rowOffset += sz.width;
         }
 
-        data.push_back(make_pair(img.clone(), int(buffer[0])));
+        unsigned label = 0;
+        for (unsigned i = 0; i < headerBytes; i++) {
+            label = (label << 8) | buffer[i];
+        }
+        data.push_back(make_pair(img.clone(), label));
     }
     
     ifs.close();

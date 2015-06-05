@@ -759,9 +759,9 @@ void testMaskedPatchMatch()
 void testLoadCIFAR(const char *filename)
 {
     DRWN_FCN_TIC;
-    vector<pair<cv::Mat, int> > data = drwnLoadCIFAR(filename, cv::Size(32, 32), 3);
+    vector<pair<cv::Mat, unsigned> > data = drwnLoadCIFAR(filename, 1, cv::Size(32, 32), 3);
     
-    for (int i = 0; i < 10; i++) {
+    for (unsigned i = 0; i < 10; i++) {
         vector<cv::Mat> views;
         for (unsigned j = 0; j < data.size(); j++) {
             if (data[j].second == i) {

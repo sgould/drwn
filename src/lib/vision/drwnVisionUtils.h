@@ -119,7 +119,8 @@ void drwnMergeSuperpixels(const cv::Mat& img, cv::Mat& seg, unsigned maxSegs);
 
 //! Loads CIFAR-10, CIFAR-100 or similarly stored datasets, where images
 //! are stored in binary row-major order with prepended byte label. Data
-//! is returned as a vector of image-label pairs.
-std::vector<std::pair<cv::Mat, int> > drwnLoadCIFAR(const string& filename,
-    cv::Size sz = cv::Size(32, 32), unsigned nChannels = 3);
+//! is returned as a vector of image-label pairs. Set \p headerBytes to 2
+//! for CIFAR-100.
+std::vector<std::pair<cv::Mat, unsigned> > drwnLoadCIFAR(const string& filename,
+    unsigned headerBytes = 1, cv::Size sz = cv::Size(32, 32), unsigned nChannels = 3);
     
