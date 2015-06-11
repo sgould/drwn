@@ -95,11 +95,13 @@ digraph dependencies {
 
     Eigen3 [URL="http://eigen.tuxfamily.org"];
     RapidXML [URL="http://rapidxml.sourceforge.net/"];
+    RapidJSON [URL="http://github.com/miloyip/rapidjson"];
     node [style=dashed];
     zlib [URL="http://www.zlib.org/"];
     OpenCV [URL="http://code.opencv.org"];
   }
 
+  drwnBase -> RapidJSON;
   drwnBase -> RapidXML;
   drwnBase -> Eigen3;
   edge [style=dashed];
@@ -149,11 +151,12 @@ read if you are new to the library.
 \section drwnDownload Downloading and Installing
 
 \b Darwin has minimal dependencies on external libraries. Small
-libraries such as \ref RapidXML are included in the distribution, but
-larger libraries, such as \ref Eigen and \ref OpenCV, need to be
-installed separately. \b Darwin source code is hosted at
-http://github.com/sgould/drwn/. The following links provide detailed
-download and install instructions for Windows, Linux and Mac OS X.
+libraries such as \ref RapidXML and \ref RapidJSON are included in the
+distribution, but larger libraries, such as \ref Eigen and \ref
+OpenCV, need to be installed separately. \b Darwin source code is
+hosted at http://github.com/sgould/drwn/. The following links provide
+detailed download and install instructions for Windows, Linux and Mac
+OS X.
 
 \li \ref linuxInstall
 \li \ref winInstall
@@ -188,6 +191,7 @@ and data) that will trigger the bug.
 \li C++ STL (http://www.sgi.com/tech/stl)
 \li OpenCV (http://code.opencv.org)
 \li RapidXML (http://rapidxml.sourceforge.net/)
+\li RapidJSON (http://github.com/miloyip/rapidjson/)
 \li GitHub and source control (http://github.com)
 \li Python (http://www.python.org/)
 
