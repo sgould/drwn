@@ -136,3 +136,6 @@ class drwnIndexQueue {
         _rev[u] = TERMINAL;
     }
 };
+
+//! specialized toString() routine
+std::string toString(const drwnIndexQueue& q);

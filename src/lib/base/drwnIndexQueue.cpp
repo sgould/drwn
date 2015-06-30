@@ -25,3 +25,13 @@ using namespace std;
 const int drwnIndexQueue::TERMINAL;
 #endif
 
+string toString(const drwnIndexQueue& q)
+{
+    drwnIndexQueue qq(q);
+    std::stringstream s;
+    while (qq.front() != -1) {
+        s << " " << qq.front();
+        qq.pop_front();
+    }
+    return s.str();
+}
