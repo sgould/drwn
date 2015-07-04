@@ -88,13 +88,13 @@ int main(int argc, char *argv[])
 
     // learn the patchMatchGraph
     int nIterations = 0;
-    drwnPatchMatchGraphRetarget retarget(graph);
+    drwnPatchMatchGraphRepaint repaint(graph);
     while (nIterations < maxIterations) {
 
         // perform update
         learner.update();
 
-        // show image, best match quality, worst match quality, retargetted image
+        // show image, best match quality, worst match quality, repainted image
         if (bVisualize) {
             vector<cv::Mat> views;
             views.push_back(imgA);
@@ -102,13 +102,13 @@ int main(int argc, char *argv[])
             if (drwnPatchMatchGraph::K > 1) {
                 views.push_back(drwnPatchMatchVis::visualizeMatchQuality(graph, 0, 0.0, drwnPatchMatchGraph::K - 1));
             }
-            views.push_back(retarget.retarget(0));
+            views.push_back(repaint.retarget(0));
             views.push_back(imgB);
             views.push_back(drwnPatchMatchVis::visualizeMatchQuality(graph, 1));
             if (drwnPatchMatchGraph::K > 1) {
                 views.push_back(drwnPatchMatchVis::visualizeMatchQuality(graph, 1, 0.0, drwnPatchMatchGraph::K - 1));
             }
-            views.push_back(retarget.retarget(1));
+            views.push_back(repaint.retarget(1));
             drwnShowDebuggingImage(views, string("patchMatchDemo"), false, 2);
         }
 
