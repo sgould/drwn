@@ -91,7 +91,8 @@ clean:
 \endcode
 
 \note On Mac OS X systems you may need to add \p -stdlib=libstdc++ to
-the end of the \p g++ command.
+the end of the \p g++ command. You may also need to add \p -D__APPLE.
+On Linux systems (e.g., Ubuntu) you may need to add \p -D__LINUX__.
 
 \subsection drwnTutorialHelloWorld4 Make and Test the Application
 
