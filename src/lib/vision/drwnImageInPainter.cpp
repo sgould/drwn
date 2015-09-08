@@ -31,6 +31,7 @@ using namespace Eigen;
 
 // drwnImageInPainter --------------------------------------------------------
 
+unsigned drwnImageInPainter::DEFAULT_RADIUS = 3;
 unsigned drwnImageInPainter::UPDATE_STEPS = 10;
 bool drwnImageInPainter::PIXELWISE = false;
 bool drwnImageInPainter::PRIORITY_FILLING = false;
@@ -250,6 +251,7 @@ void drwnImageInPainter::blendMaskedImage(cv::Mat img, const cv::Mat& src, const
 
 //! \addtogroup drwnConfigSettings
 //! \section drwnGrabCut
+//! \b defaultRadius :: default patch radius (default: 3)\n
 //! \b updateSteps :: number of PatchMatch search steps between updates (default: 10)\n
 //! \b doPixelwise :: do pixelwise update rather than patchwise (default: false)\n
 //! \b priorityFill :: do priority filling rather than onion filling (default: false)\n
@@ -260,6 +262,8 @@ public:
     ~drwnImageInPainterConfig() { }
 
     void usage(ostream &os) const {
+        os << "      defaultRadius   :: default patch radius (default: "
+           << drwnImageInPainter::DEFAULT_RADIUS << ")\n";
         os << "      updateSteps     :: number of PatchMatch search steps between updates (default: "
            << drwnImageInPainter::UPDATE_STEPS << ")\n";
         os << "      doPixelwise     :: do pixelwise update rather than patchwise (default: "
@@ -269,7 +273,9 @@ public:
     }
 
     void setConfiguration(const char *name, const char *value) {
-        if (!strcmp(name, "updateSteps")) {
+        if (!strcmp(name, "defaultRadius")) {
+            drwnImageInPainter::DEFAULT_RADIUS = std::max(1, atoi(value));
+        } else if (!strcmp(name, "updateSteps")) {
             drwnImageInPainter::UPDATE_STEPS = std::max(1, atoi(value));
         } else if (!strcmp(name, "doPixelwise")) {
             drwnImageInPainter::PIXELWISE = drwn::trueString(string(value));

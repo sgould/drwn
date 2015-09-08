@@ -54,9 +54,10 @@ using namespace Eigen;
 
 class drwnImageInPainter {
 public:
-    static unsigned UPDATE_STEPS; //!< patch match update steps between inpaints
-    static bool PIXELWISE;        //!< pixelwise update versus patch update
-    static bool PRIORITY_FILLING; //!< use priority filling scheme versus onion peeling
+    static unsigned DEFAULT_RADIUS; //!< default patch radius
+    static unsigned UPDATE_STEPS;   //!< patch match update steps between inpaints
+    static bool PIXELWISE;          //!< pixelwise update versus patch update
+    static bool PRIORITY_FILLING;   //!< use priority filling scheme versus onion peeling
 
 public:
     unsigned patchRadius;   //!< size of the patch (2 * radius + 1) for comparison
@@ -66,7 +67,7 @@ public:
 
 public:
     //! construct an image inpainter object
-    drwnImageInPainter(unsigned _patchRadius = 3, bool _bAllowFromFilled = false) :
+    drwnImageInPainter(unsigned _patchRadius = DEFAULT_RADIUS, bool _bAllowFromFilled = false) :
         patchRadius(_patchRadius), bAllowFromFilled(_bAllowFromFilled),
         alphaBlend(0.125), bVisualize(false) {
         // do nothing

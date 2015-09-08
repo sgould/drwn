@@ -90,7 +90,7 @@ void usage()
          << "  spcio <img>       :: test drwnSuperpixelContainer I/O\n"
          << "  drwnImageCache <d> :: test drwnImageCache on directory <d>\n"
          << "  drwnImagePyramidCache <d> :: test drwnImagePryamidCache on directory <d>\n"
-         << "  drwnInPaint <img> :: test drwnInPaint on image <img>\n"
+         << "  drwnImageInPainter <img> :: test drwnImageInPainter on image <img>\n"
          << "  drwnColourHistogram <img> :: test drwnColourHistogram class on image <img>\n"
          << "  drwnMaskedPatchMatch :: test drwnMaskedPatchMatch\n"
          << "  drwnLoadCIFAR <file> :: test drwnLoadCIFAR function on <file>\n"
@@ -656,7 +656,8 @@ void testImageInPainting(const char *imgFile)
     cv::rectangle(mask, cv::Point(img.cols / 4, img.rows / 4),
         cv::Point(3 * img.cols / 4, 3 * img.rows / 4), cv::Scalar(0xff), -1);
 
-    drwnImageInPainter inpainter(3);
+    drwnImageInPainter inpainter;
+    inpainter.bVisualize = true;
     cv::Mat output = inpainter.fill(img, mask);
 
     cv::imwrite((drwn::strBaseName(imgFile) + string("_inpainted.png")).c_str(), output);
