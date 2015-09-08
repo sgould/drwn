@@ -60,7 +60,7 @@ cv::Mat drwnBasicPatchMatch(const cv::Mat& imgA, const cv::Mat& imgB,
 
     for (int y = patchRadius.height; y < nnfA.rows - patchRadius.height; y++) {
         for (int x = patchRadius.width; x < nnfA.cols - patchRadius.width; x++) {
-            const cv::Vec2s p = nnfA.at<Vec2s>(y, x);
+            const cv::Vec2s p = nnfA.at<cv::Vec2s>(y, x);
             const cv::Rect roiA(x - patchRadius.width, y - patchRadius.height, patchSize.width, patchSize.height);
             const cv::Rect roiB(p[0] - patchRadius.width, p[1] - patchRadius.height, patchSize.width, patchSize.height);
             costsA.at<float>(y, x) = cv::norm(imgA(roiA), imgB(roiB), cv::NORM_L1);
@@ -81,7 +81,7 @@ cv::Mat drwnBasicPatchMatch(const cv::Mat& imgA, const cv::Mat& imgB,
 	        if (lastChanged.at<int>(y, x) < (int)i)
 		    continue;
 
-                const cv::Vec2s p = nnfA.at<Vec2s>(y, x);
+                const cv::Vec2s p = nnfA.at<cv::Vec2s>(y, x);
 
                 // south
                 if (y < nnfA.rows - patchRadius.height - 1) {
@@ -119,7 +119,7 @@ cv::Mat drwnBasicPatchMatch(const cv::Mat& imgA, const cv::Mat& imgB,
                 if (lastChanged.at<int>(y, x) < (int)i)
 		    continue;
 
-                const cv::Vec2s p = nnfA.at<Vec2s>(y, x);
+                const cv::Vec2s p = nnfA.at<cv::Vec2s>(y, x);
 
                 // north
                 if (y > patchRadius.height) {
@@ -150,7 +150,7 @@ cv::Mat drwnBasicPatchMatch(const cv::Mat& imgA, const cv::Mat& imgB,
         // random update
         for (int y = patchRadius.height; y < nnfA.rows - patchRadius.height; y++) {
             for (int x = patchRadius.width; x < nnfA.cols - patchRadius.width; x++) {
-                const cv::Vec2s p = nnfA.at<Vec2s>(y, x);
+                const cv::Vec2s p = nnfA.at<cv::Vec2s>(y, x);
 
                 const int diameter = std::max<int>(i + 2 - lastChanged.at<int>(y, x), 1);
                 const int x_min = std::max(patchRadius.width, p[0] - diameter);
@@ -208,7 +208,7 @@ cv::Mat drwnSelfPatchMatch(const cv::Mat& imgA, const cv::Size& patchRadius,
 
     for (int y = patchRadius.height; y < nnfA.rows - patchRadius.height; y++) {
         for (int x = patchRadius.width; x < nnfA.cols - patchRadius.width; x++) {
-            const cv::Vec2s p = nnfA.at<Vec2s>(y, x);
+            const cv::Vec2s p = nnfA.at<cv::Vec2s>(y, x);
             const cv::Rect roiA(x - patchRadius.width, y - patchRadius.height, patchSize.width, patchSize.height);
             const cv::Rect roiB(p[0] - patchRadius.width, p[1] - patchRadius.height, patchSize.width, patchSize.height);
             const double overlap = (roiA & roiB).area();
@@ -234,7 +234,7 @@ cv::Mat drwnSelfPatchMatch(const cv::Mat& imgA, const cv::Size& patchRadius,
 	        if (lastChanged.at<int>(y, x) < (int)i)
 		    continue;
 
-                const cv::Vec2s p = nnfA.at<Vec2s>(y, x);
+                const cv::Vec2s p = nnfA.at<cv::Vec2s>(y, x);
 
                 // south
                 if (y < nnfA.rows - patchRadius.height - 1) {
@@ -278,7 +278,7 @@ cv::Mat drwnSelfPatchMatch(const cv::Mat& imgA, const cv::Size& patchRadius,
                 if (lastChanged.at<int>(y, x) < (int)i)
 		    continue;
 
-                const cv::Vec2s p = nnfA.at<Vec2s>(y, x);
+                const cv::Vec2s p = nnfA.at<cv::Vec2s>(y, x);
 
                 // north
                 if (y > patchRadius.height) {
@@ -315,7 +315,7 @@ cv::Mat drwnSelfPatchMatch(const cv::Mat& imgA, const cv::Size& patchRadius,
         // random update
         for (int y = patchRadius.height; y < nnfA.rows - patchRadius.height; y++) {
             for (int x = patchRadius.width; x < nnfA.cols - patchRadius.width; x++) {
-                const cv::Vec2s p = nnfA.at<Vec2s>(y, x);
+                const cv::Vec2s p = nnfA.at<cv::Vec2s>(y, x);
 
                 const int diameter = std::max<int>(i + 2 - lastChanged.at<int>(y, x), 1);
                 const int x_min = std::max(patchRadius.width, p[0] - diameter);
@@ -356,7 +356,7 @@ cv::Mat drwnNNFRepaint(const cv::Mat& img, const cv::Mat& nnf)
     cv::Mat canvas = cv::Mat::zeros(nnf.size(), img.type());
     for (int y = 0; y < nnf.rows; y++) {
         for (int x = 0; x < nnf.cols; x++) {
-            const cv::Vec2s p = nnf.at<Vec2s>(y, x);
+            const cv::Vec2s p = nnf.at<cv::Vec2s>(y, x);
             if ((p[0] < 0) || (p[1] < 0)) continue;
             canvas.at<cv::Vec3b>(y, x) = img.at<cv::Vec3b>(p[1], p[0]);
         }
@@ -513,7 +513,7 @@ void drwnMaskedPatchMatch::initialize(const cv::Size& patchRadius)
     // check integrity of nnf
     for (int y = _patchRadius.height; y < _nnfA.rows - _patchRadius.height; y++) {
         for (int x = _patchRadius.width; x < _nnfA.cols - _patchRadius.width; x++) {
-            const cv::Vec2s p = _nnfA.at<Vec2s>(y, x);
+            const cv::Vec2s p = _nnfA.at<cv::Vec2s>(y, x);
             DRWN_ASSERT_MSG((p[0] >= _patchRadius.width) && (p[0] < _imgB.cols - _patchRadius.width),
                 "nnf(" << x << ", " << y << ") = " << p << " with cost " << _costsA.at<float>(y, x));
             DRWN_ASSERT_MSG((p[1] >= _patchRadius.height) && (p[1] < _imgB.rows - _patchRadius.height),
@@ -550,7 +550,7 @@ const cv::Mat& drwnMaskedPatchMatch::search(cv::Rect roiToUpdate, unsigned maxIt
     // check integrity of nnf
     for (int y = _patchRadius.height; y < _nnfA.rows - _patchRadius.height; y++) {
         for (int x = _patchRadius.width; x < _nnfA.cols - _patchRadius.width; x++) {
-            const cv::Vec2s p = _nnfA.at<Vec2s>(y, x);
+            const cv::Vec2s p = _nnfA.at<cv::Vec2s>(y, x);
             DRWN_ASSERT_MSG((p[0] >= _patchRadius.width) && (p[0] < _imgB.cols - _patchRadius.width),
                 "nnf(" << x << ", " << y << ") = " << p << " with cost " << _costsA.at<float>(y, x));
             DRWN_ASSERT_MSG((p[1] >= _patchRadius.height) && (p[1] < _imgB.rows - _patchRadius.height),
@@ -575,14 +575,14 @@ const cv::Mat& drwnMaskedPatchMatch::search(cv::Rect roiToUpdate, unsigned maxIt
 
                 // north
                 if ((y > _patchRadius.height) && (_lastChanged.at<int>(y - 1, x) >= _iterationCount)) {
-                    const cv::Vec2s p = _nnfA.at<Vec2s>(y - 1, x);
+                    const cv::Vec2s p = _nnfA.at<cv::Vec2s>(y - 1, x);
                     const cv::Point ptB(p[0], std::min(p[1] + 1, _imgB.rows - _patchRadius.height - 1));
                     update(ptA, ptB);
                 }
 
                 // east
                 if ((x > _patchRadius.width) && (_lastChanged.at<int>(y, x - 1) >= _iterationCount)) {
-                    const cv::Vec2s p = _nnfA.at<Vec2s>(y, x - 1);
+                    const cv::Vec2s p = _nnfA.at<cv::Vec2s>(y, x - 1);
                     const cv::Point ptB(std::min(p[0] + 1, _imgB.cols - _patchRadius.width - 1), p[1]);
                     update(ptA, ptB);
                 }
@@ -598,14 +598,14 @@ const cv::Mat& drwnMaskedPatchMatch::search(cv::Rect roiToUpdate, unsigned maxIt
 
                 // south
                 if ((y < _nnfA.rows - _patchRadius.height - 1) && (_lastChanged.at<int>(y + 1, x) >= _iterationCount)) {
-                    const cv::Vec2s p = _nnfA.at<Vec2s>(y + 1, x);
+                    const cv::Vec2s p = _nnfA.at<cv::Vec2s>(y + 1, x);
                     const cv::Point ptB(p[0], std::max(p[1] - 1, _patchRadius.height));
                     update(ptA, ptB);
                 }
 
                 // west
                 if ((x < _nnfA.cols - _patchRadius.width - 1)  && (_lastChanged.at<int>(y, x + 1) >= _iterationCount)) {
-                    const cv::Vec2s p = _nnfA.at<Vec2s>(y, x + 1);
+                    const cv::Vec2s p = _nnfA.at<cv::Vec2s>(y, x + 1);
                     const cv::Point ptB(std::max(p[0] - 1, _patchRadius.width), p[1]);
                     update(ptA, ptB);
                 }
@@ -621,7 +621,7 @@ const cv::Mat& drwnMaskedPatchMatch::search(cv::Rect roiToUpdate, unsigned maxIt
                 }
 
                 // select random offset from current position
-                const cv::Vec2s p = _nnfA.at<Vec2s>(y, x);
+                const cv::Vec2s p = _nnfA.at<cv::Vec2s>(y, x);
                 const int diameter = std::max(_iterationCount - _lastChanged.at<int>(y, x), 1);
                 const int xmin = std::max(_patchRadius.width, p[0] - diameter);
                 const int xmax = std::min(_imgB.cols - _patchRadius.width - 1, p[0] + diameter);
@@ -692,7 +692,7 @@ void drwnMaskedPatchMatch::modifyTargetImage(const cv::Rect& roi, const cv::Mat&
     _invmaskB(roi).setTo(cv::Scalar(0x00));
 
     // update valid pixels
-    cv::Mat element = cv::getStructuringElement(MORPH_RECT,
+    cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT,
         cv::Size(2 * _patchRadius.width + 1, 2 * _patchRadius.height + 1),
         cv::Point(_patchRadius.width, _patchRadius.height));
     cv::erode(_maskB, _validB, element);
@@ -706,7 +706,7 @@ void drwnMaskedPatchMatch::modifyTargetImage(const cv::Rect& roi, const cv::Mat&
     if (alpha != 0.0) {
         for (int y = _patchRadius.height; y < _nnfA.rows - _patchRadius.height; y++) {
             for (int x = _patchRadius.width; x < _nnfA.cols - _patchRadius.width; x++) {
-                const cv::Vec2s p = _nnfA.at<Vec2s>(y, x);
+                const cv::Vec2s p = _nnfA.at<cv::Vec2s>(y, x);
                 const cv::Rect roiB(p[0] - _patchRadius.width, p[1] - _patchRadius.height,
                     2 * _patchRadius.width + 1, 2 * _patchRadius.height + 1);
                 if ((roiB & roi).area() > 0) {
@@ -721,7 +721,7 @@ void drwnMaskedPatchMatch::modifyTargetImage(const cv::Rect& roi, const cv::Mat&
     cv::Rect adjROI(roi.x - 1, roi.y - 1, roi.width + 2, roi.height + 2);
     for (int y = 0; y < _nnfA.rows; y++) {
         for (int x = 0; x < _nnfA.cols; x++) {
-            const cv::Vec2s p = _nnfA.at<Vec2s>(y, x);
+            const cv::Vec2s p = _nnfA.at<cv::Vec2s>(y, x);
             if (cv::Point(p[0], p[1]).inside(adjROI)) {
                 _lastChanged.at<int>(y, x) = _iterationCount + 1;
             }
@@ -741,7 +741,7 @@ void drwnMaskedPatchMatch::expandTargetMask(unsigned radius)
     cv::dilate(_maskB, adj, cv::Mat());
     for (int y = 0; y < _nnfA.rows; y++) {
         for (int x = 0; x < _nnfA.cols; x++) {
-            const cv::Vec2s p = _nnfA.at<Vec2s>(y, x);
+            const cv::Vec2s p = _nnfA.at<cv::Vec2s>(y, x);
             if (adj.at<unsigned char>(p[1], p[0]) != 0x00) {
                 _lastChanged.at<int>(y, x) = _iterationCount + 1;
             }
@@ -749,13 +749,13 @@ void drwnMaskedPatchMatch::expandTargetMask(unsigned radius)
     }
 
     // dilate the mask/erode the inverse mask
-    cv::Mat element = cv::getStructuringElement(MORPH_CROSS,
+    cv::Mat element = cv::getStructuringElement(cv::MORPH_CROSS,
         cv::Size(2 * radius + 1, 2 * radius + 1), cv::Point(radius, radius));
     cv::dilate(_maskB, _maskB, element);
     cv::compare(_maskB, cv::Scalar(0x00), _invmaskB, CV_CMP_EQ);
 
     // update valid pixels
-    element = cv::getStructuringElement(MORPH_RECT,
+    element = cv::getStructuringElement(cv::MORPH_RECT,
         cv::Size(2 * _patchRadius.width + 1, 2 * _patchRadius.height + 1),
         cv::Point(_patchRadius.width, _patchRadius.height));
     cv::erode(_maskB, _validB, element);
@@ -864,7 +864,7 @@ void drwnMaskedPatchMatch::cacheValidPixels()
     // find centre of any patch that overlap with invmaskA
     _overlapA = cv::Mat::zeros(_maskA.size(), CV_8UC1);
 
-    cv::Mat element = cv::getStructuringElement(MORPH_RECT,
+    cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT,
         cv::Size(2 * _patchRadius.width + 1, 2 * _patchRadius.height + 1),
         cv::Point(_patchRadius.width, _patchRadius.height));
     cv::dilate(_invmaskA, _overlapA, element);
@@ -911,7 +911,7 @@ void drwnMaskedPatchMatch::cacheValidPixels()
     drwnShowDebuggingImage(_validB, "B", true);
 
 #else
-    cv::Mat element = cv::getStructuringElement(MORPH_RECT,
+    cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT,
         cv::Size(2 * _patchRadius.width + 1, 2 * _patchRadius.height + 1),
         cv::Point(_patchRadius.width, _patchRadius.height));
 
@@ -970,7 +970,7 @@ void drwnMaskedPatchMatch::updateValidPixels(const cv::Rect& roi)
         }
     }
 #else
-    cv::Mat element = cv::getStructuringElement(MORPH_RECT,
+    cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT,
         cv::Size(2 * _patchRadius.width + 1, 2 * _patchRadius.height + 1),
         cv::Point(_patchRadius.width, _patchRadius.height));
     cv::dilate(_invmaskA, _overlapA, element);

@@ -11,8 +11,8 @@ namespace drwn {
 \li drwnGrabCutInstance : \copybrief drwnGrabCutInstance
 \li drwnHOGFeatures : \copybrief drwnHOGFeatures
 \li drwnImageCache : \copybrief drwnImageCache
+\li drwnImageInPainter : \copybrief drwnImageInPainter
 \li drwnImagePyramidCache : \copybrief drwnImagePyramidCache
-\li drwnInPaint : \copybrief drwnInPaint
 \li drwnMaskedPatchMatch : \copybrief drwnMaskedPatchMatch
 \li drwnMultiSegRegionDefinitions : \copybrief drwnMultiSegRegionDefinitions
 \li drwnMultiSegConfig : \copybrief drwnMultiSegConfig

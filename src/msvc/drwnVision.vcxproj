@@ -204,8 +204,8 @@
     <ClInclude Include="..\lib\vision\drwnGrabCutInstance.h" />
     <ClInclude Include="..\lib\vision\drwnHOGFeatures.h" />
     <ClInclude Include="..\lib\vision\drwnImageCache.h" />
+    <ClInclude Include="..\lib\vision\drwnImageInPainter.h" />
     <ClInclude Include="..\lib\vision\drwnImagePyramidCache.h" />
-    <ClInclude Include="..\lib\vision\drwnInPaint.h" />
     <ClInclude Include="..\lib\vision\drwnLBPFilterBank.h" />
     <ClInclude Include="..\lib\vision\drwnMaskedPatchMatch.h" />
     <ClInclude Include="..\lib\vision\drwnMultiSegConfig.h" />
@@ -232,8 +232,8 @@
     <ClCompile Include="..\lib\vision\drwnGrabCutInstance.cpp" />
     <ClCompile Include="..\lib\vision\drwnHOGFeatures.cpp" />
     <ClCompile Include="..\lib\vision\drwnImageCache.cpp" />
+    <ClCompile Include="..\lib\vision\drwnImageInPainter.cpp" />
     <ClCompile Include="..\lib\vision\drwnImagePyramidCache.cpp" />
-    <ClCompile Include="..\lib\vision\drwnInPaint.cpp" />
     <ClCompile Include="..\lib\vision\drwnLBPFilterBank.cpp" />
     <ClCompile Include="..\lib\vision\drwnMaskedPatchMatch.cpp" />
     <ClCompile Include="..\lib\vision\drwnMultiSegConfig.cpp" />
