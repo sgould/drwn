@@ -7,6 +7,7 @@ namespace drwn {
 
 Archives of stable \b Darwin source code releases can be downloaded from the following links:
 
+\li release 1.9 [ <a href="https://github.com/sgould/drwn/releases/tag/v1.9.0">download</a> ]
 \li release 1.8 [ <a href="https://github.com/sgould/drwn/releases/tag/v1.8.0">download</a> ]
 \li release 1.7 [ <a href="http://drwn.anu.edu.au/darwin.1.7.tar.gz">.tar.gz</a> ]
 \li release 1.6.1 [ <a href="http://drwn.anu.edu.au/darwin.1.6.1.tar.gz">.tar.gz</a> ],
@@ -64,7 +65,9 @@ downloaded from the following links:
 
 \section drwnChangeLog Change Log
 
-\subsection drwnChangeLog1_9 Release 1.9 (beta)
+\subsection drwnChangeLog1_10 Release 1.10
+
+\subsection drwnChangeLog1_9 Release 1.9
 
 \li Replaced drwnInPaint class with drwnImageInPainter class and added \p inPaint application
 \li Added function to read CIFAR-10 and CIFAR-100 style datasets (see http://www.cs.utoronto.ca/~kriz/cifar.html)

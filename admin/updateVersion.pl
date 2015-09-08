@@ -15,10 +15,13 @@ if (defined($opts{h})) {
     print STDERR "EXAMPLE:\n";
     print STDERR "  ./updateVersion.pl -v \"<x>.<y>\"\n";
     print STDERR "  git commit -a -m \"updated version\"\n";
-    print STDERR "  git tag <x>.<y>\n";
+    print STDERR "  git push\n";
+    print STDERR "  git tag <x>.<y>.0\n";
     print STDERR "  git push --tags\n";
     print STDERR "  (create release in GitHub)\n";
     print STDERR "  ./updateVersion.pl -v \"<x>.<y+1> (beta)\"\n";
+    print STDERR "  git commit -a -m \"updated version\"\n";
+    print STDERR "  git push\n";
     print STDERR "\n";
     exit(0);
 }
@@ -51,8 +54,4 @@ if (defined($opts{v})) {
         `sed -i 's/DRWNLIBMAJORVER.*=.*/DRWNLIBMAJORVER = $major/' ../make.mk`;
         `sed -i 's/DRWNLIBMINORVER.*=.*/DRWNLIBMINORVER = $minor/' ../make.mk`;
     }
-
-    print STDERR "now you can create a new branch with\n";
-    print STDERR "  svn copy trunk release/$opts{v}\n";
-    print STDERR "(this will be faster if you make clean first\n";
 }
