@@ -29,6 +29,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "basicPatchMatch", "msvc\bas
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "visualizeSuperpixels", "msvc\visualizeSuperpixels.vcxproj", "{7EFDA8CD-DA4B-4987-2E3E-5CDDB05495A2}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "inPaint", "msvc\inPaint.vcxproj", "{95D0D414-D479-DA5B-0E41-E6CAF3289B46}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -145,6 +147,12 @@ Global
 		{7EFDA8CD-DA4B-4987-2E3E-5CDDB05495A2}.Release|Win32.ActiveCfg = Release|Win32
 		{7EFDA8CD-DA4B-4987-2E3E-5CDDB05495A2}.Release|Win32.Build.0 = Release|Win32
 		{7EFDA8CD-DA4B-4987-2E3E-5CDDB05495A2}.Release|x64.ActiveCfg = Release|Win32
+		{95D0D414-D479-DA5B-0E41-E6CAF3289B46}.Debug|Win32.ActiveCfg = Debug|Win32
+		{95D0D414-D479-DA5B-0E41-E6CAF3289B46}.Debug|Win32.Build.0 = Debug|Win32
+		{95D0D414-D479-DA5B-0E41-E6CAF3289B46}.Debug|x64.ActiveCfg = Debug|Win32
+		{95D0D414-D479-DA5B-0E41-E6CAF3289B46}.Release|Win32.ActiveCfg = Release|Win32
+		{95D0D414-D479-DA5B-0E41-E6CAF3289B46}.Release|Win32.Build.0 = Release|Win32
+		{95D0D414-D479-DA5B-0E41-E6CAF3289B46}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

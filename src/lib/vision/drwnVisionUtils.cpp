@@ -716,7 +716,7 @@ vector<pair<cv::Mat, unsigned> > drwnLoadCIFAR(const string& filename, unsigned 
 
     const unsigned bytesPerImage = sz.width * sz.height * nChannels + headerBytes;
     const unsigned channelStep = sz.width * sz.height;
-    char buffer[bytesPerImage];
+    char *buffer = new char[bytesPerImage];
 
     while (!ifs.eof()) {
         ifs.read(&buffer[0], bytesPerImage * sizeof(char));
@@ -741,5 +741,6 @@ vector<pair<cv::Mat, unsigned> > drwnLoadCIFAR(const string& filename, unsigned 
     }
     
     ifs.close();
+	delete[] buffer;
     return data;
 }
