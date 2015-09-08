@@ -14,7 +14,7 @@ if (defined($opts{h})) {
     print STDERR "  -v \"<version>\" :: update to version string\n\n";
     print STDERR "EXAMPLE:\n";
     print STDERR "  ./updateVersion.pl -v \"<x>.<y>\"\n";
-    print STDERR "  git commit -a \"updated version\"\n";
+    print STDERR "  git commit -a -m \"updated version\"\n";
     print STDERR "  git tag <x>.<y>\n";
     print STDERR "  git push --tags\n";
     print STDERR "  (create release in GitHub)\n";

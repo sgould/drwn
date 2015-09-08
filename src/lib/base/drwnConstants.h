@@ -18,7 +18,7 @@
 
 #pragma once
 
-#define DRWN_VERSION   "1.9 (beta)"
+#define DRWN_VERSION   "1.9.0"
 #define DRWN_TITLE     "DARWIN: A Framework for Machine Learning R&D"
 #define DRWN_COPYRIGHT "Copyright (c) 2007-2015, Stephen Gould"
 
