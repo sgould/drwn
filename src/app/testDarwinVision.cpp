@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
         DRWN_CMDLINE_OPTION_BEGIN("drwnImagePyramidCache", p)
             testImagePyramidCache(p[0]);
         DRWN_CMDLINE_OPTION_END(1)
-        DRWN_CMDLINE_OPTION_BEGIN("drwnInPaint", p)
+        DRWN_CMDLINE_OPTION_BEGIN("drwnImageInPainter", p)
             testImageInPainting(p[0]);
         DRWN_CMDLINE_OPTION_END(1)
         DRWN_CMDLINE_OPTION_BEGIN("drwnColourHistogram", p)
@@ -273,7 +273,7 @@ void testTemplateMatcher(const char *imgFilename)
             double d = cv::norm(result - responses[i](cv::Rect(0, 0, result.cols, result.rows)), cv::NORM_L1) /
                 (double)(result.rows * result.cols);
 
-            cv::Mat relDiff(result.rows, result.cols, CV_32FC1);            
+            cv::Mat relDiff(result.rows, result.cols, CV_32FC1);
             cv::divide(result, responses[i](cv::Rect(0, 0, result.cols, result.rows)), relDiff);
             cv::subtract(relDiff, cv::Scalar::all(1.0), relDiff);
             double maxr = cv::norm(relDiff, cv::NORM_INF);
@@ -656,8 +656,8 @@ void testImageInPainting(const char *imgFile)
     cv::rectangle(mask, cv::Point(img.cols / 4, img.rows / 4),
         cv::Point(3 * img.cols / 4, 3 * img.rows / 4), cv::Scalar(0xff), -1);
 
-    cv::Mat output;
-    drwnInPaint::inPaint(img, output, mask);
+    drwnImageInPainter inpainter(3);
+    cv::Mat output = inpainter.fill(img, mask);
 
     cv::imwrite((drwn::strBaseName(imgFile) + string("_inpainted.png")).c_str(), output);
 }
@@ -674,7 +674,7 @@ void testColourHistogram(const char *imgFile)
 
     for (int y = 0; y < img.rows; y++) {
         for (int x = 0; x < img.cols; x++) {
-            histogram.accumulate(img.at<const Vec3b>(y, x));
+            histogram.accumulate(img.at<const cv::Vec3b>(y, x));
         }
     }
 
@@ -685,7 +685,7 @@ void testColourHistogram(const char *imgFile)
     cv::Mat canvas(img.rows, img.cols, CV_32FC1);
     for (int y = 0; y < img.rows; y++) {
         for (int x = 0; x < img.cols; x++) {
-            canvas.at<float>(y, x) = histogram.probability(img.at<const Vec3b>(y, x));
+            canvas.at<float>(y, x) = histogram.probability(img.at<const cv::Vec3b>(y, x));
         }
     }
 
@@ -723,7 +723,7 @@ void testMaskedPatchMatch()
         pm.search(10);
         DRWN_LOG_VERBOSE("energy is " << pm.energy());
         drwnShowDebuggingImage(pm.visualize(), "testMaskedPatchMatch.3", false);
-        
+
         // copy a patch and check that is matches exactly
         const int TEST_POINTS[6][2] = {{32, 32}, {1, 1}, {1, 128}, {128, 1}, {255, 255}, {254, 254}};
 
@@ -732,7 +732,7 @@ void testMaskedPatchMatch()
             cv::Point srcPoint(TEST_POINTS[i][0], TEST_POINTS[i][1]);
             pair<cv::Rect, cv::Rect> match = pm.getMatchingPatches(srcPoint);
             DRWN_LOG_MESSAGE(match.first << " centred at " << srcPoint << " matches to " << match.second);
-        
+
             testImage(match.second).copyTo(testImage(match.first));
             views.push_back(testImage.clone());
         }
@@ -760,7 +760,7 @@ void testLoadCIFAR(const char *filename)
 {
     DRWN_FCN_TIC;
     vector<pair<cv::Mat, unsigned> > data = drwnLoadCIFAR(filename, 1, cv::Size(32, 32), 3);
-    
+
     for (unsigned i = 0; i < 10; i++) {
         vector<cv::Mat> views;
         for (unsigned j = 0; j < data.size(); j++) {
