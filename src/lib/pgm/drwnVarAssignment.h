@@ -65,7 +65,7 @@ class drwnPartialAssignment : public std::map<int, int> {
     //! construct a partial assignment from a partial assignment expressed
     //! using a vector of variables and a vector of values
     drwnPartialAssignment(const vector<int>& vars, const vector<int>& vals) {
-        for (int i = 0; i < vars.size(); i++) {
+        for (int i = 0; i < (int)vars.size(); i++) {
             this->insert(make_pair(vars[i], vals[i]));
         }
     }
