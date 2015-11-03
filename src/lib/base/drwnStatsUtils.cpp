@@ -47,7 +47,11 @@ bool drwn::containsInvalidEntries(const vector<double> & v)
     DRWN_ASSERT(v.size() > 0);
 
     for (unsigned i = 0; i < v.size(); i++) {
-        if (::isnan(v[i]) || ::isinf(v[i]))
+#if defined(_WIN32)||defined(WIN32)||defined(__WIN32__)||defined(__VISUALC__)
+        if (isnan(v[i]) || isinf(v[i]))
+#else
+		if (::isnan(v[i]) || ::isinf(v[i]))
+#endif
             return true;
     }
 
