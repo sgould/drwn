@@ -218,6 +218,11 @@ namespace drwn {
     double dot(const double *x, const double *y, size_t length);
     //! dot product between elements in two vectors
     double dot(const vector<double>& x, const vector<double>& y);
+
+    //! whether two numbers are equal
+    bool eq(const double x, const double y);
+    //! whether first number is less than second number
+    bool lt(const double x, const double y);
 };
 
 // Implementation -----------------------------------------------------------
