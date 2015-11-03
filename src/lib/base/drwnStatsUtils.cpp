@@ -23,6 +23,7 @@
 #include "drwnLogger.h"
 #include "drwnCompatibility.h"
 #include "drwnStatsUtils.h"
+#include "drwnConstants.h"
 
 using namespace std;
 
@@ -46,7 +47,7 @@ bool drwn::containsInvalidEntries(const vector<double> & v)
     DRWN_ASSERT(v.size() > 0);
 
     for (unsigned i = 0; i < v.size(); i++) {
-        if (isnan(v[i]) || isinf(v[i]))
+        if (::isnan(v[i]) || ::isinf(v[i]))
             return true;
     }
 
@@ -437,4 +438,14 @@ int drwn::argrand(const VectorXd &v)
 
     DRWN_LOG_FATAL("bug");
     return -1;
+}
+
+bool drwn::eq(const double x, const double y)
+{
+	return fabs(x - y) < DRWN_EPSILON;
+}
+
+bool drwn::lt(const double x, const double y)
+{
+	return (x + DRWN_EPSILON) < y;
 }
