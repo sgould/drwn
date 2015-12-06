@@ -83,8 +83,7 @@ available.
 <li> GitHub Windows Client (http://windows.github.com/)
 <li> OpenCV 2.4.9 (http://opencv.org/) installed in the \c external/opencv directory
 <ul>
-<li> make sure both the \p "$DARWIN\external\opencv\build\x86\vc10\bin" and 
-     \p "$DARWIN\external\opencv\build\common\tbb\ia32\vc10" directories are
+<li> make sure both the \p "$DARWIN\external\opencv\build\x86\vc10\bin" directory is
      added to your Windows PATH variable (see \ref winFAQ below)
 <li> if you install a later version of OpenCV you will need to modify the linked libraries
      within each Darwin project
@@ -243,8 +242,7 @@ functionality in the \ref drwnVision library, which depends on OpenCV.
 If you want the \ref drwnVision library functionality then make sure
 OpenCV is installed in \c $DARWIN/external/opencv.
 
-Note that at runtime both \p "$DARWIN\external\opencv\build\x86\vc10\bin" and
-\p "$DARWIN\external\opencv\build\common\tbb\ia32\vc10" directories must be
+Note that at runtime the \p "$DARWIN\external\opencv\build\x86\vc10\bin" directory must be
 included in your system's \c PATH environment variable (this can be
 done via the Windows Control Panel).
 
