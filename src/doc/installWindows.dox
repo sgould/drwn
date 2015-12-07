@@ -262,6 +262,14 @@ If you download a later version of OpenCV you can get \b
 Darwin to compile against it by changing the OpenCV library names in
 the \c "Property Page | Linker | Input" field.
 
+\b "Why do I get 'LINK: fatal error LINK1104: can not open drwnBase.lib'
+when compiling applications or projects?"
+
+Check the \p "$DARWIN\bin" directory. Most likely you are compiling
+the libraries in Debug mode and the applications in Release
+mode. Debug libraries end in \p d (so \p "drwnBased.lib" instead of \p
+"drwnBase.lib"). See \ref winDetails3 above.
+
 \b "How do I compile for x64 platforms?"
 
 The default installation of Visual Studio Express 2010 does not allow
