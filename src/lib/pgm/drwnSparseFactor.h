@@ -13,14 +13,10 @@
 
 #pragma once
 
-#ifndef FACTOR_H
-#define FACTOR_H
-#include "../../src/lib/pgm/drwnTableFactor.h"
-#include "../../src/lib/pgm/drwnTableFactorMapping.h"
+#include "drwnTableFactor.h"
+#include "drwnTableFactorMapping.h"
 
 using namespace std;
-
-typedef pair<vector<int>, double> Assignment;
 
 // drwnSparseFactor --------------------------------------------------------
 //! Encapsulates variables that the represented function is a function of.
@@ -60,4 +56,3 @@ class drwnSparseFactor : public drwnFactor
 	//! helper function for getValueOf and setValueOf
 	void dfaToVals(const drwnFullAssignment& y, vector<int>& vals) const;
 };
-#endif
