@@ -22,6 +22,7 @@
 #include "../src/lib/pgm/drwnMapInference.h"
 #include "../src/lib/pgm/drwnMapInferenceFactory.h"
 #include "../src/lib/pgm/drwnMaxFlow.h"
+#include "../src/lib/pgm/drwnSparseFactor.h"
 #include "../src/lib/pgm/drwnTRWSInference.h"
 #include "../src/lib/pgm/drwnTableFactor.h"
 #include "../src/lib/pgm/drwnTableFactorMapping.h"

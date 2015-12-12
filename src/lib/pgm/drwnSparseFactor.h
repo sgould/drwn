@@ -6,8 +6,8 @@
 **
 ******************************************************************************
 ** FILENAME:    drwnSparseFactor.h
-** AUTHOR(S):   Stephen Gould <stephen.gould@anu.edu.au>, Albert Chen
-				<chenay@student.unimelb.edu.au>
+** AUTHOR(S):   Stephen Gould <stephen.gould@anu.edu.au>
+**              Albert Chen <chenay@student.unimelb.edu.au>
 **
 *****************************************************************************/
 
@@ -27,24 +27,24 @@ using namespace std;
 class drwnSparseFactor : public drwnFactor
 {
     map<vector<int>, double> assignments;	//!< maps variable values to costs
-
-  public:
-	//! create an empty sparse factor
+    
+ public:
+    //! create an empty sparse factor
     drwnSparseFactor(const drwnVarUniversePtr& ptr) : drwnFactor(ptr) { }
-    ~drwnSparseFactor(void) { }
+    ~drwnSparseFactor() { }
 
-	// access functions
+    // access functions
     const char *type() const { return "drwnSparseFactor"; }
-    drwnSparseFactor* clone(void) const { return NULL; }
+    drwnSparseFactor* clone(void) const { DRWN_TODO; return NULL; }
 
     //! add variable by name
-    void addVariable(const char *name) { drwnFactor::addVariable(name); }
+    using drwnFactor::addVariable;
 
-	int entries() const { return assignments.size(); }
-	map<vector<int>, double> getAssignments() const { return assignments; }
+    int entries() const { return assignments.size(); }
+    map<vector<int>, double> getAssignments() const { return assignments; }
 
     //! Returns the value of the factor for a given (full) assignment
-	double getValueOf(const drwnFullAssignment& y) const;
+    double getValueOf(const drwnFullAssignment& y) const;
     //! Returns the value of the factor for a given partial assignment.
     double getValueOf(const drwnPartialAssignment& y) const;
     //! Sets the value of the factor for a given (full) assignment
@@ -52,7 +52,7 @@ class drwnSparseFactor : public drwnFactor
     //! Sets the value of the factor for a given partial assignment.
     void setValueOf(const drwnPartialAssignment& y, double val);
 
-  private:
-	//! helper function for getValueOf and setValueOf
-	void dfaToVals(const drwnFullAssignment& y, vector<int>& vals) const;
+ private:
+    //! helper function for getValueOf and setValueOf
+    void dfaToVals(const drwnFullAssignment& y, vector<int>& vals) const;
 };

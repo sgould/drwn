@@ -25,7 +25,7 @@ ML_LIB_SRC = drwnBoostedClassifier.cpp drwnClassifier.cpp \
 
 PGM_LIB_SRC = drwnADLPInference.cpp drwnFactorGraph.cpp drwnGraphCutInference.cpp \
 	drwnGraphUtils.cpp drwnInference.cpp drwnMapInference.cpp drwnMapInferenceFactory.cpp \
-	drwnMaxFlow.cpp drwnTableFactor.cpp drwnTableFactorOps.cpp \
+	drwnMaxFlow.cpp drwnSparseFactor.cpp drwnTableFactor.cpp drwnTableFactorOps.cpp \
 	drwnTRWSInference.cpp drwnVarAssignment.cpp drwnVarUniverse.cpp
 
 VISION_LIB_SRC = drwnColourHistogram.cpp drwnFilterBankResponse.cpp drwnGrabCutInstance.cpp \
