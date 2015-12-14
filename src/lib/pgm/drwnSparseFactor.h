@@ -13,6 +13,11 @@
 
 #pragma once
 
+#include "drwnBase.h"
+#include "drwnIO.h"
+
+#include "drwnVarUniverse.h"
+#include "drwnVarAssignment.h"
 #include "drwnTableFactor.h"
 #include "drwnTableFactorMapping.h"
 
@@ -24,9 +29,11 @@ using namespace std;
 //! variables. Implementation uses coordinate format (Bader and Kolda, SIAM
 //! Journal on Scientific Computing, 2007).
 //! \todo Replace getAssignments with overloading the [] operator.
+
 class drwnSparseFactor : public drwnFactor
 {
-    map<vector<int>, double> assignments;	//!< maps variable values to costs
+ protected:
+    std::map<drwnLocalAssignment, double> _assignments;  //!< maps variable values to costs
     
  public:
     //! create an empty sparse factor
@@ -40,8 +47,8 @@ class drwnSparseFactor : public drwnFactor
     //! add variable by name
     using drwnFactor::addVariable;
 
-    int entries() const { return assignments.size(); }
-    map<vector<int>, double> getAssignments() const { return assignments; }
+    int entries() const { return _assignments.size(); }
+    const std::map<drwnLocalAssignment, double>& getAssignments() const { return _assignments; }
 
     //! Returns the value of the factor for a given (full) assignment
     double getValueOf(const drwnFullAssignment& y) const;
@@ -54,5 +61,5 @@ class drwnSparseFactor : public drwnFactor
 
  private:
     //! helper function for getValueOf and setValueOf
-    void dfaToVals(const drwnFullAssignment& y, vector<int>& vals) const;
+    void dfaToVals(const drwnFullAssignment& y, drwnLocalAssignment& vals) const;
 };

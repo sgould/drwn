@@ -17,48 +17,31 @@
 using namespace std;
 using namespace drwn;
 
-void drwnSparseFactor::dfaToVals(const drwnFullAssignment& y,
-    vector<int>& vals) const {
-    DRWN_ASSERT(vals.empty());
-    const vector<int>& vars = getOrderedVars();
-
-    for (vector<int>::const_iterator vi = vars.begin(); vi != vars.end(); ++vi) {
-        DRWN_ASSERT(y[*vi] != -1);
-        vals.push_back(y[*vi]);
-    }
-}
-
 double drwnSparseFactor::getValueOf(const drwnFullAssignment& y) const
 {
-    vector<int> vals;
+    drwnLocalAssignment vals;
     dfaToVals(y, vals);
-
-    if (assignments.find(vals) == assignments.end()) {
-        return 0;
-    }
-
-    return assignments.at(vals);
+    
+    map<drwnLocalAssignment, double>::const_iterator it = _assignments.find(vals);
+    return (it == _assignments.end()) ? 0 : it->second;
 }
 
-double drwnSparseFactor::getValueOf(const drwnPartialAssignment& y) const {
-    vector<int> vals;
-
+double drwnSparseFactor::getValueOf(const drwnPartialAssignment& y) const 
+{
+    drwnLocalAssignment vals;
     for (vector<int>::const_iterator vi = _variables.begin(); vi != _variables.end(); ++vi) {
         vals.push_back(y.at(*vi));
     }
 
-    if (assignments.find(vals) == assignments.end()) {
-        return 0;
-    }
-
-    return assignments.at(vals);
+    map<drwnLocalAssignment, double>::const_iterator it = _assignments.find(vals);
+    return (it == _assignments.end()) ? 0 : it->second;
 }
 
 void drwnSparseFactor::setValueOf(const drwnFullAssignment& y, double val)
 {
     vector<int> vals;
     dfaToVals(y, vals);
-    assignments[vals] = val;
+    _assignments[vals] = val;
 }
 
 void drwnSparseFactor::setValueOf(const drwnPartialAssignment& y, double val)
@@ -69,5 +52,16 @@ void drwnSparseFactor::setValueOf(const drwnPartialAssignment& y, double val)
         vals.push_back(y.at(*vi));
     }
 
-    assignments[vals] = val;
+    _assignments[vals] = val;
+}
+
+void drwnSparseFactor::dfaToVals(const drwnFullAssignment& y, drwnLocalAssignment& vals) const 
+{
+    DRWN_ASSERT(vals.empty());
+    const vector<int>& vars = getOrderedVars();
+
+    for (drwnLocalAssignment::const_iterator vi = vars.begin(); vi != vars.end(); ++vi) {
+        DRWN_ASSERT(y[*vi] != -1);
+        vals.push_back(y[*vi]);
+    }
 }

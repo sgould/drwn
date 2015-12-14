@@ -35,6 +35,12 @@ using namespace std;
 
 typedef std::vector<int> drwnFullAssignment;
 
+// drwnLocalAssignment -----------------------------------------------------
+//! defines an assignment to a subset of variables in the universe relative
+//! to some local scope (and fixed variable ordering)
+
+typedef std::vector<int> drwnLocalAssignment;
+
 // drwnPartialAssignment ---------------------------------------------------
 //! defines an assignment to a subset of the variables
 
@@ -63,9 +69,9 @@ class drwnPartialAssignment : public std::map<int, int> {
     }
 
     //! construct a partial assignment from a partial assignment expressed
-    //! using a vector of variables and a vector of values
-    drwnPartialAssignment(const vector<int>& vars, const vector<int>& vals) {
-        for (int i = 0; i < (int)vars.size(); i++) {
+    //! using a vector of variables and a vector of values (drwnLocalAssignment)
+    drwnPartialAssignment(const vector<int>& vars, const drwnLocalAssignment& vals) {
+        for (size_t i = 0; i < vars.size(); i++) {
             this->insert(make_pair(vars[i], vals[i]));
         }
     }
@@ -78,6 +84,23 @@ class drwnPartialAssignment : public std::map<int, int> {
             c.insert(it->first);
         }
         return c;
+    }
+
+    //! convert a partial assignment to a local assignment (missing values
+    //! are assigned -1)
+    drwnLocalAssignment toLocalAssignment(const vector<int>& vars) const {
+        drwnLocalAssignment a(vars.size());
+        for (size_t i = 0; i < vars.size(); i++) {
+            const_iterator it = this->find(vars[i]);
+            a[i] = (it == end()) ? -1 : it->second;
+        }
+        return a;
+    }
+
+    //! convert a partial assignment to a full assignment (missing values
+    //! are assigned -1)
+    drwnFullAssignment toFullAssignment() const {
+        return drwnFullAssignment(*this);
     }
 
     //! typecast a partial assignment to a full assignment (missing values
