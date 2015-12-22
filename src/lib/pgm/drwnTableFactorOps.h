@@ -7,6 +7,7 @@
 ******************************************************************************
 ** FILENAME:    drwnTableFactorOps.h
 ** AUTHOR(S):   Stephen Gould <stephen.gould@anu.edu.au>
+**				Albert Chen <chenay@student.unimelb.edu.au>
 **
 *****************************************************************************/
 
@@ -19,6 +20,9 @@
 #include "drwnBase.h"
 #include "drwnTableFactor.h"
 #include "drwnTableFactorMapping.h"
+#include "drwnGeneralFactor.h"
+
+class drwnGeneralFactor;
 
 // drwnFactorOperation class -----------------------------------------------
 //! Base class for implementing various operations on table factors. The
@@ -28,14 +32,17 @@
 class drwnFactorOperation {
  protected:
     drwnTableFactor *_target;
+	drwnGeneralFactor *_generalTarget;
 
  public:
     drwnFactorOperation(drwnTableFactor *target);
+    drwnFactorOperation(drwnGeneralFactor *target);
     drwnFactorOperation(const drwnFactorOperation& op);
     virtual ~drwnFactorOperation();
 
     //! peform the factor operation on the target
     virtual void execute() = 0;
+    /* virtual */ void generalExecute()/* = 0 */;
 
     //! return a pointer to the target factor
     inline drwnTableFactor *target() const { return _target; }
@@ -100,6 +107,8 @@ class drwnFactorNAryOp : public drwnFactorOperation {
  public:
     drwnFactorNAryOp(drwnTableFactor *target,
 	const drwnTableFactor *A, const drwnTableFactor *B);
+    drwnFactorNAryOp(drwnGeneralFactor *target,
+	const drwnGeneralFactor *A, const drwnGeneralFactor *B);
     drwnFactorNAryOp(drwnTableFactor *target,
 	const std::vector<const drwnTableFactor *>& A);
     drwnFactorNAryOp(const drwnFactorNAryOp &phi);

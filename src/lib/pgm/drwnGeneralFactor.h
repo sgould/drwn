@@ -1,3 +1,18 @@
+/*****************************************************************************
+** DARWIN: A FRAMEWORK FOR MACHINE LEARNING RESEARCH AND DEVELOPMENT
+** Distributed under the terms of the BSD license (see the LICENSE file)
+** Copyright (c) 2007-2015, Stephen Gould
+** All rights reserved.
+**
+******************************************************************************
+** FILENAME:    drwnSparseFactor.h
+** AUTHOR(S):   Stephen Gould <stephen.gould@anu.edu.au>
+**              Albert Chen <chenay@student.unimelb.edu.au>
+**
+*****************************************************************************/
+
+#pragma once
+
 #include "drwnTableFactor.h"
 #include "drwnSparseFactor.h"
 
@@ -22,8 +37,8 @@ class drwnGeneralFactor : public drwnFactor
 
   public:
     //! create an empty factor
-	drwnGeneralFactor(const drwnVarUniversePtr& ptr) : drwnFactor(ptr),
-			THRESHOLD(0.2) { }
+	drwnGeneralFactor(const drwnVarUniversePtr& ptr, const double threshold) :
+			drwnFactor(ptr), THRESHOLD(threshold) { }
     ~drwnGeneralFactor() { }
 
 	// access functions
