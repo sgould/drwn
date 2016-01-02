@@ -43,8 +43,9 @@ FactorAdditionOp::FactorAdditionOp(drwnGeneralFactor *target, const drwnGeneralF
 		return;
 	}
 }
+<<<<<<< HEAD
 
-void FactorAdditionOp::lazyExecute()
+void FactorAdditionOp::execute()
 {
 	if (_target->getStorageType() == EVAL) {
 		return;
@@ -88,3 +89,5 @@ void FactorAdditionOp::lazyExecute()
 	drwnFactorAdditionOp dfao(target, _A->getTableFactor(), _B->getTableFactor());
 	dfao.execute();
 }
+=======
+>>>>>>> 5477d5d4f80732bdb8e6f07f513126e864b9fc40

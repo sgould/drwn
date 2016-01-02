@@ -32,7 +32,7 @@ class FactorAdditionOp : public drwnFactorNAryOp {
 	FactorAdditionOp(drwnGeneralFactor *target, const drwnGeneralFactor *A,
 		const drwnGeneralFactor *B);
 	FactorAdditionOp();
-	void lazyExecute();	//!< doesn't do anything unless both operands are dense
+	void execute();	//!< doesn't do anything unless both operands are dense
 
     ~FactorAdditionOp() { }
 };
