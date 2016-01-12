@@ -6,33 +6,21 @@ FactorAdditionOp::FactorAdditionOp(drwnGeneralFactor *target, const drwnGeneralF
 {
 	target->setOps(A, B);
 	vector<int> ordTargetVars = target->getOrderedVars();
+	vector<int> ordVarsA = _generalFactors.front()->getOrderedVars();
+	vector<int> ordVarsB = _generalFactors[1]->getOrderedVars();
 
-	if (ordTargetVars.empty()) {
-		vector<int> varsA = A->getOrderedVars();
-		vector<int> varsB = B->getOrderedVars();
-		set<int> AunionB;
-
-		set_union(varsA.begin(), varsA.end(), varsB.begin(), varsB.end(),
-			inserter(AunionB, AunionB.begin()));
-
-		for (set<int>::iterator si = AunionB.begin(); si != AunionB.end(); si++) {
-			target->addVariable(*si);
-		}
-	}
-
-	vector<int> ordVarsA = A->getOrderedVars();
-	vector<int> ordVarsB = B->getOrderedVars();
 	set<int> varsA(ordVarsA.begin(), ordVarsA.end());
 	set<int> varsB(ordVarsB.begin(), ordVarsB.end());
+	drwnFactorStorageType storTypeA = _generalFactors.front()->getStorageType();
+	drwnFactorStorageType storTypeB = _generalFactors[1]->getStorageType();
 
-	if ((A->getStorageType() == EVAL) || (B->getStorageType() == EVAL) ||
-		(varsA != varsB)) {
+	if ((storTypeA == EVAL) || (storTypeB == EVAL) || (varsA != varsB)) {
 		_intendedStorageType = EVAL;
 		return;
 	}
 
 	/* now have that varsA == varsB */
-	if ((A->getStorageType() == SPARSE) && (B->getStorageType() == SPARSE)) {
+	if ((storTypeA == SPARSE) && (storTypeB == SPARSE)) {
 		set<int> targetVars(ordTargetVars.begin(), ordTargetVars.end());	
 		_intendedStorageType = SPARSE;
 
@@ -46,7 +34,7 @@ FactorAdditionOp::FactorAdditionOp(drwnGeneralFactor *target, const drwnGeneralF
 		return;
 	}
 
-	if ((A->getStorageType() == DENSE) && (B->getStorageType() == DENSE)) {
+	if ((storTypeA == DENSE) && (storTypeB == DENSE)) {
 		_intendedStorageType = DENSE;
 		return;
 	}
@@ -56,7 +44,6 @@ FactorAdditionOp::FactorAdditionOp(drwnGeneralFactor *target, const drwnGeneralF
 	/* _intendedStorageType = DENSE; */
 	/* TODO: convert sparse factor to dense factor */
 }
-<<<<<<< HEAD
 
 FactorAdditionOp::FactorAdditionOp(drwnGeneralFactor *target,
 		const vector<const drwnGeneralFactor *>& A) :
@@ -68,8 +55,43 @@ void FactorAdditionOp::execute()
 {
 	if (_generalFactors.size() == 2) {
 		if (_intendedStorageType == EVAL) {
+			_generalTarget->setStorageType(EVAL);
 			return;
 		} else if (_intendedStorageType == SPARSE) {
+			/* TODO: test this */
+#if 0
+			vector<int> vars = _generalTarget->getOrderedVars();
+			drwnSparseFactor *fac1 = _A->getSparseFactor();
+			drwnSparseFactor *fac2 = _B->getSparseFactor();
+			drwnSparseFactor *target = _generalTarget->getSparseFactor();
+			map<vector<int>, double> assignmtsA = fac1->getAssignments();
+			map<vector<int>, double> assignmtsB = fac2->getAssignments();
+
+			for (map< vector<int>, double >::iterator mi = assignmtsA.begin();
+					mi != assignmtsA.end(); mi++) {
+				vector<int> vals(vars.size());
+
+				for (int i = 0; i < vars.size(); i++) {
+					vals[_targetToA[i]] = (*mi).first[_targetToA[i]];
+				}
+
+				drwnPartialAssignment dpa;
+				target->setValueOf(dpa, (*mi).second);
+			}
+
+			for (map< vector<int>, double >::iterator mi = assignmtsB.begin();
+					mi != assignmtsA.end(); mi++) {
+				vector<int> vals(vars.size());
+
+				for (int i = 0; i < vars.size(); i++) {
+					vals[_targetToB[i]] = (*mi).first[_targetToB[i]];
+				}
+
+				drwnPartialAssignment dpa;
+				target->setValueOf(dpa, target->getValueOf(dpa) + (*mi).second);
+			}
+#endif
+
 			return;
 		}
 
@@ -81,6 +103,17 @@ void FactorAdditionOp::execute()
 		_generalTarget = new drwnGeneralFactor(*target, _generalTarget->THRESHOLD);
 		return;
 	}
+
+	drwnGeneralFactor *prevSum = _generalFactors.front()->clone();
+
+	for (int fi = 1; fi < _generalFactors.size(); fi++) {
+		drwnTableFactor tf(_generalTarget->getUniverse());
+		drwnGeneralFactor *partSum = (fi == (_generalFactors.size() - 1)) ?
+				_generalTarget :
+				new drwnGeneralFactor(tf, _generalTarget->THRESHOLD);
+
+		FactorAdditionOp fao(partSum, prevSum, _generalFactors[fi]);
+		fao.execute();
+		prevSum = partSum;
+	}
 }
-=======
->>>>>>> 5477d5d4f80732bdb8e6f07f513126e864b9fc40

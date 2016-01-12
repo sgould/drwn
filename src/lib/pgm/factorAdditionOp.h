@@ -14,25 +14,24 @@
 #pragma once
 
 #include <vector>
-#include "drwnSparseFactor.h"
+#include "factor.h"
 #include "drwnGeneralFactor.h"
 #include "drwnTableFactorOps.h"
 
 using namespace std;
 
-class drwnGeneralFactor;
-
 class FactorAdditionOp : public drwnFactorNAryOp {
   protected:
-	drwnGeneralFactor *_target;
-	const drwnGeneralFactor *_A, *_B;	//!< for now, this looks like a drwnFactorBinaryOp
-	vector<int> _targetToA, _targetToB;	//!< TODO: replace with drwnTableFactorMapping
+	vector<int> _targetToA, _targetToB;
+	//!< storage type to which target will be set when (or if) execute is called.
+	drwnFactorStorageType _intendedStorageType;
 
   public:
 	FactorAdditionOp(drwnGeneralFactor *target, const drwnGeneralFactor *A,
-		const drwnGeneralFactor *B);
-	FactorAdditionOp();
-	void execute();	//!< doesn't do anything unless both operands are dense
+	const drwnGeneralFactor *B);
+	FactorAdditionOp(drwnGeneralFactor *target,
+	const vector<const drwnGeneralFactor *>& A);
+	void execute();
 
     ~FactorAdditionOp() { }
 };

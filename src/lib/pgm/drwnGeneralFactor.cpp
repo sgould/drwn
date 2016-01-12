@@ -1,20 +1,46 @@
+/*****************************************************************************
+** DARWIN: A FRAMEWORK FOR MACHINE LEARNING RESEARCH AND DEVELOPMENT
+** Distributed under the terms of the BSD license (see the LICENSE file)
+** Copyright (c) 2007-2015, Stephen Gould
+** All rights reserved.
+**
+******************************************************************************
+** FILENAME:    drwnSparseFactor.cpp
+** AUTHOR(S):   Stephen Gould <stephen.gould@anu.edu.au>
+**              Albert Chen <chenay@student.unimelb.edu.au>
+**
+*****************************************************************************/
+
 #include "drwnGeneralFactor.h"
-#include "drwnNumber.h"
 
-using namespace std::chrono;
-
-void drwnGeneralFactor::addVariable(int var)
-{	
-    DRWN_ASSERT((var >= 0) && (var < _pUniverse->numVariables()));
-	DRWN_ASSERT(find(_variables.begin(), _variables.end(), var) == _variables.end());
-    _variables.push_back(var);
+drwnGeneralFactor::drwnGeneralFactor(const drwnGeneralFactor& psi) :
+	drwnFactor(psi.getUniverse()), THRESHOLD(psi.THRESHOLD)
+{
+	_storageType = psi.getStorageType();
+	_tblFac = psi.getTableFactor();
+	_sparseFac = psi.getSparseFactor();
+	_variables = psi.getOrderedVars();
+	_op1 = psi.getOp1();
+	_op2 = psi.getOp2();
 }
 
 void drwnGeneralFactor::setOps(const drwnGeneralFactor *f1, const drwnGeneralFactor *f2)
 {
-	_storageType = EVAL;
 	_op1 = f1;
 	_op2 = f2;
+}
+
+double drwnGeneralFactor::getValueOf(const drwnFullAssignment& y) const
+{
+	if (_storageType == EVAL) {
+		return _op1->getValueOf(y) + _op2->getValueOf(y);
+	}
+
+	if (_storageType == DENSE) {
+		return _tblFac->getValueOf(y);
+	}
+
+	return _sparseFac->getValueOf(y);
 }
 
 double drwnGeneralFactor::getValueOf(const drwnPartialAssignment& y) const
