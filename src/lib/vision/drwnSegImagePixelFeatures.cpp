@@ -176,10 +176,10 @@ void drwnSegImageStdPixelFeatures::cacheInstanceData(const drwnSegImageInstance&
         }
     }
 
+    const size_t auxBytes = _auxFeatures.size() * AUX_FEATURE_EXT.size() * sizeof(double);
     DRWN_LOG_DEBUG("...allocated "  << (_filters.memory() / (1024 * 1024))
-        << "MB for filter responses and "
-        << (_auxFeatures.size() * AUX_FEATURE_EXT.size() * sizeof(double) / (1024 * 1024))
-        << "MB for auxiliary features");
+        << "MB for filter responses and " << drwn::bytesToString(auxBytes)
+        << " for auxiliary features");
 
     DRWN_FCN_TOC;
 }
@@ -188,8 +188,8 @@ void drwnSegImageStdPixelFeatures::clearInstanceData()
 {
     DRWN_LOG_DEBUG("...freeing "  << (_filters.memory() / (1024 * 1024))
         << "MB from filter responses and "
-        << (_auxFeatures.size() * AUX_FEATURE_EXT.size() * sizeof(double) / (1024 * 1024))
-        << "MB for auxiliary features");
+        << drwn::bytesToString(_auxFeatures.size() * AUX_FEATURE_EXT.size() * sizeof(double))
+        << " for auxiliary features");
     _filters.clear();
     _auxFeatures.clear();
 
