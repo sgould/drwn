@@ -52,6 +52,11 @@ class drwnSparseFactor : public drwnFactor
     //! Sets the value of the factor for a given partial assignment.
     void setValueOf(const drwnPartialAssignment& y, double val);
 
+	typedef map<vector<int>, double>::iterator iterator;
+	typedef map<vector<int>, double>::const_iterator const_iterator;
+	iterator begin() { return assignments.begin(); }
+	iterator end() { return assignments.end(); }
+
  private:
     //! helper function for getValueOf and setValueOf
     void dfaToVals(const drwnFullAssignment& y, vector<int>& vals) const;
