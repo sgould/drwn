@@ -41,7 +41,7 @@ endif
 
 # eigen
 if (! -e Eigen && (("$1" == "Eigen") || ("$1" == "eigen"))) then
-    set VERSION = "3.2.7"
+    set VERSION = "3.2.8"
     wget --no-check-certificate http://bitbucket.org/eigen/eigen/get/${VERSION}.tar.bz2 -O eigen-${VERSION}.tar.bz2 || exit 1
     bunzip2 eigen-${VERSION}.tar.bz2 || exit 1
     tar xvf eigen-${VERSION}.tar
@@ -51,6 +51,8 @@ if (! -e Eigen && (("$1" == "Eigen") || ("$1" == "eigen"))) then
         mv eigen-eigen-bdd17ee3b1b3 eigen-${VERSION}
     else if (-d eigen-eigen-b30b87236a1b) then # 3.2.7
         mv eigen-eigen-b30b87236a1b eigen-${VERSION}
+    else if (-d eigen-eigen-07105f7124f9) then # 3.2.8
+	mv eigen-eigen-07105f7124f9 eigen-${VERSION}
     else
         echo "*** COULD NOT DETERMINE EIGEN DIRECTORY NAME ***"
         exit 1
