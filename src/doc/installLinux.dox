@@ -178,7 +178,7 @@ will need superuser privledges to install these packages.
 
 \code
 # required to get access code repository
-sudo apt-get install subversion
+sudo apt-get install git
 
 # required for building the code
 sudo apt-get install build-essential csh g++ wget
