@@ -161,13 +161,34 @@ cv::Mat parseImage(const mxArray *m)
     const int W = mxGetDimensions(m)[1]; // width
     cv::Mat img = (dims == 2 ? cv::Mat(H, W, CV_8UC1) : cv::Mat(H, W, CV_8UC3));
 
-    const double *p = mxGetPr(m);
-    for (int c = 0; c < img.channels(); c++) {
-        for (int x = 0; x < W; x++) {
-            for (int y = 0; y < H; y++) {
-                img.at<unsigned char>(y, img.channels() * x + c) = (unsigned char)(255 * (*p++));
+    switch (mxGetClassID(m)) {
+    case mxDOUBLE_CLASS:
+        {
+            const double *p = mxGetPr(m);
+            for (int c = 0; c < img.channels(); c++) {
+                for (int x = 0; x < W; x++) {
+                    for (int y = 0; y < H; y++) {
+                        img.at<unsigned char>(y, img.channels() * x + c) = (unsigned char)(255 * (*p++));
+                    }
+                }
             }
         }
+        break;
+    case mxUINT8_CLASS:
+        {
+            const unsigned char *p = (const unsigned char *)mxGetData(m);
+            for (int c = 0; c < img.channels(); c++) {
+                for (int x = 0; x < W; x++) {
+                    for (int y = 0; y < H; y++) {
+                        img.at<unsigned char>(y, img.channels() * x + c) = *p++;
+                    }
+                }
+            }
+        }
+        break;
+
+    default:
+        DRWN_LOG_FATAL("Unrecognised image type " << mxGetClassID(m));
     }
 
     return img;
