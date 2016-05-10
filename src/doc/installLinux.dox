@@ -247,13 +247,18 @@ then try compiling OpenCV without CUDA support by adding \p "-D WITH_CUDA=OFF" t
 Building the Matlab project requires Matlab to be installed on the
 system and a symbolic link setup in the external directory, e.g.,
 \code
-  ln -s /usr/local/MATLAB/R2010b/ external/matlab
+  ln -s /usr/local/MATLAB/R2015b/ external/matlab
 \endcode
 
 Furthermore, the Matlab library directory should be added to the path,
 \code
-  export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/MATLAB/R2010b/bin/glnx86/
+  export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/MATLAB/R2015b/bin/glna64/
 \endcode
+or
+\code
+  export LD_LIBRARY_PATH=${LD_LIBRARY_PATH}:/usr/local/MATLAB/R2015b/bin/glnx86/
+\endcode
+for 32-bit systems.
 
 \sa \ref drwnProjMatlabInstall
 

@@ -38,7 +38,7 @@ namespace drwn {
    \li build the \b Darwin libraries (\ref linuxCodeBuild)
    \li create a symbolic link to matlab in the \p external directory, e.g.,
    \code
-     ln -s /usr/local/MATLAB/R2012b/ external/matlab
+     ln -s /usr/local/MATLAB/R2015b/ external/matlab
    \endcode
    \li type \p "make drwnprojs"
    \li alternatively, start Matlab, change to the \p projects/matlab directory and execute \p buildLinux
