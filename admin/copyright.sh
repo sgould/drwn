@@ -34,7 +34,7 @@ do
         # change copyright notice
         if [ $RUN -eq 1 ]
         then
-            find ../${i} -name "*.${j}" -exec sed -i 's/2007-20??/2007-${YEAR}/' {} \;
+            find ../${i} -name "*.${j}" -exec sed -i "s/2007-20../2007-${YEAR}/" {} \;
         fi
     done
 done
