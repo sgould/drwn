@@ -510,15 +510,24 @@ bool drwnTableFactor::dataCompareAndCopy(const drwnTableFactor& psi)
         return false;
     }
 
-    for (int i = 0; i < _nSize; i++) {
-        if (fabs(_data[i] - psi._data[i]) > DRWN_EPSILON) {
-            memcpy(&_data[i], &psi._data[i], (_nSize - i) * sizeof(double));
-            return false;
+    // unroll loop
+    const double *p = &_data[0];
+    const double *q = &psi._data[0];
+    bool same = true;
+    for (int i = _nSize / 2; i != 0; i--, p += 2, q += 2) {
+        if ((fabs(p[0] - q[0]) > DRWN_EPSILON) || (fabs(p[1] - q[1]) > DRWN_EPSILON)) {
+            same = false;
+            break;
         }
-        _data[i] = psi._data[i];
     }
 
-    return true;
+    // only needed if loop didn't break early and data length is odd
+    same = same && ((_nSize % 2 == 0) || (fabs(p[0] - q[0]) <= DRWN_EPSILON));
+    
+    // copy data
+    memcpy(&_data[0], &psi._data[0], _nSize * sizeof(double));
+
+    return same;
 }
 
 drwnTableFactor& drwnTableFactor::operator=(const drwnTableFactor& psi)
