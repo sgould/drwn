@@ -58,9 +58,9 @@ ln -s /usr/local/opencv-2.4 external/opencv
 You may also need to install some system build tools (see \ref
 linuxEssential below).
 
-The required libraries can be installed using a C-shell script
+The required libraries can be installed using a shell script
 included in the \p $DARWIN/external directory. (You will need to have
-the \p csh shell installed). The commands to install them are:
+the \p bash shell installed). The commands to install them are:
 \code
 cd external
 ./install.sh Eigen
@@ -180,8 +180,8 @@ will need superuser privledges to install these packages.
 # required to get access code repository
 sudo apt-get install git
 
-# required for building the code
-sudo apt-get install build-essential csh g++ wget
+# required for building the code (usually already installed)
+sudo apt-get install build-essential g++ wget
 
 # required by opencv
 sudo apt-get install cmake ffmpeg
