@@ -7,6 +7,7 @@
 ******************************************************************************
 ** FILENAME:    drwnTableFactorOps.cpp
 ** AUTHOR(S):   Stephen Gould <stephen.gould@anu.edu.au>
+**              Albert Chen <chenay@student.unimelb.edu.au>
 **
 *****************************************************************************/
 
@@ -26,6 +27,13 @@ using namespace std;
 
 drwnFactorOperation::drwnFactorOperation(drwnTableFactor *target) :
     _target(target)
+{
+    DRWN_ASSERT(target != NULL);
+    // do nothing
+}
+
+drwnFactorOperation::drwnFactorOperation(drwnGeneralFactor *target) :
+    _generalTarget(target)
 {
     DRWN_ASSERT(target != NULL);
     // do nothing
@@ -171,6 +179,19 @@ drwnFactorNAryOp::drwnFactorNAryOp(drwnTableFactor *target,
     initialize();
 }
 
+drwnFactorNAryOp::drwnFactorNAryOp(drwnGeneralFactor *target,
+    const drwnGeneralFactor *A, const drwnGeneralFactor *B) :
+    drwnFactorOperation(target)
+{
+    DRWN_ASSERT((A != NULL) && (B != NULL));
+
+    // add factors to list
+    _generalFactors.push_back(A);
+    _generalFactors.push_back(B);
+
+    initialize();
+}
+
 drwnFactorNAryOp::drwnFactorNAryOp(drwnTableFactor *target,
     const std::vector<const drwnTableFactor *>& A) :
     drwnFactorOperation(target)
@@ -182,6 +203,21 @@ drwnFactorNAryOp::drwnFactorNAryOp(drwnTableFactor *target,
 	DRWN_ASSERT(_factors[i] != NULL);
     }
     _factors.insert(_factors.end(), A.begin(), A.end());
+
+    initialize();
+}
+
+drwnFactorNAryOp::drwnFactorNAryOp(drwnGeneralFactor *target,
+    const vector<const drwnGeneralFactor *>& A) :
+    drwnFactorOperation(target)
+{
+    DRWN_ASSERT(!A.empty());
+
+    // add factors to list
+    for (unsigned i = 0; i < _generalFactors.size(); i++) {
+	DRWN_ASSERT(_generalFactors[i] != NULL);
+    }
+    _generalFactors.insert(_generalFactors.end(), A.begin(), A.end());
 
     initialize();
 }
@@ -201,11 +237,15 @@ drwnFactorNAryOp::~drwnFactorNAryOp()
 void drwnFactorNAryOp::initialize()
 {
     // add variables and check domains match
-    if (_target->empty()) {
+    if (_target && _target->empty()) {
 	for (unsigned i = 0; i < _factors.size(); i++) {
 	    _target->addVariables(*_factors[i]);
 	}
-    } else {
+    } else if (_generalTarget && _generalTarget->empty()) {
+	for (unsigned i = 0; i < _generalFactors.size(); i++) {
+	    _generalTarget->addVariables(*_generalFactors[i]);
+	}
+
 	DRWN_ASSERT(checkTarget());
     }
 
@@ -425,13 +465,6 @@ void drwnFactorDivideOp::execute()
 drwnFactorAdditionOp::drwnFactorAdditionOp(drwnTableFactor *target,
     const drwnTableFactor *A, const drwnTableFactor *B) :
     drwnFactorNAryOp(target, A, B)
-{
-    // do nothing
-}
-
-drwnFactorAdditionOp::drwnFactorAdditionOp(drwnTableFactor *target,
-    const std::vector<const drwnTableFactor *>& A) :
-    drwnFactorNAryOp(target, A)
 {
     // do nothing
 }
