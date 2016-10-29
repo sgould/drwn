@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # Stephen Gould <stephen.gould@anu.edu.au>
 #
 # Reference implementation of the semantic segmentation model
@@ -24,7 +24,7 @@ DATA_DIR = os.path.join(os.getcwd(), "data")
 
 if not os.path.exists(DATA_DIR):
     print("ERROR: data directory does not exist")
-    # TODO: prompt user to download and setup data directory
+    print("Try running the get_data.py script.")
     exit(1)
 
 # dataset configuration ----------------------------------------------

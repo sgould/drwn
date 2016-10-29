@@ -41,7 +41,8 @@ os.chdir(EXPR_DIR)
 
 # download and preprocess data ---------------------------------------
 
-URL_BASE = "http://research.microsoft.com/en-us/um/people/antcrim/data_objrec/"
+#URL_BASE = "http://research.microsoft.com/en-us/um/people/antcrim/data_objrec/"
+URL_BASE = "http://download.microsoft.com/download/3/3/9/339D8A24-47D7-412F-A1E8-1A415BC48A15/"
 URL_FILE = "msrc_objcategimagedatabase_v2.zip"
 
 # fetch data
