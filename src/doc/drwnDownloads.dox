@@ -106,7 +106,7 @@ downloaded from the following links:
 \li Application visualizeSuperpixels and mex routines for loading and saving superpixels
 \li Improved mex parsing of Matlab objects to support more matrix types
 \li Bug fix in drwnOptimizer (thanks to Subarna Tripathi)
-\li Updated copyright notice to 2007-2016
+\li Updated copyright notice to 2007-2017
 \li Other bug fixes and performance improvements
 
 \subsection drwnChangeLog1_6_1 Release 1.6.1

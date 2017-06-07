@@ -1,7 +1,7 @@
 #!/usr/bin/perl -I ../external/perl5
 # ----------------------------------------------------------------------------
 # DARWIN: A FRAMEWORK FOR MACHINE LEARNING RESEARCH AND DEVELOPMENT
-# Copyright (c) 2007-2016, Stephen Gould
+# Copyright (c) 2007-2017, Stephen Gould
 # All rights reserved.
 # ----------------------------------------------------------------------------
 # FILENAME:    runtests.pl

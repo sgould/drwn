@@ -1,6 +1,6 @@
 % INFERENCE EXAMPLE
 % Distributed under the terms of the BSD license (see the LICENSE file)
-% Copyright (c) 2007-2016, Stephen Gould
+% Copyright (c) 2007-2017, Stephen Gould
 % All rights reserved.
 %
 % This example demonstrates how to use the Darwin mex interfaces to run

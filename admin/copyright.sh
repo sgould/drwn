@@ -2,12 +2,14 @@
 # DARWIN COPYRIGHT NOTICE UPDATE SCRIPT
 # Stephen Gould <stephen.gould@anu.edu.au>
 #
+# Run with "./copyright.sh -x -v"
+#
 
 RUN=0
 VERBOSE=0
 while getopts "xv" opt; do
     case "$opt" in
-        x) 
+        x)
             RUN=1
             ;;
         v)
