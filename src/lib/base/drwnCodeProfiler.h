@@ -19,8 +19,8 @@
 #include <iostream>
 
 // macro for function tic/toc
-#define DRWN_FCN_TIC {drwnCodeProfiler::tic(drwnCodeProfiler::getHandle(__PRETTY_FUNCTION__));}
-#define DRWN_FCN_TOC {drwnCodeProfiler::toc(drwnCodeProfiler::getHandle(__PRETTY_FUNCTION__));}
+#define DRWN_FCN_TIC static int __drwn_fcn_handle__ = drwnCodeProfiler::getHandle(__PRETTY_FUNCTION__); drwnCodeProfiler::tic(__drwn_fcn_handle__);
+#define DRWN_FCN_TOC drwnCodeProfiler::toc(__drwn_fcn_handle__);
 
 /*!
 ** \brief Static class for providing profile information on functions.
@@ -124,6 +124,14 @@ public:
     //! return a \b handle for profiling a code block called \b name
     static int getHandle(const char *name);
 
+    //! clear all profiling information
+    static inline void clear() {
+        if (enabled) {
+            for (std::vector<drwnCodeProfilerEntry>::iterator it = _entries.begin(); it != _entries.end(); ++it) {
+                it->clear();
+            }
+        }
+    }
     //! clear all profiling information for \b handle
     static inline void clear(int handle) {
         if (enabled) _entries[handle].clear();

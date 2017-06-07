@@ -422,6 +422,7 @@ int drwnSuperpixelContainer::removeSmallSuperpixels(unsigned minSize)
 
 int drwnSuperpixelContainer::removeUnmaskedSuperpixels(const cv::Mat& mask, double areaOverlap)
 {
+    DRWN_FCN_TIC;
     DRWN_ASSERT((mask.data != NULL) && (mask.depth() == CV_8U));
     DRWN_ASSERT((mask.rows == height()) && (mask.cols == width()));
     areaOverlap = std::max(0.0, std::min(areaOverlap, 1.0));
