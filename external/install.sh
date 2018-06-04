@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # DARWIN INSTALLATION OF EXTERNAL LIBRARIES
-# Copyright (c) 2007-2016, Stephen Gould
+# Copyright (c) 2007-2018, Stephen Gould
 #
 # FILENAME:    install.sh (wxWidgets | Eigen | OpenCV)
 # AUTHOR(S):   Stephen Gould <stephen.gould@anu.edu.au>
@@ -13,11 +13,11 @@ CODEBASE=`pwd`/..
 # wxWidgets
 if [ ! -e wx ] && [ "$1" == "wxWidgets" -o "$1" == "wx" ]; then
     WXBUILD="wxWidgets"
-    VERSION="3.0.2"
+    VERSION="3.0.4"
     if [ ! -e "${WXBUILD}-${VERSION}" ]; then
         if [ ! -e "${WXBUILD}-${VERSION}.tar" ]; then
 	    if [ ! -e "${WXBUILD}-${VERSION}.tar.bz2" ]; then
-		wget http://prdownloads.sourceforge.net/wxwindows/${WXBUILD}-${VERSION}.tar.bz2 || exit 1
+                wget https://github.com/wxWidgets/wxWidgets/releases/download/v${VERSION}/${WXBUILD}-${VERSION}.tar.bz2 || exit 1
 	    fi
 	    bunzip2 ${WXBUILD}-${VERSION}.tar.bz2 || exit 1
 	fi
