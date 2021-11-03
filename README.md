@@ -1,4 +1,4 @@
-Darwin: A Framework for Machine Learning Research and Development
+Darwin++: A Framework for Machine Learning Research and Development
 ====
 
 This is the main software repository for the Darwin machine learning
