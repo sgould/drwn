@@ -1,4 +1,3 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual C++ Express 2010
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testDarwinIO", "msvc\testDarwinIO.vcxproj", "{77395F71-EB0E-4019-96C0-AE712C69FFA3}"
