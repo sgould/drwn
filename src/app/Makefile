@@ -1,18 +1,11 @@
-# DARWIN APPLICATIONS MAKEFILE
-# Stephen Gould <stephen.gould@anu.edu.au>
-
 DRWN_PATH := $(shell pwd)/../..
 
 -include $(DRWN_PATH)/make.mk
-
-#######################################################################
-# add application source files here
-#######################################################################
 APP_SRC = persistentStorageManager.cpp \
 	evalClassifier.cpp learnClassifier.cpp
 
 APP_SRC += testDarwinBase.cpp testDarwinIO.cpp testDarwinML.cpp \
-	testDarwinPGM.cpp testDarwinClassifiers.cpp
+	testDarwinPGM.cpp
 
 ifeq ($(DRWN_BUILD_VISION_LIB), 1)
   APP_SRC += basicPatchMatch.cpp generateSuperpixels.cpp \
