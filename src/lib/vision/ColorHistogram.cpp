@@ -22,21 +22,19 @@
 
 // drwnColourHistogram ------------------------------------------------------
 
-drwnColourHistogram::drwnColourHistogram(double pseudoCounts, unsigned channelBits) :
-    _channelBits(channelBits), _pseudoCounts(pseudoCounts), _totalCounts(0.0)
+drwnColourHistogram::drwnColourHistogram(double pseudoCounts, unsigned channelBits) : _channelBits(channelBits), _pseudoCounts(pseudoCounts), _totalCounts(0.0)
 {
     DRWN_ASSERT((channelBits > 0) && (channelBits <= 8));
     DRWN_ASSERT(pseudoCounts >= 0.0);
 
-    _mask =  0xff ^ (0xff >> _channelBits);
+    _mask = 0xff ^ (0xff >> _channelBits);
     const size_t bins = 0x00000001 << (3 * _channelBits);
     _histogram.resize(bins, 0.0);
 }
 
-drwnColourHistogram::drwnColourHistogram(const drwnColourHistogram& histogram) :
-    _channelBits(histogram._channelBits), _mask(histogram._mask),
-    _pseudoCounts(histogram._pseudoCounts), _histogram(histogram._histogram),
-    _totalCounts(histogram._totalCounts)
+drwnColourHistogram::drwnColourHistogram(const drwnColourHistogram &histogram) : _channelBits(histogram._channelBits), _mask(histogram._mask),
+                                                                                 _pseudoCounts(histogram._pseudoCounts), _histogram(histogram._histogram),
+                                                                                 _totalCounts(histogram._totalCounts)
 {
     // do nothing
 }
@@ -50,8 +48,7 @@ void drwnColourHistogram::clear(double pseudoCounts)
     _totalCounts = 0.0;
 }
 
-
-bool drwnColourHistogram::save(drwnXMLNode& xml) const
+bool drwnColourHistogram::save(drwnXMLNode &xml) const
 {
     drwnAddXMLAttribute(xml, "channelBits", toString(_channelBits).c_str(), false);
     drwnAddXMLAttribute(xml, "pseudoCounts", toString(_pseudoCounts).c_str(), false);
@@ -63,12 +60,12 @@ bool drwnColourHistogram::save(drwnXMLNode& xml) const
     return true;
 }
 
-bool drwnColourHistogram::load(drwnXMLNode& xml)
+bool drwnColourHistogram::load(drwnXMLNode &xml)
 {
     _channelBits = atoi(drwnGetXMLAttribute(xml, "channelBits"));
     _pseudoCounts = atoi(drwnGetXMLAttribute(xml, "pseudoCounts"));
     _totalCounts = atof(drwnGetXMLAttribute(xml, "totalCounts"));
-    _mask =  0xff ^ (0xff >> _channelBits);
+    _mask = 0xff ^ (0xff >> _channelBits);
 
     const size_t bins = 0x00000001 << (3 * _channelBits);
     _histogram.resize(bins);
@@ -85,9 +82,9 @@ void drwnColourHistogram::accumulate(unsigned char red, unsigned char green, uns
     const unsigned indx_r = (red & _mask) >> (8 - _channelBits);
     const unsigned indx_g = (green & _mask) >> (8 - _channelBits);
     const unsigned indx_b = (blue & _mask) >> (8 - _channelBits);
-    //const unsigned dist_r = red & !_mask;
-    //const unsigned dist_g = green & !_mask;
-    //const unsigned dist_b = blue & !_mask;
+    // const unsigned dist_r = red & !_mask;
+    // const unsigned dist_g = green & !_mask;
+    // const unsigned dist_b = blue & !_mask;
 
     const unsigned indx = (indx_r << (2 * _channelBits)) | (indx_g << _channelBits) | indx_b;
     _histogram[indx] += 1.0;
@@ -113,7 +110,8 @@ cv::Mat drwnColourHistogram::visualize() const
     const double maxCount = drwn::maxElem(_histogram) + _pseudoCounts;
 
     cv::Mat canvas(_histogram.size(), legendWidth + 2 * spaceWidth + barWidth, CV_8UC3, cv::Scalar::all(0xff));
-    for (unsigned indx = 0; indx < _histogram.size(); indx++) {
+    for (unsigned indx = 0; indx < _histogram.size(); indx++)
+    {
         unsigned char red = ((indx >> (2 * _channelBits)) << (8 - _channelBits)) & _mask;
         unsigned char green = ((indx >> _channelBits) << (8 - _channelBits)) & _mask;
         unsigned char blue = (indx << (8 - _channelBits)) & _mask;
@@ -122,7 +120,7 @@ cv::Mat drwnColourHistogram::visualize() const
 
         double v = (_histogram[indx] + _pseudoCounts) / maxCount;
         cv::line(canvas, cv::Point(legendWidth + spaceWidth, indx),
-            cv::Point(legendWidth + spaceWidth + v * barWidth, indx), CV_RGB(0x7f, 0x7f, 0x7f), 1);
+                 cv::Point(legendWidth + spaceWidth + v * barWidth, indx), CV_RGB(0x7f, 0x7f, 0x7f), 1);
     }
 
     return canvas;

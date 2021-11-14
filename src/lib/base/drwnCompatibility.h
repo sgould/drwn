@@ -19,12 +19,12 @@
 #pragma once
 
 // Microsoft Visual Studio (Win32)
-#if defined(_WIN32)||defined(WIN32)||defined(__WIN32__)||defined(__VISUALC__)
-#pragma warning(disable: 4018) // signed/unsigned mismatch
-#pragma warning(disable: 4267) // conversion from size_t to int
-#pragma warning(disable: 4244) // conversion from double to float
-#pragma warning(disable: 4355) // this used in base member constructor
-#pragma warning(disable: 4996) // unsafe functions
+#if defined(_WIN32) || defined(WIN32) || defined(__WIN32__) || defined(__VISUALC__)
+#pragma warning(disable : 4018) // signed/unsigned mismatch
+#pragma warning(disable : 4267) // conversion from size_t to int
+#pragma warning(disable : 4244) // conversion from double to float
+#pragma warning(disable : 4355) // this used in base member constructor
+#pragma warning(disable : 4996) // unsafe functions
 #define __PRETTY_FUNCTION__ __FUNCTION__
 #ifndef _CRT_SECURE_NO_DEPRECATE
 #define _CRT_SECURE_NO_DEPRECATE 1
@@ -47,9 +47,9 @@ typedef unsigned __int32 uint32_t;
 #ifndef isfinite
 #define isfinite(x) (_finite(x))
 #endif
-#define drand48() ((double) rand() / (double)(RAND_MAX + 1))
+#define drand48() ((double)rand() / (double)(RAND_MAX + 1))
 #define srand48(seed) (srand(seed))
-#define round(x) (((x) < 0) ? ceil((x)-0.5) : floor((x)+0.5))
+#define round(x) (((x) < 0) ? ceil((x)-0.5) : floor((x) + 0.5))
 #define DRWN_DIRSEP '\\'
 #endif
 
