@@ -18,6 +18,6 @@ obtain the latest changes with:
 
     cd darwin; git pull
 
-For further information see http://drwn.anu.edu.au/ or email
-stephen.gould@anu.edu.au.
+For further information and documentation see http://sgould.github.io/drwn or
+email stephen.gould@anu.edu.au.
 
