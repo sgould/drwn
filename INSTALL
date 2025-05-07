@@ -1,9 +1,9 @@
 * DARWIN INSTALLATION INSTRUCTIONS ******************************************
 
 For detailed installation instructions go to:
- - http://drwn.anu.edu.au/linuxInstall.html (for linux)
- - http://drwn.anu.edu.au/winInstall.html (for windows)
- - http://drwn.anu.edu.au/osxInstall.html (for mac OS X)
+ - https://github.com/sgould/drwn/tree/master/src/doc/html/linuxInstall.html (for linux)
+ - https://github.com/sgould/drwn/tree/master/src/doc/html/winInstall.html (for windows)
+ - https://github.com/sgould/drwn/tree/master/src/doc/html/osxInstall.html (for mac OS X)
 
 Below is a brief summary of the steps necessary for compiling the
 Darwin libraries, applications and projects.

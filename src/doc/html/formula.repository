@@ -1,0 +1,71 @@
+\form#0:$\mathbb{Z}_N$
+\form#1:$\phi(x) \in \mathbb{R}^m$
+\form#2:$\phi(x, y) \in \mathbb{R}^m$
+\form#3:$x \in \mathbb{R}^n$
+\form#4:$y \in \{0, \ldots, K - 1\}$
+\form#5:\[ P(y \mid x) = \frac{1}{Z} \exp\left\{ \theta^T \phi(x, y) \right\} \]
+\form#6:$\phi(x, y) = \left(\delta\!\left\{y = 0\right\} x^T, \ldots, \delta\!\left\{y = K - 2\right\}x^T\right) \in \mathbb{R}^{(K - 1) n}$
+\form#7:\[ P(x) \propto \prod_c \Psi_c(x_c) \]
+\form#8:\[ P(x) \propto \exp\{-E(x)\} \textrm{ where } E(x) = \sum_c \psi_c(x_c) \]
+\form#9:\[ \textrm{minimize} \; \sum_{c} \psi_c(\mathbf{x}_c) \]
+\form#10:\[ P(\mathbf{x}) \propto \prod_{t = 1}^{T - 1} \Psi_{t}(x_t, x_{t+1}) \]
+\form#11:$\psi_A(\mathbf{v}_A)$
+\form#12:$\psi_B(\mathbf{v}_B)$
+\form#13:$\mathbf{v}_A \in {\cal V}_A$
+\form#14:$\mathbf{v}_B \in {\cal V}_B$
+\form#15:\[ \sum_{\mathbf{v} \in {\cal V}_A \cup {\cal V}_{B}} \psi_A([\mathbf{v}]_A) \psi_B([\mathbf{v}]_B) \]
+\form#16:$y = \frac{1}{1 + \exp\left\{- \theta^T x\right\}}$
+\form#17:$y = x^2$
+\form#18:$|x| \leq m$
+\form#19:$\textrm{sgn}(x) m (2x - m)$
+\form#20:$\phi : \mathbb{R}^n \rightarrow \mathbb{R}^m$
+\form#21:$\phi : \mathbb{R} \times \mathbb{Z} \rightarrow \mathbb{R}^m$
+\form#22:$\phi(x, y) = \left(\delta\!\left\{y = 0\right\} (x^T, 1), \ldots, \delta\!\left\{y = K - 2\right\} (x^T, 1)\right) \in \mathbb{R}^{(K - 1)(n + 1)}$
+\form#23:$\phi(x, y) = \left(\delta\!\left\{y = 0\right\} (x^T, \frac{1}{\sqrt{2}} diag(xx^T - I), 1), \ldots, \delta\!\left\{y = K - 2\right\} (x^T, \frac{1}{\sqrt{2}} diag(xx^T - I), 1)\right) \in \mathbb{R}^{(K - 1)(2n + 1)}$
+\form#24:$\theta^T \phi(x)$
+\form#25:$\theta = \theta + \alpha \phi(x)$
+\form#26:$ \sum_y \phi(x, y) \in \mathbb{R}^m$
+\form#27:$\theta^T \phi(x, y)$
+\form#28:$\sum_y \theta^T \phi(x, y)$
+\form#29:$\theta = \theta + \alpha \phi(x, y)$
+\form#30:$\theta = \theta + \sum_y \alpha_y \phi(x, y)$
+\form#31:\[ \log p(x; \mu, \Sigma) = -\frac{n}{2} \log(2 \pi) -\frac{1}{2} \log |\Sigma| - \frac{1}{2}\left(x - \mu\right)^T \Sigma^{-1} \left(x - \mu\right) \]
+\form#32:\[ {\cal N}(X, Y; \mu, \Sigma \mid Y = y) = {\cal N}(X; \mu_X - \Sigma_{XY} \Sigma_{YY}^{-1} (y - \mu_Y), \Sigma_{XX} - \Sigma_{XY} \Sigma_{YY}^{-1} \Sigma_{YX}) \]
+\form#33:$ \mu_1 - \Sigma_{12} \Sigma_{22}^{-1} \mu_2 $
+\form#34:$ \Sigma_{11} - \Sigma_{12} \Sigma_{22}^{-1} \Sigma_{21} $
+\form#35:$ \Sigma_{12} \Sigma_{22}^{-1} $
+\form#36:\[ p(x; \left\{\lambda_k, \mu_k, \Sigma\right\}_k) = \sum_k \lambda_k \frac{1}{\sqrt{|2 \pi \Sigma_k|}} \exp\{-\frac{1}{2} (x - \mu_k)^T \Sigma_k^{-1} (x - \mu_k)\}\]
+\form#37:\[ \begin{array}{ll} \textrm{minimize (over $x$)} & c^T x \\ \textrm{subject to} & Ax = b \\ & x \geq 0 \end{array} \]
+\form#38:\[ \begin{array}{ll} \textrm{minimize (over $x$)} & c^T x \\ \textrm{subject to} & Ax = b \\ & l \leq x \leq u \\ \end{array} \]
+\form#39:$g^T x \leq h$
+\form#40:$g^T x + z = h$
+\form#41:$z \geq 0$
+\form#42:$min. \sum_i x_i \text{ s.t. } x_1 + x_2 = 1, x_2 + x_3 = 1, x_i \geq 0$
+\form#43:$min. c^T x \text{ s.t. } Ax = b, x \geq 0$
+\form#44:$min. c^T x \text{ s.t. } Ax = b, l \leq x \leq u$
+\form#45:$f(x) = (x - 2)(x - 4)$
+\form#46:$\mathbb{R}^n$
+\form#47:\[ \begin{array}{ll} \textrm{minimize (over $x$)} & \frac{1}{2} x^T P x + q^T x + r \\ \textrm{subject to} & Ax = b \\ & Gx \leq h \\ & l \leq x \leq u \\ \end{array} \]
+\form#48:$P$
+\form#49:\[ \begin{array}{ll} \textrm{minimize (over $\lambda, \nu$)} & \frac{1}{2} (\lambda, \nu)^T \tilde{P} (\lambda, \nu) + \tilde{q}^T (\lambda, \nu) \\ \textrm{subject to} & \nu \geq 0 \\ \end{array} \]
+\form#50:\[ \tilde{P} = \left[ \begin{array}{cccc} A P^{-1} A^T & A P^{-1} G^T & -A P^{-1} & A P^{-1} \\ G P^{-1} A^T & G P^{-1} G^T & -G P^{-1} & G P^{-1} \\ -P^{-1} A^T & -P^{-1} G^T & P^{-1} & -P^{-1} \\ P^{-1} A^T & P^{-1} G^T & -P^{-1} & P^{-1} \end{array} \right] \quad \textrm{and} \quad \tilde{q} = \left[ \begin{array}{c} b + A P^{-1} q \\ h + G P^{-1} q \\ -l - P^{-1} q \\ u + P^{-1} q \end{array} \right] \]
+\form#51:$x^\star = -P^{-1}(A^T \lambda^\star + G^T \nu^\star - \nu_{lb}^\star + \nu_{ub}^\star + q)$
+\form#52:\[ \begin{bmatrix} P & A^T \\ A & 0 \end{bmatrix} \begin{bmatrix} x \\ \nu \end{bmatrix} = \begin{bmatrix} -q \\ b \end{bmatrix} \]
+\form#53:\[ \phi(x) = \sum_k \log(h_k - g^T_k x) + \sum_i \log(x_i - l_i) + \sum_i \log(u_i - x_i) \]
+\form#54:\[ \begin{array}{ll} \textrm{minimize (over $x$)} & \frac{1}{2} x^T P x + q^T x + r - \frac{1}{t} \phi(x) \\ \textrm{subject to} & Ax = b \end{array} \]
+\form#55:$\sum_{i : y_i = k} w_i$
+\form#56:$\sum_{i : y_i = k} w_i x_i$
+\form#57:$\sum_{i : y_i = k} w_i x_i x_i^T$
+\form#58:$P(x) \propto \prod_c \Psi_c(x_c)$
+\form#59:$E(x) = \sum_c \psi_c(x_c)$
+\form#60:$P(x) \propto \exp\left\{-E(x)\right\}$
+\form#61:$\mathop{argmin}_x E(x)$
+\form#62:$ \frac{v}{\|v\|_2} $
+\form#63:$ \frac{v}{\|v\|_1} $
+\form#64:$ \sqrt{\frac{v}{\|v\|_1}} $
+\form#65:$\frac{1}{d_{pq}} exp\left(-\frac{\beta}{2} * \left|p - q\right|^2\right)$
+\form#66:$\beta$
+\form#67:$d_{pq}$
+\form#68:$E(A, B, C) = \psi_1(A, B) + \psi_2(B, C)$
+\form#69:$X_1$
+\form#70:$X_n$
