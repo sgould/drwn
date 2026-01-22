@@ -1,7 +1,7 @@
 #!/bin/bash
 #
 # DARWIN INSTALLATION OF EXTERNAL LIBRARIES
-# Copyright (c) 2007-2018, Stephen Gould
+# Copyright (c) 2007-2026, Stephen Gould
 #
 # FILENAME:    install.sh (wxWidgets | Eigen | OpenCV)
 # AUTHOR(S):   Stephen Gould <stephen.gould@anu.edu.au>
@@ -41,11 +41,13 @@ fi
 
 # eigen
 if [ ! -e Eigen ] && [ "$1" == "Eigen" -o "$1" == "eigen" ]; then
-    VERSION="3.2.10"
-    wget --no-check-certificate http://bitbucket.org/eigen/eigen/get/${VERSION}.tar.bz2 -O eigen-${VERSION}.tar.bz2 || exit 1
+    VERSION="3.4.1"
+    wget --no-check-certificate https://gitlab.com/libeigen/eigen/-/archive/${VERSION}/eigen-${VERSION}.tar.bz2 || exit 1
     bunzip2 eigen-${VERSION}.tar.bz2 || exit 1
     tar xvf eigen-${VERSION}.tar
-    if [ -d "eigen-eigen-${VERSION}" ]; then
+    if [ -d "eigen-${VERSION}" ]; then
+        true
+    elif [ -d "eigen-eigen-${VERSION}" ]; then # 3.2.10
         mv eigen-eigen-${VERSION} eigen-${VERSION}
     elif [ -d eigen-eigen-bdd17ee3b1b3 ]; then # 3.2.5
         mv eigen-eigen-bdd17ee3b1b3 eigen-${VERSION}
